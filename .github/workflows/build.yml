@@ -1,0 +1,60 @@
+name: Build Vanish installer
+
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Publish portable single-file
+        run: >
+          dotnet publish src/Vanish/Vanish.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:DebugType=None
+          -o dist/portable
+
+      - name: Stage portable exe
+        run: copy dist\portable\Oblivion.exe dist\Oblivion.exe
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        run: '& "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" installer\Vanish.iss'
+
+      - name: Upload portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-portable
+          path: dist/Oblivion.exe
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-Setup
+          path: dist/OblivionSetup.exe
+
+      - name: Attach to release (on tag)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Oblivion.exe
+            dist/OblivionSetup.exe

@@ -1,0 +1,23 @@
+<Application
+    x:Class="Vanish.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:conv="clr-namespace:Vanish.Helpers.Converters">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ui:ThemesDictionary Theme="Dark" />
+                <ui:ControlsDictionary />
+            </ResourceDictionary.MergedDictionaries>
+
+            <conv:DisplayIconToImageConverter x:Key="DisplayIconToImage" />
+            <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
+            <conv:InverseBoolConverter x:Key="InverseBool" />
+            <conv:ConfidenceToBrushConverter x:Key="ConfidenceToBrush" />
+            <conv:NullToVisibilityConverter x:Key="NullToVisibility" />
+            <conv:LangCodeUpperConverter x:Key="LangCodeUpper" />
+            <conv:ZeroCountToVisibilityConverter x:Key="ZeroCountToVisibility" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

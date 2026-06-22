@@ -1,0 +1,67 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.JunkCleanerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Tool_Junk], Source={x:Static h:Loc.I}}" />
+            <TextBlock Opacity="0.6" Text="{Binding [Tool_Junk_Desc], Source={x:Static h:Loc.I}}" />
+        </StackPanel>
+
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding Categories}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate DataType="{x:Type models:JunkCategory}">
+                    <Border Padding="16,12" Margin="0,3" CornerRadius="10"
+                            Background="{DynamicResource ControlFillColorDefaultBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                            <ui:FontIcon Grid.Column="1" FontFamily="Segoe Fluent Icons" FontSize="20"
+                                         Glyph="{Binding Glyph}" Margin="0,0,14,0" VerticalAlignment="Center" Opacity="0.8" />
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                                <TextBlock Text="{Binding Description}" Opacity="0.55" FontSize="12" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
+                                       Text="{Binding DisplaySize}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16,12" CornerRadius="12"
+                Background="{DynamicResource ControlFillColorDefaultBrush}">
+            <Grid>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="{Binding TotalText}" FontSize="20" FontWeight="Bold" />
+                    <TextBlock Text="{Binding StatusMessage}" Opacity="0.65" FontSize="12" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                    <ui:Button Margin="0,0,8,0" Appearance="Secondary"
+                               Content="{Binding [Act_Analyze], Source={x:Static h:Loc.I}}" Command="{Binding AnalyzeCommand}" />
+                    <ui:Button Appearance="Primary"
+                               Content="{Binding [Act_Clean], Source={x:Static h:Loc.I}}" Command="{Binding CleanCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

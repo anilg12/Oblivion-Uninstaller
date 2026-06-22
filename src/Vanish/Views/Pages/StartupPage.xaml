@@ -1,0 +1,51 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.StartupPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Tool_Startup], Source={x:Static h:Loc.I}}" />
+                <TextBlock Opacity="0.6" Text="{Binding [Tool_Startup_Desc], Source={x:Static h:Loc.I}}" />
+            </StackPanel>
+            <ui:Button HorizontalAlignment="Right" VerticalAlignment="Center" Appearance="Secondary"
+                       Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}" Command="{Binding LoadCommand}" />
+        </Grid>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Entries}" BorderThickness="0" Background="Transparent"
+                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="230" Header="{Binding [Col_Name], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Name}" />
+                    <GridViewColumn Width="200" Header="{Binding [Col_Location], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding LocationLabel}" />
+                    <GridViewColumn Width="380" Header="{Binding [Col_Command], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Command}" />
+                    <GridViewColumn Width="110">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type models:StartupEntry}">
+                                <ui:Button Padding="10,4" Appearance="Danger"
+                                           Content="{Binding [Act_Remove], Source={x:Static h:Loc.I}}"
+                                           Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                           CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+    </Grid>
+</UserControl>

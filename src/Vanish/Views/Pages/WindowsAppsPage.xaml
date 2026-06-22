@@ -1,0 +1,66 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.WindowsAppsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock FontSize="26" FontWeight="Bold"
+                           Text="{Binding [WinApps_Title], Source={x:Static h:Loc.I}}" />
+                <TextBlock Opacity="0.6" Text="{Binding [WinApps_Subtitle], Source={x:Static h:Loc.I}}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
+                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
+                <ui:Button Appearance="Secondary"
+                           Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
+                           Command="{Binding LoadCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Apps}" BorderThickness="0" Background="Transparent"
+                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="320" Header="{Binding [Col_Name], Source={x:Static h:Loc.I}}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type models:WindowsApp}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:FontIcon Glyph="&#xE8FC;" FontFamily="Segoe Fluent Icons" Margin="0,0,10,0" Opacity="0.7" />
+                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="220" Header="{Binding [Col_Publisher], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding PublisherOrUnknown}" />
+                    <GridViewColumn Width="130" Header="{Binding [Col_Version], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Version}" />
+                    <GridViewColumn Width="120">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type models:WindowsApp}">
+                                <ui:Button Padding="10,4" Appearance="Danger"
+                                           Content="{Binding [WinApps_Remove], Source={x:Static h:Loc.I}}"
+                                           Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                           CommandParameter="{Binding}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+    </Grid>
+</UserControl>
