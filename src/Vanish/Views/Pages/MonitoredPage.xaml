@@ -1,0 +1,59 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.MonitoredPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Monitored_Title], Source={x:Static h:Loc.I}}" />
+            <TextBlock Opacity="0.6" Text="{Binding [Monitored_Subtitle], Source={x:Static h:Loc.I}}" />
+        </StackPanel>
+
+        <ui:Card Grid.Row="1" Padding="18" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock Opacity="0.8" TextWrapping="Wrap" Text="{Binding [Monitored_Body], Source={x:Static h:Loc.I}}" />
+                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
+                    <ui:Button Appearance="Primary" Margin="0,0,8,0"
+                               Content="{Binding [Mon_TakeBaseline], Source={x:Static h:Loc.I}}"
+                               Command="{Binding TakeBaselineCommand}" />
+                    <ui:Button Appearance="Secondary"
+                               Content="{Binding [Mon_Compare], Source={x:Static h:Loc.I}}"
+                               Command="{Binding CompareCommand}" IsEnabled="{Binding HasBaseline}" />
+                    <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="12,0,0,0"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+                </StackPanel>
+            </StackPanel>
+        </ui:Card>
+
+        <ui:Card Grid.Row="2" Padding="0">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" Margin="18,14,18,8" FontWeight="SemiBold"
+                           Text="{Binding [Mon_Added], Source={x:Static h:Loc.I}}" />
+                <ListView ItemsSource="{Binding Changes}" BorderThickness="0" Background="Transparent"
+                          Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="6,0,6,6">
+                    <ListView.ItemTemplate>
+                        <DataTemplate DataType="{x:Type models:MonitorChange}">
+                            <StackPanel Orientation="Horizontal" Margin="6,4">
+                                <ui:FontIcon Glyph="{Binding Glyph}" FontFamily="Segoe Fluent Icons" Margin="0,0,10,0" Opacity="0.7" />
+                                <TextBlock Text="{Binding Kind}" Opacity="0.6" Width="70" />
+                                <TextBlock Text="{Binding Value}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </DockPanel>
+        </ui:Card>
+
+        <TextBlock Grid.Row="3" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+    </Grid>
+</UserControl>

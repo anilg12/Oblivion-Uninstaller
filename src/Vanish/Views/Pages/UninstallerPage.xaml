@@ -1,0 +1,188 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.UninstallerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock FontSize="26" FontWeight="Bold"
+                           Text="{Binding [Nav_AllApps], Source={x:Static h:Loc.I}}" />
+                <StackPanel Orientation="Horizontal" Opacity="0.6">
+                    <TextBlock Text="{Binding ResultCountText}" />
+                    <TextBlock Margin="4,0,0,0" Text="{Binding [Group_NewApps], Source={x:Static h:Loc.I}}" />
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
+                        Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
+                <ui:TextBox Width="240" Margin="0,0,8,0"
+                            PlaceholderText="{Binding [Search_Placeholder], Source={x:Static h:Loc.I}}"
+                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=150}" />
+                <ui:Button Appearance="Secondary"
+                           Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
+                           Command="{Binding LoadCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <!-- BROWSING -->
+        <ListView Grid.Row="1"
+                  Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}"
+                  ItemsSource="{Binding Programs}"
+                  SelectedItem="{Binding SelectedProgram, Mode=TwoWay}"
+                  BorderThickness="0" Background="Transparent"
+                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="380" Header="{Binding [Col_App], Source={x:Static h:Loc.I}}">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate DataType="{x:Type models:InstalledProgram}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Width="26" Height="26" Margin="0,0,12,0"
+                                           Source="{Binding DisplayIcon, Converter={StaticResource DisplayIconToImage}}" />
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                        <TextBlock Text="{Binding PublisherOrUnknown}" Opacity="0.55" FontSize="11"
+                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Width="95" Header="{Binding [Col_Size], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding DisplaySize}" />
+                    <GridViewColumn Width="110" Header="{Binding [Col_Version], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding DisplayVersion}" />
+                    <GridViewColumn Width="70" Header="{Binding [Col_Type], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Architecture}" />
+                    <GridViewColumn Width="110" Header="{Binding [Col_InstallDate], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding InstallDate}" />
+                    <GridViewColumn Width="180" Header="{Binding [Col_Publisher], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding PublisherOrUnknown}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <!-- WORKING -->
+        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}">
+            <ui:ProgressRing IsIndeterminate="True" Width="64" Height="64" HorizontalAlignment="Center" />
+            <TextBlock Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="15" Text="{Binding StatusMessage}" />
+            <ui:Button Margin="0,18,0,0" HorizontalAlignment="Center" Appearance="Secondary"
+                       Content="{Binding [Act_Cancel], Source={x:Static h:Loc.I}}" Command="{Binding CancelCommand}" />
+        </StackPanel>
+
+        <!-- REVIEW LEFTOVERS -->
+        <Grid Grid.Row="1" Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ui:InfoBar Grid.Row="0" Margin="0,0,0,12" IsOpen="True" Severity="Warning"
+                        Title="{Binding [Leftovers_Title], Source={x:Static h:Loc.I}}"
+                        Message="{Binding [Leftovers_Msg], Source={x:Static h:Loc.I}}" />
+            <ListView Grid.Row="1" ItemsSource="{Binding Leftovers}" BorderThickness="0" Background="Transparent">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Width="40">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
+                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="50">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
+                                    <ui:FontIcon FontFamily="Segoe Fluent Icons" Glyph="{Binding KindGlyph}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="540" Header="{Binding [Col_Path], Source={x:Static h:Loc.I}}"
+                                        DisplayMemberBinding="{Binding Path}" />
+                        <GridViewColumn Width="90" Header="{Binding [Col_Size], Source={x:Static h:Loc.I}}"
+                                        DisplayMemberBinding="{Binding DisplaySize}" />
+                        <GridViewColumn Width="100" Header="{Binding [Col_Match], Source={x:Static h:Loc.I}}">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
+                                    <Border CornerRadius="4" Padding="6,2"
+                                            Background="{Binding Confidence, Converter={StaticResource ConfidenceToBrush}}">
+                                        <TextBlock Text="{Binding Confidence}" Foreground="White" FontSize="11" />
+                                    </Border>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
+
+        <!-- FOOTER -->
+        <Border Grid.Row="2" Margin="0,14,0,0" Padding="16,12" CornerRadius="12"
+                Background="{DynamicResource ControlFillColorDefaultBrush}">
+            <Grid>
+                <!-- Description panel (browsing) -->
+                <Grid Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
+                    <Grid DataContext="{Binding SelectedProgram}"
+                          Visibility="{Binding Converter={StaticResource NullToVisibility}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0" Width="44" Height="44" Margin="0,0,16,0" VerticalAlignment="Center"
+                               Source="{Binding DisplayIcon, Converter={StaticResource DisplayIconToImage}}" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14" />
+                            <TextBlock Opacity="0.6" FontSize="12" TextTrimming="CharacterEllipsis"
+                                       Text="{Binding InstallLocation}" />
+                            <StackPanel Orientation="Horizontal" Opacity="0.75" Margin="0,2,0,0">
+                                <TextBlock Text="{Binding PublisherOrUnknown}" />
+                                <TextBlock Text="  ·  " />
+                                <TextBlock Text="{Binding DisplayVersion}" />
+                                <TextBlock Text="  ·  " />
+                                <TextBlock Text="{Binding DisplaySize}" />
+                                <TextBlock Text="  ·  " />
+                                <TextBlock Text="{Binding Architecture}" />
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock VerticalAlignment="Center" Opacity="0.5"
+                               Text="{Binding [Desc_Empty], Source={x:Static h:Loc.I}}"
+                               Visibility="{Binding SelectedProgram, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}" />
+                </Grid>
+
+                <!-- Review actions -->
+                <Grid Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
+                    <TextBlock VerticalAlignment="Center" Opacity="0.75" Text="{Binding StatusMessage}" />
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <CheckBox VerticalAlignment="Center" Margin="0,0,16,0"
+                                  Content="{Binding [Opt_RecycleBin], Source={x:Static h:Loc.I}}"
+                                  IsChecked="{Binding UseRecycleBin}" />
+                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
+                                   Content="{Binding [Act_SelectAll], Source={x:Static h:Loc.I}}"
+                                   Command="{Binding SelectAllLeftoversCommand}" />
+                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
+                                   Content="{Binding [Act_SelectNone], Source={x:Static h:Loc.I}}"
+                                   Command="{Binding SelectNoneLeftoversCommand}" />
+                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
+                                   Content="{Binding [Act_Skip], Source={x:Static h:Loc.I}}"
+                                   Command="{Binding BackToListCommand}" />
+                        <ui:Button Appearance="Danger"
+                                   Content="{Binding [Act_DeleteSelected], Source={x:Static h:Loc.I}}"
+                                   Command="{Binding DeleteLeftoversCommand}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

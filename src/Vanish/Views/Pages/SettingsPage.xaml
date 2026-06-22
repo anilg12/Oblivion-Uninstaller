@@ -1,0 +1,72 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="24,18" MaxWidth="720" HorizontalAlignment="Left">
+            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Nav_Settings], Source={x:Static h:Loc.I}}" />
+            <TextBlock Opacity="0.6" Margin="0,0,0,18" Text="{Binding [Set_Appearance], Source={x:Static h:Loc.I}}" />
+
+            <!-- Theme -->
+            <ui:Card Padding="20" Margin="0,0,0,12">
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding [Set_DarkTheme], Source={x:Static h:Loc.I}}" />
+                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Set_DarkTheme_Desc], Source={x:Static h:Loc.I}}" />
+                    </StackPanel>
+                    <ui:ToggleSwitch HorizontalAlignment="Right" IsChecked="{Binding IsDarkTheme, Mode=TwoWay}" />
+                </Grid>
+            </ui:Card>
+
+            <!-- Language -->
+            <ui:Card Padding="20" Margin="0,0,0,12">
+                <Grid>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock FontWeight="SemiBold" Text="{Binding [Set_Language], Source={x:Static h:Loc.I}}" />
+                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Set_Language_Desc], Source={x:Static h:Loc.I}}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock VerticalAlignment="Center" Margin="0,0,10,0" Text="EN" Opacity="0.7" />
+                        <ui:ToggleSwitch IsChecked="{Binding IsTurkish, Mode=TwoWay}" />
+                        <TextBlock VerticalAlignment="Center" Margin="10,0,0,0" Text="TR" Opacity="0.7" />
+                    </StackPanel>
+                </Grid>
+            </ui:Card>
+
+            <!-- About -->
+            <ui:Card Padding="20" Margin="0,8,0,0">
+                <StackPanel>
+                    <TextBlock FontWeight="SemiBold" Margin="0,0,0,6" Text="{Binding [Set_About], Source={x:Static h:Loc.I}}" />
+                    <TextBlock Opacity="0.85" Text="{Binding AppVersion}" />
+                    <TextBlock Margin="0,8,0,0" Opacity="0.6" FontSize="12" TextWrapping="Wrap"
+                               Text="{Binding [About_Text], Source={x:Static h:Loc.I}}" />
+
+                    <Border Margin="0,16,0,0" CornerRadius="12" Padding="20,14" HorizontalAlignment="Left">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#335B8CFF" Offset="0" />
+                                <GradientStop Color="#339B5BFF" Offset="1" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <StackPanel>
+                            <TextBlock Text="ANIL G&#220;L" FontFamily="Ink Free, Segoe Script, Gabriola"
+                                       FontSize="38" FontStyle="Italic">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#FF8FC0FF" Offset="0" />
+                                        <GradientStop Color="#FFD7ABFF" Offset="1" />
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Opacity="0.75" FontSize="12" Margin="2,2,0,0"
+                                       Text="{Binding [Made_By], Source={x:Static h:Loc.I}}" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

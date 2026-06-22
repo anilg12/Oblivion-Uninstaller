@@ -1,0 +1,45 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.LogsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:models="clr-namespace:Vanish.Models">
+
+    <Grid Margin="24,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel>
+                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Logs_Title], Source={x:Static h:Loc.I}}" />
+                <TextBlock Opacity="0.6" Text="{Binding [Logs_Subtitle], Source={x:Static h:Loc.I}}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <ui:Button Appearance="Secondary" Margin="0,0,8,0"
+                           Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}" Command="{Binding LoadCommand}" />
+                <ui:Button Appearance="Danger"
+                           Content="{Binding [Logs_Clear], Source={x:Static h:Loc.I}}" Command="{Binding ClearCommand}" />
+            </StackPanel>
+        </Grid>
+
+        <ListView Grid.Row="1" ItemsSource="{Binding Entries}" BorderThickness="0" Background="Transparent"
+                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Width="170" Header="{Binding [Col_Date], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding TimeText}" />
+                    <GridViewColumn Width="200" Header="{Binding [Col_Action], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Action}" />
+                    <GridViewColumn Width="420" Header="{Binding [Col_Detail], Source={x:Static h:Loc.I}}"
+                                    DisplayMemberBinding="{Binding Detail}" />
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+    </Grid>
+</UserControl>
