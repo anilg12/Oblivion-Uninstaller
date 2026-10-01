@@ -1,0 +1,60 @@
+name: Build Oblivion for macOS
+
+on:
+  push:
+    branches: [ "**" ]
+    paths:
+      - "macos/**"
+      - ".github/workflows/build-macos.yml"
+  pull_request:
+    paths:
+      - "macos/**"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Attach the DMG to this existing release (e.g. v2.0.0). Leave empty to skip."
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The repo also contains large Windows build folders; only fetch macos/.
+          sparse-checkout: |
+            macos
+          sparse-checkout-cone-mode: true
+          filter: blob:none
+
+      - name: Select newest stable Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -viE 'beta|rc|release' | sort -V | tail -1 || true)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          xcodebuild -version
+          swift --version
+          sw_vers
+
+      - name: Build app and DMG
+        working-directory: macos
+        run: |
+          chmod +x build-mac.sh
+          ./build-mac.sh
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-macOS
+          path: macos/build/*.dmg
+          if-no-files-found: error
+
+      - name: Attach DMG to release
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.inputs.release_tag }}" macos/build/*.dmg --clobber --repo "${{ github.repository }}"
