@@ -20,6 +20,7 @@ struct RootView: View {
         .onAppear {
             state.prefs = prefs
             state.loadApps()
+            SnapshotRunner.startIfRequested(state: state, prefs: prefs, loc: loc)
         }
         .alert(loc["confirm.title"], isPresented: confirmBinding, presenting: state.confirmApp) { app in
             Button(loc["action.uninstall"], role: .destructive) { state.uninstall(app) }
@@ -181,16 +182,23 @@ struct NavPanel: View {
     @EnvironmentObject private var loc: Loc
     @Environment(\.colorScheme) private var scheme
 
-    private let items: [(page: Page, symbol: String, key: String)] = [
-        (.dashboard, "square.grid.2x2", "nav.dashboard"),
-        (.apps, "square.stack.3d.up", "nav.apps"),
-        (.storeApps, "bag", "nav.store"),
-        (.monitor, "binoculars", "nav.monitor"),
-        (.browserExt, "puzzlepiece.extension", "nav.browser"),
-        (.logs, "list.bullet.rectangle", "nav.logs"),
-        (.hunter, "scope", "nav.hunter"),
-        (.tools, "wrench.and.screwdriver", "nav.tools"),
-        (.settings, "gearshape", "nav.settings"),
+    private struct Item: Identifiable {
+        let page: Page
+        let symbol: String
+        let key: String
+        var id: Page { page }
+    }
+
+    private let items: [Item] = [
+        Item(page: .dashboard, symbol: "square.grid.2x2", key: "nav.dashboard"),
+        Item(page: .apps, symbol: "square.stack.3d.up", key: "nav.apps"),
+        Item(page: .storeApps, symbol: "bag", key: "nav.store"),
+        Item(page: .monitor, symbol: "binoculars", key: "nav.monitor"),
+        Item(page: .browserExt, symbol: "puzzlepiece.extension", key: "nav.browser"),
+        Item(page: .logs, symbol: "list.bullet.rectangle", key: "nav.logs"),
+        Item(page: .hunter, symbol: "scope", key: "nav.hunter"),
+        Item(page: .tools, symbol: "wrench.and.screwdriver", key: "nav.tools"),
+        Item(page: .settings, symbol: "gearshape", key: "nav.settings"),
     ]
 
     var body: some View {
@@ -213,7 +221,7 @@ struct NavPanel: View {
 
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: 3) {
-                    ForEach(items, id: \.page) { item in
+                    ForEach(items) { item in
                         NavRow(symbol: item.symbol, title: loc[item.key], active: isActive(item.page)) {
                             state.navigate(item.page)
                         }
