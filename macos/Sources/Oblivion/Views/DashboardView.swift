@@ -150,8 +150,11 @@ struct QuickAction: View {
                 Text(title)
                     .font(.system(size: 11.5, weight: .medium))
                     .foregroundStyle(p.text)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .minimumScaleFactor(0.85)
+                    .frame(height: 30, alignment: .top)
+                    .padding(.horizontal, 4)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)

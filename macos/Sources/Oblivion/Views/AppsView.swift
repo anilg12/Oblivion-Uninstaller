@@ -7,19 +7,28 @@ struct AppsView: View {
     @EnvironmentObject private var loc: Loc
 
     var body: some View {
-        Group {
-            switch state.stage {
-            case .browsing:
-                AppListView(storeOnly: storeOnly)
-            case .working:
-                WorkingView()
-            case .review:
-                LeftoverReviewView()
-            case .done:
-                DoneView()
-            }
+        ZStack {
+            stageView
+                .id(state.stage)
+                .transition(.asymmetric(insertion: .opacity.combined(with: .scale(scale: 0.985)),
+                                        removal: .opacity))
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .onAppear { state.loadApps() }
+    }
+
+    @ViewBuilder
+    private var stageView: some View {
+        switch state.stage {
+        case .browsing:
+            AppListView(storeOnly: storeOnly)
+        case .working:
+            WorkingView()
+        case .review:
+            LeftoverReviewView()
+        case .done:
+            DoneView()
+        }
     }
 }
 
@@ -236,26 +245,28 @@ struct WorkingView: View {
     var body: some View {
         let p = Palette(scheme)
         VStack(spacing: 18) {
-            ZStack {
-                if let icon = state.targetIconPath {
-                    AppIconView(path: icon, size: 72)
-                } else {
-                    GradientBadge(symbol: "magnifyingglass", colors: [0x6E5BFF, 0xB45BFF], size: 72)
+            TimelineView(.animation) { context in
+                let t = context.date.timeIntervalSinceReferenceDate
+                ZStack {
+                    Circle()
+                        .fill(Palette.accent.opacity(0.18))
+                        .frame(width: 112, height: 112)
+                        .scaleEffect(1 + 0.06 * CGFloat(sin(t * 2.4)))
+                    if let icon = state.targetIconPath {
+                        AppIconView(path: icon, size: 72)
+                    } else {
+                        GradientBadge(symbol: "magnifyingglass", colors: [0x6E5BFF, 0xB45BFF], size: 72)
+                    }
                 }
+                .offset(y: -5 * CGFloat(sin(t * 3.0)))
             }
-            .phaseAnimator([false, true]) { content, up in
-                content.offset(y: up ? -6 : 0)
-            } animation: { _ in
-                .easeInOut(duration: 0.9)
-            }
+            .frame(height: 120)
 
             Text(state.targetName)
                 .font(.system(size: 20, weight: .bold, design: .rounded))
                 .foregroundStyle(p.text)
-            ProgressView()
-                .progressViewStyle(.linear)
+            GradientProgressBar()
                 .frame(width: 260)
-                .tint(Palette.accent)
             Text(loc[state.workKey])
                 .font(.system(size: 13))
                 .foregroundStyle(p.subtext)

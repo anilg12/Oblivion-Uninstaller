@@ -88,6 +88,11 @@ final class AppState: ObservableObject {
 
     weak var prefs: Prefs?
 
+    /// When the "working" screen appeared; it stays up for at least `minWorkTime`
+    /// so quick operations don't flash or cut its transition short.
+    private var workStartedAt = Date()
+    private let minWorkTime: TimeInterval = 0.9
+
     init() {
         refreshSystem()
         refreshActivity()
@@ -207,6 +212,7 @@ final class AppState: ObservableObject {
             let found = await Task.detached {
                 LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false, preselectMedium: preselect)
             }.value
+            await self.settle()
             self.finishScan(found)
         }
     }
@@ -249,6 +255,7 @@ final class AppState: ObservableObject {
                 LeftoverScanner.scan(name: name, bundleID: bundleID, aggressive: true, preselectMedium: true)
             }.value
             ActivityLog.append("log.forced", name)
+            await self.settle()
             self.finishScan(found)
         }
     }
@@ -261,7 +268,13 @@ final class AppState: ObservableObject {
         removedCount = 0
         appRemoved = false
         leftovers = []
+        workStartedAt = Date()
         withAnimation(.spring) { stage = .working }
+    }
+
+    private func settle() async {
+        let remaining = minWorkTime - Date().timeIntervalSince(workStartedAt)
+        if remaining > 0 { try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000)) }
     }
 
     private func finishScan(_ found: [Leftover]) {
@@ -277,9 +290,11 @@ final class AppState: ObservableObject {
             return
         }
         workKey = "work.removing"
+        workStartedAt = Date()
         withAnimation(.spring) { stage = .working }
         Task {
             let result = await Task.detached { LeftoverRemover.remove(chosen) }.value
+            await self.settle()
             self.removedCount += result.count
             self.freedBytes += result.bytes
             ActivityLog.append("log.leftovers", "\(self.targetName) · \(result.count) · \(Fmt.bytes(result.bytes))")

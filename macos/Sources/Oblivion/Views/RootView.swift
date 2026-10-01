@@ -8,11 +8,19 @@ struct RootView: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        HStack(spacing: 0) {
-            IconRail()
-            NavPanel()
-            pageArea
-            RightPanel()
+        GeometryReader { geo in
+            // The profile panel steps aside on narrow windows to give the content room.
+            let showRightPanel = geo.size.width >= 1300
+            HStack(spacing: 0) {
+                IconRail()
+                NavPanel()
+                pageArea
+                if showRightPanel {
+                    RightPanel()
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(response: 0.4, dampingFraction: 0.9), value: showRightPanel)
         }
         .background(WindowBackdrop())
         .background(WindowConfigurator())
@@ -296,32 +304,34 @@ struct ActionCard: View {
             .buttonStyle(OBButtonStyle(kind: .danger, large: true))
             .disabled(!canAct)
 
-            HStack(spacing: 8) {
-                Button {
-                    state.forceQuery = state.selectedApp?.bundleID ?? state.selectedApp?.name ?? ""
-                    state.showForceSheet = true
-                } label: {
-                    Text(loc["action.force"]).lineLimit(1).frame(maxWidth: .infinity)
-                }
-                .buttonStyle(OBButtonStyle(kind: .secondary))
-                .disabled(state.stage != .browsing)
-
-                Menu {
-                    if let app = state.selectedApp {
-                        AppCommands(app: app, includeUninstall: false)
-                    }
-                } label: {
-                    Text(loc["action.more"]).lineLimit(1)
-                }
-                .menuStyle(.borderlessButton)
-                .menuIndicator(.visible)
-                .fixedSize(horizontal: false, vertical: true)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 6)
-                .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(p.cardStrong))
-                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(p.stroke, lineWidth: 1))
-                .disabled(!canAct)
+            Button {
+                state.forceQuery = state.selectedApp?.bundleID ?? state.selectedApp?.name ?? ""
+                state.showForceSheet = true
+            } label: {
+                Label(loc["action.force"], systemImage: "bolt.fill")
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity)
             }
+            .buttonStyle(OBButtonStyle(kind: .secondary))
+            .disabled(state.stage != .browsing)
+
+            Menu {
+                if let app = state.selectedApp {
+                    AppCommands(app: app, includeUninstall: false)
+                }
+            } label: {
+                Label(loc["action.more"], systemImage: "ellipsis.circle")
+                    .font(.system(size: 13, weight: .semibold))
+                    .lineLimit(1)
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.visible)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(p.cardStrong))
+            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(p.stroke, lineWidth: 1))
+            .disabled(!canAct)
 
             Text(state.selectedApp?.name ?? loc["action.hint"])
                 .font(.system(size: 11))
@@ -413,9 +423,7 @@ struct RightPanel: View {
                         .font(.system(size: 11.5, weight: .semibold))
                         .foregroundStyle(p.text)
                 }
-                ProgressView(value: usedFraction)
-                    .progressViewStyle(.linear)
-                    .tint(Palette.accent)
+                GradientProgressBar(value: usedFraction, height: 6)
                 Text(loc.t("right.diskOf", ["total": Fmt.bytes(state.diskTotal)]))
                     .font(.system(size: 10.5))
                     .foregroundStyle(p.faint)

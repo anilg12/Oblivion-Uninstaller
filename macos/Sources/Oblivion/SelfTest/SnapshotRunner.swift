@@ -20,7 +20,10 @@ enum SnapshotRunner {
         var report: [String] = []
         prefs.appearance = "dark"
         loc.lang = "tr"
-        await wait(3)
+        await wait(2)
+        // Roughly a 13" MacBook Air window (the CI screen itself is smaller).
+        mainWindow?.setFrame(NSRect(x: 0, y: 0, width: 1440, height: 880), display: true)
+        await wait(1)
         await waitWhile(timeout: 30) { state.isLoadingApps }
 
         if let window = mainWindow {
@@ -63,6 +66,8 @@ enum SnapshotRunner {
             await wait(0.3)
             capture(dir, "flow-2-working")
             await waitWhile(timeout: 40) { state.stage == .working }
+            report.append("stage after scan: \(state.stage)")
+            await wait(1.5)
             capture(dir, "flow-3-review")
             report.append("")
             report.append("== Uninstall com.oblivion.testapp → stage \(state.stage), app removed: \(state.appRemoved)")
@@ -70,9 +75,15 @@ enum SnapshotRunner {
                 report.append("  [\(item.confidence)] \(item.selected ? "x" : " ") \(item.kind)  \(item.path)")
             }
             state.removeSelectedLeftovers()
+            await wait(0.4)
+            capture(dir, "flow-4a-removing")
             await waitWhile(timeout: 40) { state.stage == .working }
-            await wait(1.5)
-            capture(dir, "flow-4-done")
+            report.append("stage after removal: \(state.stage)")
+            await wait(0.5)
+            capture(dir, "flow-4b-done-0.5s")
+            await wait(2)
+            capture(dir, "flow-4c-done-2.5s")
+            report.append("stage at last capture: \(state.stage)")
             report.append("  removed: \(state.removedCount)  freed: \(Fmt.bytes(state.freedBytes))  error: \(state.errorMessageKey ?? "-")")
             state.errorMessageKey = nil
             state.finishFlow()
@@ -85,7 +96,7 @@ enum SnapshotRunner {
         state.forceQuery = "com.oblivion.ghost"
         state.showForceSheet = true
         await wait(1.5)
-        capture(dir, "force-1-sheet")
+        capture(dir, "force-1-sheet", sheet: true)
         state.forceUninstall()
         await waitWhile(timeout: 40) { state.stage == .working }
         await wait(1)
@@ -106,6 +117,15 @@ enum SnapshotRunner {
         await wait(1.5)
         capture(dir, "zz-logs-after")
 
+        // Narrowest allowed window: the profile panel should step aside.
+        mainWindow?.setFrame(NSRect(x: 0, y: 0, width: 1180, height: 740), display: true)
+        state.navigate(.dashboard)
+        await wait(2)
+        capture(dir, "zz-narrow-dashboard")
+        state.navigate(.apps)
+        await wait(2)
+        capture(dir, "zz-narrow-apps")
+
         try? report.joined(separator: "\n").write(to: dir.appendingPathComponent("report.txt"),
                                                    atomically: true, encoding: .utf8)
         NSApp.terminate(nil)
@@ -115,9 +135,9 @@ enum SnapshotRunner {
         NSApp.windows.first { $0.isVisible && $0.contentView != nil && $0.frame.width > 600 }
     }
 
-    private static func capture(_ dir: URL, _ name: String) {
-        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.isKeyWindow && $0.contentView != nil })
-                ?? mainWindow,
+    private static func capture(_ dir: URL, _ name: String, sheet: Bool = false) {
+        let target = sheet ? (mainWindow?.attachedSheet ?? mainWindow) : mainWindow
+        guard let window = target,
               let view = window.contentView,
               let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
         view.cacheDisplay(in: view.bounds, to: rep)
