@@ -35,8 +35,17 @@ for s in 16 32 128 256 512; do
 done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
 
-echo "==> Ad-hoc code signature (required to run on Apple Silicon)"
-codesign --force --deep --sign - "$APP"
+# Signing: with a Developer ID (env DEVELOPER_ID, e.g. "Developer ID Application: Anil Gul (TEAMID)")
+# the app is signed with the hardened runtime and later notarized, so it opens with no
+# Gatekeeper warning. Without it, an ad-hoc signature is used (needed to run on Apple Silicon).
+if [ -n "${DEVELOPER_ID:-}" ]; then
+  echo "==> Developer ID signature (hardened runtime)"
+  codesign --force --options runtime --timestamp \
+    --entitlements Resources/Oblivion.entitlements --sign "$DEVELOPER_ID" "$APP"
+else
+  echo "==> Ad-hoc code signature (required to run on Apple Silicon)"
+  codesign --force --deep --sign - "$APP"
+fi
 codesign --verify --verbose=2 "$APP"
 
 echo "==> DMG"
@@ -47,6 +56,18 @@ ln -s /Applications "$DMGROOT/Applications"
 cp "README-ilk-acilis.txt" "$DMGROOT/ÖNCE OKU - Read Me.txt"
 DMG="$OUT/$APP_NAME-$VERSION-macOS.dmg"
 hdiutil create -volname "$APP_NAME" -srcfolder "$DMGROOT" -ov -format UDZO "$DMG"
+
+# Notarization (only when Apple credentials are provided): Apple scans the DMG and
+# the ticket is stapled to it, so it opens directly even offline.
+if [ -n "${DEVELOPER_ID:-}" ] && [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ] && [ -n "${APPLE_APP_PASSWORD:-}" ]; then
+  echo "==> Sign + notarize DMG"
+  codesign --force --timestamp --sign "$DEVELOPER_ID" "$DMG"
+  xcrun notarytool submit "$DMG" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
+    --password "$APPLE_APP_PASSWORD" --wait
+  xcrun stapler staple "$DMG"
+  xcrun stapler validate "$DMG"
+  spctl --assess --type open --context context:primary-signature --verbose=2 "$DMG"
+fi
 
 echo ""
 echo "Done: $DMG"
