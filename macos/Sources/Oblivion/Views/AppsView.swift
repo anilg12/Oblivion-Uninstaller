@@ -450,6 +450,7 @@ struct DoneView: View {
 struct ForceUninstallSheet: View {
     @EnvironmentObject private var state: AppState
     @EnvironmentObject private var loc: Loc
+    @Environment(\.colorScheme) private var scheme
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -479,6 +480,11 @@ struct ForceUninstallSheet: View {
         }
         .padding(24)
         .frame(width: 480)
+        .background(
+            LinearGradient(colors: [Palette(scheme).tintTop, Palette(scheme).tintBottom],
+                           startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .foregroundStyle(Palette(scheme).text)
         .dropDestination(for: URL.self) { urls, _ in
             guard let url = urls.first else { return false }
             if let bundle = Bundle(url: url), let id = bundle.bundleIdentifier {
