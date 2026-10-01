@@ -59,6 +59,18 @@ jobs:
           chmod +x ci-smoke-test.sh
           ./ci-smoke-test.sh
 
+      - name: Test the one-line installer (install-mac.sh)
+        working-directory: macos
+        run: |
+          chmod +x install-mac.sh
+          OBLIVION_DMG="$(ls build/*.dmg | head -1)" OBLIVION_NO_OPEN=1 ./install-mac.sh
+          test -x /Applications/Oblivion.app/Contents/MacOS/Oblivion
+          codesign --verify --verbose=2 /Applications/Oblivion.app
+          if xattr -p com.apple.quarantine /Applications/Oblivion.app 2>/dev/null; then
+            echo "::error::quarantine flag still present"; exit 1
+          fi
+          echo "installer OK: Oblivion.app installed, signed, no quarantine flag"
+
       - name: Upload smoke-test screenshots
         if: always()
         uses: actions/upload-artifact@v4
@@ -71,4 +83,19 @@ jobs:
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag != '' }}
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.inputs.release_tag }}" macos/build/*.dmg --clobber --repo "${{ github.repository }}"
+        run: |
+          TAG="${{ github.event.inputs.release_tag }}"
+          gh release upload "$TAG" macos/build/*.dmg --clobber --repo "$GITHUB_REPOSITORY"
+          # Add the macOS section to the release notes once (before the footer line).
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body > body.md
+          if ! grep -q "🍏 macOS" body.md; then
+            python3 - <<'PY'
+          body = open("body.md", encoding="utf-8").read().replace("\r\n", "\n")
+          mac = open("macos/release-notes-macos.md", encoding="utf-8").read().strip()
+          marker = "\n---\n"
+          i = body.rfind(marker)
+          body = body[:i] + "\n" + mac + "\n" + body[i:] if i != -1 else body + "\n\n" + mac + "\n"
+          open("body.md", "w", encoding="utf-8").write(body)
+          PY
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file body.md
+          fi
