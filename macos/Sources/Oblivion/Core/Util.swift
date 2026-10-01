@@ -4,8 +4,15 @@ import Foundation
 // MARK: - Formatting
 
 enum Fmt {
+    private static let byteFormatter: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.countStyle = .file
+        f.allowsNonnumericFormatting = false   // "0 KB" instead of "Zero KB" / "Sıfır KB"
+        return f
+    }()
+
     static func bytes(_ value: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: max(value, 0), countStyle: .file)
+        byteFormatter.string(fromByteCount: max(value, 0))
     }
 
     private static let dateFormatter: DateFormatter = {

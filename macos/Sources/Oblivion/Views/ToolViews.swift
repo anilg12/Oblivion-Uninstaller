@@ -127,6 +127,7 @@ struct StartupView: View {
     @EnvironmentObject private var model: StartupModel
     @EnvironmentObject private var loc: Loc
     @Environment(\.colorScheme) private var scheme
+    @State private var pendingRemoval: LaunchItem?
 
     var body: some View {
         let p = Palette(scheme)
@@ -156,6 +157,14 @@ struct StartupView: View {
         }
         .padding(24)
         .onAppear { model.load() }
+        .alert(loc["startup.confirmTitle"],
+               isPresented: Binding(get: { pendingRemoval != nil }, set: { if !$0 { pendingRemoval = nil } }),
+               presenting: pendingRemoval) { item in
+            Button(loc["action.remove"], role: .destructive) { model.remove(item) }
+            Button(loc["action.cancel"], role: .cancel) {}
+        } message: { item in
+            Text(loc.t("startup.confirmBody", ["name": item.label]))
+        }
     }
 
     private func row(_ item: LaunchItem, _ p: Palette) -> some View {
@@ -176,7 +185,7 @@ struct StartupView: View {
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: item.path)])
             } label: { Image(systemName: "folder") }
                 .buttonStyle(OBButtonStyle(kind: .secondary))
-            Button(loc["action.remove"]) { model.remove(item) }
+            Button(loc["action.remove"]) { pendingRemoval = item }
                 .buttonStyle(OBButtonStyle(kind: .danger))
         }
         .padding(.horizontal, 12).padding(.vertical, 9)
@@ -546,7 +555,7 @@ struct ShredderView: View {
 
             HStack {
                 if model.busy {
-                    ProgressView(value: model.progress).frame(width: 220).tint(Palette.danger)
+                    GradientProgressBar(value: model.progress).frame(width: 220)
                 }
                 Spacer()
                 Button { confirm = true } label: { Label(loc["shred.start"], systemImage: "flame.fill") }

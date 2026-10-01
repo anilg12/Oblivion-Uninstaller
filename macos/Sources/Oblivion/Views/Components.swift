@@ -347,6 +347,42 @@ struct StatCard: View {
     }
 }
 
+/// Gradient progress bar. `value == nil` shows an indeterminate sweep.
+/// Driven by TimelineView rather than repeating animations, so it never
+/// interferes with view transitions.
+struct GradientProgressBar: View {
+    var value: Double? = nil
+    var height: CGFloat = 6
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let p = Palette(scheme)
+        GeometryReader { geo in
+            let width = geo.size.width
+            ZStack(alignment: .leading) {
+                Capsule().fill(p.cardStrong)
+                if let value {
+                    Capsule()
+                        .fill(Palette.brandGradient)
+                        .frame(width: max(height, width * min(max(value, 0), 1)))
+                        .animation(.easeOut(duration: 0.3), value: value)
+                } else {
+                    TimelineView(.animation) { context in
+                        let t = context.date.timeIntervalSinceReferenceDate
+                        let phase = CGFloat(t.truncatingRemainder(dividingBy: 1.4) / 1.4)
+                        Capsule()
+                            .fill(Palette.brandGradient)
+                            .frame(width: width * 0.32)
+                            .offset(x: -width * 0.32 + phase * width * 1.32)
+                    }
+                }
+            }
+            .clipShape(Capsule())
+        }
+        .frame(height: height)
+    }
+}
+
 /// Small helper for a hover "lift" effect on cards.
 struct HoverLift: ViewModifier {
     @State private var hover = false
