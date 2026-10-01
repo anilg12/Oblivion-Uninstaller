@@ -26,6 +26,14 @@ Everything Oblivion removes goes to the **Trash** first (except the Shredder and
 
 ## Install
 
+**Easiest (no Gatekeeper prompt):** open Terminal and run
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash
+```
+
+**Or manually:**
+
 1. Download `Oblivion-<version>-macOS.dmg` from the GitHub release.
 2. Drag **Oblivion** onto **Applications**.
 3. First launch: the app is ad-hoc signed (not notarized), so macOS will block it once.
