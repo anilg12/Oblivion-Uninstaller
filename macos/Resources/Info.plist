@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>tr</string>
+	<key>CFBundleExecutable</key>
+	<string>Oblivion</string>
+	<key>CFBundleIconFile</key>
+	<string>AppIcon</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.anilgul.oblivion</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Oblivion</string>
+	<key>CFBundleDisplayName</key>
+	<string>Oblivion</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>__VERSION__</string>
+	<key>CFBundleVersion</key>
+	<string>__VERSION__</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.utilities</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>14.0</string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>© 2026 ANIL GÜL</string>
+	<key>NSAppleEventsUsageDescription</key>
+	<string>Oblivion, korumalı uygulamaları ve sistem dosyalarını Çöp Sepeti'ne taşımak için Finder'ı kullanır. / Oblivion uses Finder to move protected apps and system files to the Trash.</string>
+	<key>NSDesktopFolderUsageDescription</key>
+	<string>Büyük dosya taraması için. / Used by the large file finder.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>Büyük dosya taraması için. / Used by the large file finder.</string>
+	<key>NSDownloadsFolderUsageDescription</key>
+	<string>Eski kurulum dosyalarını (.dmg/.pkg) bulmak için. / Used to find leftover installer files.</string>
+</dict>
+</plist>

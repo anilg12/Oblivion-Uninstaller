@@ -3,6 +3,9 @@ name: Build Vanish installer
 on:
   push:
     branches: [ "**" ]
+    paths-ignore:
+      - "macos/**"
+      - ".github/workflows/build-macos.yml"
   workflow_dispatch:
 
 jobs:
