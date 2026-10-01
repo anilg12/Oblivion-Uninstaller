@@ -92,6 +92,39 @@ enum SnapshotRunner {
             report.append("!! fixture app com.oblivion.testapp NOT found in the list")
         }
 
+        // Chrome-style app with data inside a vendor folder.
+        if let app = state.apps.first(where: { $0.bundleID == "com.acme.browser" }) {
+            state.uninstall(app)
+            await waitWhile(timeout: 40) { state.stage == .working }
+            await wait(1.5)
+            capture(dir, "vendor-1-review")
+            report.append("")
+            report.append("== Uninstall com.acme.browser (vendor folder) → stage \(state.stage)")
+            for item in state.leftovers {
+                report.append("  [\(item.confidence)] \(item.selected ? "x" : " ") \(item.kind)  \(item.path)")
+            }
+            state.removeSelectedLeftovers()
+            await waitWhile(timeout: 40) { state.stage == .working }
+            await wait(1)
+            report.append("  removed: \(state.removedCount)  error: \(state.errorMessageKey ?? "-")")
+            state.errorMessageKey = nil
+            state.finishFlow()
+            await wait(1)
+        } else {
+            report.append("!! fixture app com.acme.browser NOT found in the list")
+        }
+
+        // Dry run (nothing removed): what would a real browser uninstall find on this Mac?
+        for bundleID in ["com.google.Chrome", "org.mozilla.firefox", "com.microsoft.edgemac"] {
+            guard let app = state.apps.first(where: { $0.bundleID == bundleID }) else { continue }
+            let found = LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false, preselectMedium: true)
+            report.append("")
+            report.append("== Dry run \(app.name) (\(bundleID)): \(found.count) items")
+            for item in found {
+                report.append("  [\(item.confidence)] \(item.selected ? "x" : " ") \(item.path)")
+            }
+        }
+
         // Force uninstall of an app that is already gone (only leftovers remain).
         state.forceQuery = "com.oblivion.ghost"
         state.showForceSheet = true

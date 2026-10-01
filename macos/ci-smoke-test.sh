@@ -58,6 +58,21 @@ cat > "$L/LaunchAgents/com.oblivion.testapp.helper.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
+# Chrome-style app: data under a vendor folder (Application Support/Acme/Browser).
+APP2="$HOME/Applications/Acme Browser.app"
+mkdir -p "$APP2/Contents/MacOS"
+sed -e 's/com.oblivion.testapp/com.acme.browser/' -e 's/<string>OblivionTestApp</<string>Acme Browser</' \
+  "$APP/Contents/Info.plist" > "$APP2/Contents/Info.plist"
+cp "$APP/Contents/MacOS/OblivionTestApp" "$APP2/Contents/MacOS/OblivionTestApp"
+VENDOR=(
+  "$L/Application Support/Acme/Browser"
+  "$L/Caches/Acme/Browser"
+)
+for d in "${VENDOR[@]}"; do mkdir -p "$d/Default" && echo "history" > "$d/Default/History"; done
+defaults write com.acme.browser lastRun -string today
+# Sibling app of the same vendor: must NOT be touched.
+mkdir -p "$L/Application Support/Acme/Notes" && echo keep > "$L/Application Support/Acme/Notes/keep.txt"
+
 # Decoy that must NOT be touched.
 mkdir -p "$L/Application Support/UnrelatedVendor" && echo keep > "$L/Application Support/UnrelatedVendor/keep.txt"
 sleep 2
@@ -68,6 +83,9 @@ CHECK=(
   "$L/Preferences/com.oblivion.testapp.plist"
   "$L/Preferences/com.oblivion.ghost.plist"
   "$L/LaunchAgents/com.oblivion.testapp.helper.plist"
+  "$APP2"
+  "${VENDOR[@]}"
+  "$L/Preferences/com.acme.browser.plist"
 )
 echo "== Before ==" > "$OUT/fixtures.txt"
 for f in "${CHECK[@]}"; do [ -e "$f" ] && echo "present  $f" || echo "MISSING  $f"; done >> "$OUT/fixtures.txt"
@@ -97,6 +115,7 @@ echo "app exit status: $STATUS (timed out: $TIMED_OUT)"
   echo "== After =="
   for f in "${CHECK[@]}"; do [ -e "$f" ] && echo "STILL THERE  $f" || echo "removed      $f"; done
   [ -e "$L/Application Support/UnrelatedVendor/keep.txt" ] && echo "decoy kept   (good)" || echo "DECOY REMOVED (bad!)"
+  [ -e "$L/Application Support/Acme/Notes/keep.txt" ] && echo "sibling Acme/Notes kept (good)" || echo "SIBLING Acme/Notes REMOVED (bad!)"
   echo ""
   echo "== Trash =="
   ls -1 "$HOME/.Trash" 2>&1 | head -40

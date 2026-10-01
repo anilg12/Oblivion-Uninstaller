@@ -58,8 +58,30 @@ enum LeftoverScanner {
         let bid = bundleID?.lowercased()
         let vendor = vendorPrefix(bid)
 
+        // Many apps keep data one level down, inside a vendor folder:
+        //   Application Support/Google/Chrome, Caches/Google/Chrome, Application Support/Adobe/Photoshop 2025
+        // Vendor = first word of a multi-word name ("Google") or the bundle-id company ("com.google.Chrome").
+        let words = name.split(separator: " ").map(String.init)
+        let restKey = words.count > 1 ? normalize(words.dropFirst().joined()) : ""
+        var vendorKeys = Set<String>()
+        if words.count > 1, firstWord.count >= 3 { vendorKeys.insert(firstWord) }
+        if let bid {
+            let parts = bid.split(separator: ".")
+            if parts.count >= 3 {
+                let company = normalize(String(parts[1]))
+                if company.count >= 3 && company != "apple" { vendorKeys.insert(company) }
+            }
+        }
+
         var out: [Leftover] = []
         var seen = Set<String>()
+
+        func add(_ url: URL, _ found: Leftover.Confidence, _ root: Root) {
+            guard !isProtected(url.lastPathComponent.lowercased()), seen.insert(url.path).inserted else { return }
+            let selected = found == .high || (found == .medium && (preselectMedium || aggressive))
+            out.append(Leftover(path: url.path, kind: root.kind, size: DiskSize.of(url),
+                                confidence: found, isSystem: root.system, selected: selected))
+        }
 
         for root in roots() {
             guard let children = try? fm.contentsOfDirectory(atPath: root.url.path) else { continue }
@@ -68,6 +90,16 @@ enum LeftoverScanner {
                 let base = stripExtensions(lower)
                 let compact = normalize(child)
                 var confidence: Leftover.Confidence?
+
+                // Vendor folder: take only this app's subfolder, never the whole vendor folder.
+                if vendorKeys.contains(compact), compact != nameKey {
+                    let nested = nestedMatches(in: root.url.appendingPathComponent(child),
+                                               nameKey: nameKey, restKey: restKey, bid: bid)
+                    if !nested.isEmpty {
+                        for (url, found) in nested { add(url, found, root) }
+                        continue
+                    }
+                }
 
                 if let bid, !bid.isEmpty,
                    (base == bid || base.hasPrefix(bid + ".") || base.hasSuffix("." + bid)
@@ -83,13 +115,8 @@ enum LeftoverScanner {
                     confidence = .low
                 }
 
-                guard let found = confidence else { continue }
-                let url = root.url.appendingPathComponent(child)
-                guard !isProtected(lower), seen.insert(url.path).inserted else { continue }
-
-                let selected = found == .high || (found == .medium && (preselectMedium || aggressive))
-                out.append(Leftover(path: url.path, kind: root.kind, size: DiskSize.of(url),
-                                    confidence: found, isSystem: root.system, selected: selected))
+                guard let found = confidence, !isProtected(lower) else { continue }
+                add(root.url.appendingPathComponent(child), found, root)
             }
         }
 
@@ -114,6 +141,24 @@ enum LeftoverScanner {
             if a.confidence != b.confidence { return a.confidence > b.confidence }
             return a.path.localizedStandardCompare(b.path) == .orderedAscending
         }
+    }
+
+    /// Children of a vendor folder that belong to this app.
+    private static func nestedMatches(in dir: URL, nameKey: String, restKey: String,
+                                      bid: String?) -> [(URL, Leftover.Confidence)] {
+        guard let kids = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return [] }
+        var out: [(URL, Leftover.Confidence)] = []
+        for kid in kids where !kid.hasPrefix(".") {
+            let base = stripExtensions(kid.lowercased())
+            let compact = normalize(kid)
+            let url = dir.appendingPathComponent(kid)
+            if let bid, !bid.isEmpty, base == bid || base.hasPrefix(bid + ".") {
+                out.append((url, .high))
+            } else if compact == nameKey || (restKey.count >= 3 && compact == restKey) {
+                out.append((url, .medium))
+            }
+        }
+        return out
     }
 
     static func normalize(_ s: String) -> String {
