@@ -67,18 +67,6 @@ jobs:
           path: macos/build/snapshots
           if-no-files-found: warn
 
-      - name: Publish screenshots to the ci-snapshots branch
-        if: ${{ always() && github.event_name == 'push' }}
-        working-directory: macos/build/snapshots
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          git init -q -b ci-snapshots
-          git add -A
-          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" \
-            commit -qm "Smoke test screenshots for ${GITHUB_SHA}"
-          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots
-
       - name: Attach DMG to release
         if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag != '' }}
         env:
