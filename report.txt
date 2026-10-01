@@ -1,0 +1,23 @@
+window: (0.0, -5.0, 1440.0, 748.0)  screen: (0.0, 0.0, 1024.0, 768.0)
+apps found: 34
+full disk access: true
+stage after scan: review
+
+== Uninstall com.oblivion.testapp → stage review, app removed: true
+  [high] x folder  /Users/runner/Library/Application Support/com.oblivion.testapp
+  [high] x folder  /Users/runner/Library/Caches/com.oblivion.testapp
+  [high] x container  /Users/runner/Library/Containers/com.oblivion.testapp
+  [high] x folder  /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+  [high] x launchItem  /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+  [high] x preferences  /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+  [high] x folder  /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+  [medium] x folder  /Users/runner/Library/Application Support/OblivionTestApp
+  [medium] x folder  /Users/runner/Library/Logs/OblivionTestApp
+stage after removal: done
+stage at last capture: done
+  removed: 10  freed: 6.3 MB  error: -
+
+== Force uninstall com.oblivion.ghost → stage review
+  [high] x folder  /Users/runner/Library/Application Support/com.oblivion.ghost
+  [high] x preferences  /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+  removed: 2  error: -

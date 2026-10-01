@@ -1,0 +1,42 @@
+== Before ==
+present  /Users/runner/Applications/OblivionTestApp.app
+present  /Users/runner/Library/Application Support/OblivionTestApp
+present  /Users/runner/Library/Application Support/com.oblivion.testapp
+present  /Users/runner/Library/Caches/com.oblivion.testapp
+present  /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+present  /Users/runner/Library/Logs/OblivionTestApp
+present  /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+present  /Users/runner/Library/Containers/com.oblivion.testapp
+present  /Users/runner/Library/Application Support/com.oblivion.ghost
+present  /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+present  /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+present  /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+
+== After ==
+removed      /Users/runner/Applications/OblivionTestApp.app
+removed      /Users/runner/Library/Application Support/OblivionTestApp
+removed      /Users/runner/Library/Application Support/com.oblivion.testapp
+removed      /Users/runner/Library/Caches/com.oblivion.testapp
+removed      /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+removed      /Users/runner/Library/Logs/OblivionTestApp
+removed      /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+removed      /Users/runner/Library/Containers/com.oblivion.testapp
+removed      /Users/runner/Library/Application Support/com.oblivion.ghost
+removed      /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+removed      /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+removed      /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+decoy kept   (good)
+
+== Trash ==
+com.oblivion.ghost
+com.oblivion.ghost.plist
+com.oblivion.testapp
+com.oblivion.testapp 15-42-10-571.testapp
+com.oblivion.testapp 15-42-10-666.testapp
+com.oblivion.testapp.helper.plist
+com.oblivion.testapp.plist
+com.oblivion.testapp.savedState
+OblivionTestApp
+OblivionTestApp 15-42-10-635.testapp
+OblivionTestApp 15-42-10-671
+OblivionTestApp.app
