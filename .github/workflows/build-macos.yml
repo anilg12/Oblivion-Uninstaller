@@ -40,8 +40,38 @@ jobs:
           swift --version
           sw_vers
 
+      # Optional: Apple Developer ID signing + notarization (no Gatekeeper warning).
+      # Add these repository secrets to enable it: MACOS_CERT_P12 (base64 of the
+      # "Developer ID Application" .p12), MACOS_CERT_PASSWORD, APPLE_ID,
+      # APPLE_TEAM_ID, APPLE_APP_PASSWORD (app-specific password).
+      - name: Import Developer ID certificate (if configured)
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          if [ -z "$MACOS_CERT_P12" ]; then
+            echo "No Developer ID secrets: building with an ad-hoc signature."
+            exit 0
+          fi
+          KC="$RUNNER_TEMP/signing.keychain-db"
+          KCPASS="$(uuidgen)"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KCPASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCPASS" "$KC"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KCPASS" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          ID=$(security find-identity -v -p codesigning "$KC" | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
+          echo "Signing identity: $ID"
+          echo "DEVELOPER_ID=$ID" >> "$GITHUB_ENV"
+
       - name: Build app and DMG
         working-directory: macos
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
         run: |
           chmod +x build-mac.sh
           ./build-mac.sh
