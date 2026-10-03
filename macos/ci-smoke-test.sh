@@ -6,7 +6,8 @@
 set -uo pipefail
 cd "$(dirname "$0")"
 
-OUT="$PWD/build/snapshots"
+OUT="${OBLIVION_SNAPSHOTS:-$PWD/build/snapshots}"
+BUNDLE="${OBLIVION_APP:-$PWD/build/Oblivion.app}"   # the .app under test (universal by default)
 rm -rf "$OUT"
 mkdir -p "$OUT"
 L="$HOME/Library"
@@ -91,7 +92,8 @@ echo "== Before ==" > "$OUT/fixtures.txt"
 for f in "${CHECK[@]}"; do [ -e "$f" ] && echo "present  $f" || echo "MISSING  $f"; done >> "$OUT/fixtures.txt"
 
 echo "==> Launch Oblivion in snapshot mode"
-OBLIVION_SNAPSHOT_DIR="$OUT" ./build/Oblivion.app/Contents/MacOS/Oblivion > "$OUT/app-log.txt" 2>&1 &
+echo "    $BUNDLE ($(lipo -archs "$BUNDLE/Contents/MacOS/Oblivion"), running on $(uname -m))"
+OBLIVION_SNAPSHOT_DIR="$OUT" "$BUNDLE/Contents/MacOS/Oblivion" > "$OUT/app-log.txt" 2>&1 &
 PID=$!
 sleep 14
 ( screencapture -x "$OUT/screen-composited.png" >/dev/null 2>&1 & ) ; sleep 4
@@ -129,7 +131,17 @@ echo "------------------------------------------------------------"
 echo "app log:"; tail -50 "$OUT/app-log.txt"
 ls -1 "$OUT"
 
-# A crash (signal) fails the job; a timeout only warns.
+# Self-test failures ("!! " lines: something was pre-selected, a toggle failed, a fixture
+# was missing…) fail the job, as does a crash. A timeout only warns.
+if [ -f "$OUT/report.txt" ] && grep -q '^!! ' "$OUT/report.txt"; then
+  echo "::error::Self-test reported problems:"
+  grep '^!! ' "$OUT/report.txt"
+  exit 1
+fi
+if [ "$TIMED_OUT" = 0 ] && [ ! -f "$OUT/report.txt" ]; then
+  echo "::error::Oblivion quit without writing report.txt"
+  exit 1
+fi
 if [ "$TIMED_OUT" = 0 ] && [ "$STATUS" -ne 0 ]; then
   echo "::error::Oblivion exited with status $STATUS"
   ls -t "$HOME/Library/Logs/DiagnosticReports/" 2>/dev/null | grep -i oblivion | head -1 | while read -r r; do

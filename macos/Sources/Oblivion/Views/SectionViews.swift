@@ -36,6 +36,10 @@ final class MonitorModel: ObservableObject {
         }
     }
 
+    func setAll(_ value: Bool) {
+        for i in changes.indices { changes[i].selected = value }
+    }
+
     func removeSelected() {
         let chosen = changes.filter(\.selected)
         guard !chosen.isEmpty else { return }
@@ -51,6 +55,7 @@ final class MonitorModel: ObservableObject {
 
 struct MonitorView: View {
     @EnvironmentObject private var model: MonitorModel
+    @EnvironmentObject private var state: AppState
     @EnvironmentObject private var loc: Loc
     @Environment(\.colorScheme) private var scheme
 
@@ -127,16 +132,39 @@ struct MonitorView: View {
                             Chip(text: loc["mon.kind." + change.kind.rawValue], color: Palette.accent)
                         }
                         .padding(.horizontal, 12).padding(.vertical, 8)
-                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(p.card))
+                        .background(RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(change.selected ? Palette.accent.opacity(0.12) : p.card))
+                        .contentShape(Rectangle())
+                        .onTapGesture { change.selected.toggle() }
                     }
                 }
             }
-            HStack {
+            HStack(spacing: 10) {
+                let chosen = model.changes.filter(\.selected)
+                Text(loc.t("common.selected", ["count": "\(chosen.count)"]))
+                    .font(.system(size: 12)).foregroundStyle(p.subtext)
                 Spacer()
-                Button { model.removeSelected() } label: { Label(loc["mon.remove"], systemImage: "trash.fill") }
+                Button(loc["action.selectAll"]) { model.setAll(true) }
+                    .buttonStyle(OBButtonStyle(kind: .secondary))
+                Button(loc["action.selectNone"]) { model.setAll(false) }
+                    .buttonStyle(OBButtonStyle(kind: .secondary))
+                    .disabled(chosen.isEmpty)
+                Button { askToRemove(chosen) } label: { Label(loc["mon.remove"], systemImage: "trash.fill") }
                     .buttonStyle(OBButtonStyle(kind: .danger))
-                    .disabled(model.busy || !model.changes.contains(where: { $0.selected }))
+                    .disabled(model.busy || chosen.isEmpty)
             }
+        }
+    }
+
+    private func askToRemove(_ chosen: [MonitorChange]) {
+        state.confirm = ConfirmRequest(
+            title: loc.t("mon.confirmTitle", ["count": "\(chosen.count)"]),
+            message: loc["mon.confirmBody"],
+            details: chosen.map { $0.kind == .receipt ? "pkgutil: \($0.path)" : $0.path },
+            confirmTitle: loc["mon.remove"],
+            symbol: "binoculars.fill"
+        ) {
+            model.removeSelected()
         }
     }
 
@@ -182,6 +210,7 @@ final class BrowserExtensionsModel: ObservableObject {
 
 struct BrowserExtensionsView: View {
     @EnvironmentObject private var model: BrowserExtensionsModel
+    @EnvironmentObject private var state: AppState
     @EnvironmentObject private var loc: Loc
     @Environment(\.colorScheme) private var scheme
 
@@ -239,7 +268,7 @@ struct BrowserExtensionsView: View {
                         .buttonStyle(OBButtonStyle(kind: .secondary))
                         .help(loc["cmd.reveal"])
                     if ext.removable {
-                        Button(loc["action.remove"]) { model.remove(ext) }
+                        Button(loc["action.remove"]) { askToRemove(ext) }
                             .buttonStyle(OBButtonStyle(kind: .danger))
                     } else {
                         Chip(text: loc["br.managedBySafari"], color: Color.gray)
@@ -248,6 +277,20 @@ struct BrowserExtensionsView: View {
                 .padding(.horizontal, 12).padding(.vertical, 9)
                 .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
             }
+        }
+    }
+}
+
+extension BrowserExtensionsView {
+    fileprivate func askToRemove(_ ext: BrowserExtension) {
+        state.confirm = ConfirmRequest(
+            title: loc.t("br.confirmTitle", ["name": ext.name]),
+            message: loc.t("br.confirmBody", ["browser": ext.browser]),
+            details: [ext.path],
+            confirmTitle: loc["action.remove"],
+            symbol: "puzzlepiece.extension.fill"
+        ) {
+            model.remove(ext)
         }
     }
 }
@@ -342,7 +385,9 @@ struct LogsView: View {
         case "log.shred": return "flame.fill"
         case "log.history": return "clock.arrow.circlepath"
         case "log.baseline", "log.monitorRemoved": return "binoculars.fill"
-        case "log.launchItem": return "power"
+        case "log.launchItem", "log.launchOn", "log.launchOff": return "power"
+        case "log.largeFiles": return "doc.badge.ellipsis"
+        case "log.endTask": return "xmark.octagon.fill"
         default: return "checkmark"
         }
     }
@@ -399,6 +444,7 @@ struct HunterView: View {
     @EnvironmentObject private var model: HunterModel
     @EnvironmentObject private var state: AppState
     @EnvironmentObject private var loc: Loc
+    @EnvironmentObject private var prefs: Prefs
     @Environment(\.colorScheme) private var scheme
     @State private var pulse = false
 
@@ -437,11 +483,11 @@ struct HunterView: View {
                         Image(systemName: "scope")
                             .font(.system(size: 34, weight: .semibold))
                             .foregroundStyle(Palette.brandGradient)
-                            .symbolEffect(.pulse)
+                            .symbolEffect(.pulse, isActive: !prefs.calmMotion)
                     }
                 }
                 .frame(width: 80, height: 80)
-                .onAppear { pulse = true }
+                .onAppear { pulse = !prefs.calmMotion }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(model.target?.name ?? loc["hunt.noTarget"])

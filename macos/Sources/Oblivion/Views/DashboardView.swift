@@ -19,15 +19,17 @@ struct DashboardView: View {
                     .buttonStyle(OBButtonStyle(kind: .secondary))
                 }
 
-                if !state.hasFullDiskAccess { FullDiskAccessBanner() }
+                if !state.hasFullDiskAccess { FullDiskAccessBanner().appearIn(0) }
 
                 stats
-                quickActions
+                HealthCard().appearIn(0.12)
+                quickActions.appearIn(0.18)
 
                 HStack(alignment: .top, spacing: 14) {
                     largestApps
                     recentActivity
                 }
+                .appearIn(0.24)
             }
             .padding(26)
         }
@@ -42,13 +44,17 @@ struct DashboardView: View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
             StatCard(symbol: "square.stack.3d.up.fill", colors: [0x6E5BFF, 0xB45BFF],
                      value: state.isLoadingApps ? "…" : "\(state.apps.count)", label: loc["dash.apps"])
+                .appearIn(0)
             StatCard(symbol: "externaldrive.fill", colors: [0x3A8DFF, 0x6F5BFF],
                      value: Fmt.bytes(state.totalAppBytes),
                      label: state.sizesPending > 0 ? loc["dash.measuring"] : loc["dash.footprint"])
+                .appearIn(0.04)
             StatCard(symbol: "power", colors: [0xFF9F45, 0xFF6B6B],
                      value: "\(state.launchItemCount)", label: loc["dash.launchItems"])
+                .appearIn(0.08)
             StatCard(symbol: "internaldrive.fill", colors: [0x22C55E, 0x14B8A6],
                      value: Fmt.bytes(state.diskFree), label: loc["dash.freeSpace"])
+                .appearIn(0.12)
         }
     }
 
@@ -61,6 +67,8 @@ struct DashboardView: View {
                     QuickAction(symbol: "trash", colors: [0xE5484D, 0xFF6B6B], title: loc["nav.apps"]) { state.navigate(.apps) }
                     QuickAction(symbol: "bag", colors: [0x3A8DFF, 0x6F5BFF], title: loc["nav.store"]) { state.navigate(.storeApps) }
                     QuickAction(symbol: "sparkles", colors: [0x18C29C, 0x2E8BFF], title: loc["tool.junk"]) { state.navigate(.junk) }
+                    QuickAction(symbol: "gauge.with.dots.needle.67percent", colors: [0x06B6D4, 0x6E5BFF],
+                                title: loc["nav.systemMonitor"]) { state.navigate(.systemMonitor) }
                     QuickAction(symbol: "doc.badge.ellipsis", colors: [0xFF9F45, 0xF5A524], title: loc["tool.large"]) { state.navigate(.largeFiles) }
                     QuickAction(symbol: "scope", colors: [0x9B5BFF, 0xE15BBE], title: loc["nav.hunter"]) { state.navigate(.hunter) }
                 }
@@ -192,5 +200,60 @@ struct FullDiskAccessBanner: View {
         .padding(14)
         .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Palette.warning.opacity(0.12)))
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.warning.opacity(0.35), lineWidth: 1))
+    }
+}
+
+/// Live CPU / memory / temperature / network summary with a link to the system monitor.
+struct HealthCard: View {
+    @EnvironmentObject private var monitor: SystemMonitor
+    @EnvironmentObject private var state: AppState
+    @EnvironmentObject private var loc: Loc
+    @EnvironmentObject private var prefs: Prefs
+    @Environment(\.colorScheme) private var scheme
+
+    var body: some View {
+        let p = Palette(scheme)
+        let s = monitor.snapshot
+        GlassCard(padding: 16) {
+            VStack(alignment: .leading, spacing: 12) {
+                HStack(spacing: 8) {
+                    Text(loc["dash.health"]).font(.system(size: 14, weight: .semibold)).foregroundStyle(p.text)
+                    LiveDot()
+                    Spacer()
+                    Button { state.navigate(.systemMonitor) } label: {
+                        HStack(spacing: 4) {
+                            Text(loc["dash.healthOpen"])
+                            Image(systemName: "arrow.right")
+                        }
+                    }
+                    .buttonStyle(OBButtonStyle(kind: .ghost))
+                }
+                HStack(alignment: .center, spacing: 12) {
+                    MiniGauge(title: loc["live.cpu"], value: s.cpu / 100, text: Fmt.percent(s.cpu, loc),
+                              colors: [0x6E5BFF, 0xB45BFF], size: 74, animate: !prefs.calmMotion)
+                    MiniGauge(title: loc["live.memory"], value: s.memPercent / 100, text: Fmt.percent(s.memPercent, loc),
+                              colors: [0x18C29C, 0x2E8BFF], size: 74, animate: !prefs.calmMotion)
+                    MiniGauge(title: loc["live.temp"], value: s.temperature.map { $0 / 100 } ?? s.thermalState.fraction,
+                              text: s.temperature.map { "\(Int($0.rounded())) °C" } ?? loc[s.thermalState.shortKey],
+                              colors: [0xF5A524, 0xE5484D], size: 74, animate: !prefs.calmMotion)
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label(loc["live.network"], systemImage: "arrow.up.arrow.down")
+                            .font(.system(size: 11.5, weight: .medium))
+                            .foregroundStyle(p.subtext)
+                        Text("↓ \(Fmt.rate(s.netDown))")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundStyle(p.text)
+                        Text("↑ \(Fmt.rate(s.netUp))")
+                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .foregroundStyle(p.text)
+                        Sparkline(values: s.netDownHistory, color: Palette.success)
+                            .frame(height: 22)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+            }
+        }
+        .onAppear { monitor.subscribe("dashboard", detailed: false) }
+        .onDisappear { monitor.unsubscribe("dashboard") }
     }
 }

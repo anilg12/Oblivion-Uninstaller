@@ -4,7 +4,37 @@ import Foundation
 // MARK: - Startup manager (LaunchAgents / LaunchDaemons)
 
 enum LaunchItemsService {
+    /// Labels switched off with `launchctl disable` in the user's GUI domain.
+    static func disabledLabels() -> Set<String> {
+        let out = Shell.run("/bin/launchctl", ["print-disabled", "gui/\(getuid())"]).out
+        var labels = Set<String>()
+        for raw in out.split(separator: "\n") {
+            let line = raw.trimmingCharacters(in: .whitespaces)
+            guard let arrow = line.range(of: "=>") else { continue }
+            let value = line[arrow.upperBound...].trimmingCharacters(in: .whitespaces).lowercased()
+            guard value.hasPrefix("disabled") || value.hasPrefix("true") else { continue }
+            let label = line[..<arrow.lowerBound].trimmingCharacters(in: CharacterSet(charactersIn: "\" \t"))
+            if !label.isEmpty { labels.insert(label) }
+        }
+        return labels
+    }
+
+    /// Switches a user launch agent off/on the way `launchctl` does it (reversible, nothing is deleted).
+    static func setEnabled(_ item: LaunchItem, _ enabled: Bool) -> Bool {
+        guard item.scope == .userAgent else { return false }
+        let domain = "gui/\(getuid())"
+        if enabled {
+            let r = Shell.run("/bin/launchctl", ["enable", "\(domain)/\(item.label)"])
+            Shell.run("/bin/launchctl", ["bootstrap", domain, item.path])
+            return r.status == 0
+        } else {
+            Shell.run("/bin/launchctl", ["bootout", domain, item.path])
+            return Shell.run("/bin/launchctl", ["disable", "\(domain)/\(item.label)"]).status == 0
+        }
+    }
+
     static func scan() -> [LaunchItem] {
+        let disabledByLaunchctl = disabledLabels()
         let sources: [(URL, LaunchItem.Scope)] = [
             (AppPaths.library.appendingPathComponent("LaunchAgents"), .userAgent),
             (URL(fileURLWithPath: "/Library/LaunchAgents"), .globalAgent),
@@ -23,9 +53,11 @@ enum LaunchItemsService {
                 if program.isEmpty, let args = dict["ProgramArguments"] as? [String] {
                     program = args.joined(separator: " ")
                 }
+                let disabled = dict["Disabled"] as? Bool ?? false
                 items.append(LaunchItem(path: url.path, label: label, program: program, scope: scope,
                                         runAtLoad: dict["RunAtLoad"] as? Bool ?? false,
-                                        disabled: dict["Disabled"] as? Bool ?? false))
+                                        disabled: disabled,
+                                        enabled: !disabled && !(scope == .userAgent && disabledByLaunchctl.contains(label))))
             }
         }
         return items.sorted { $0.label.localizedCaseInsensitiveCompare($1.label) == .orderedAscending }
@@ -46,73 +78,107 @@ enum JunkService {
         let lib = AppPaths.library
         let home = AppPaths.home
         return [
-            JunkCategory(id: "caches", titleKey: "junk.caches", detailKey: "junk.caches.d", symbol: "internaldrive",
-                         colors: [0x3A8DFF, 0x6F5BFF], roots: [lib.appendingPathComponent("Caches")], mode: .contents),
+            JunkCategory(id: "caches", titleKey: "junk.caches", detailKey: "junk.caches.d", noteKey: "junk.caches.note",
+                         symbol: "internaldrive", colors: [0x3A8DFF, 0x6F5BFF],
+                         roots: [lib.appendingPathComponent("Caches")], mode: .contents),
             JunkCategory(id: "logs", titleKey: "junk.logs", detailKey: "junk.logs.d", symbol: "doc.text",
                          colors: [0x18C29C, 0x2E8BFF], roots: [lib.appendingPathComponent("Logs")], mode: .contents),
-            JunkCategory(id: "dev", titleKey: "junk.dev", detailKey: "junk.dev.d", symbol: "hammer",
+            JunkCategory(id: "dev", titleKey: "junk.dev", detailKey: "junk.dev.d", noteKey: "junk.dev.note", symbol: "hammer",
                          colors: [0xFF9F45, 0xFF6B6B],
                          roots: [lib.appendingPathComponent("Developer/Xcode/DerivedData"),
                                  lib.appendingPathComponent("Developer/Xcode/iOS DeviceSupport"),
                                  lib.appendingPathComponent("Developer/CoreSimulator/Caches")],
                          mode: .contents),
-            JunkCategory(id: "installers", titleKey: "junk.installers", detailKey: "junk.installers.d",
+            JunkCategory(id: "installers", titleKey: "junk.installers", detailKey: "junk.installers.d", noteKey: "junk.installers.note",
                          symbol: "shippingbox", colors: [0xEC4899, 0x8B5CF6],
                          roots: [home.appendingPathComponent("Downloads")], mode: .installers),
-            JunkCategory(id: "trash", titleKey: "junk.trash", detailKey: "junk.trash.d", symbol: "trash",
+            JunkCategory(id: "trash", titleKey: "junk.trash", detailKey: "junk.trash.d", noteKey: "junk.trash.note", symbol: "trash",
                          colors: [0x22C55E, 0x14B8A6], roots: [home.appendingPathComponent(".Trash")], mode: .trash),
         ]
     }
 
-    static func targets(for category: JunkCategory) -> [URL] {
+    /// Lists the category's removable items, largest first. Nothing is selected.
+    static func scan(_ category: JunkCategory) -> (items: [JunkItem], unreadable: Bool) {
         let fm = FileManager.default
-        var out: [URL] = []
+        var out: [JunkItem] = []
+        var unreadable = false
+        let keys: [URLResourceKey] = [.contentModificationDateKey]
         for root in category.roots {
-            guard let kids = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: nil, options: []) else { continue }
-            switch category.mode {
-            case .installers:
-                out += kids.filter { ["dmg", "pkg", "mpkg", "iso", "xip"].contains($0.pathExtension.lowercased()) }
-            case .contents:
-                out += kids.filter {
-                    let name = $0.lastPathComponent
-                    return !name.hasPrefix(".") && !name.hasPrefix("com.apple.") && !name.contains("com.anilgul.oblivion")
+            guard fm.fileExists(atPath: root.path) else { continue }
+            guard let kids = try? fm.contentsOfDirectory(at: root, includingPropertiesForKeys: keys, options: []) else {
+                if category.mode == .trash { unreadable = true }
+                continue
+            }
+            for url in kids {
+                let name = url.lastPathComponent
+                if name == ".DS_Store" || name == ".localized" { continue }
+                switch category.mode {
+                case .installers:
+                    guard ["dmg", "pkg", "mpkg", "iso", "xip"].contains(url.pathExtension.lowercased()) else { continue }
+                case .contents:
+                    if name.hasPrefix(".") || name.hasPrefix("com.apple.") || name.contains("com.anilgul.oblivion") { continue }
+                case .trash:
+                    break
                 }
-            case .trash:
-                out += kids
+                let size = DiskSize.of(url)
+                let modified = (try? url.resourceValues(forKeys: Set(keys)))?.contentModificationDate
+                out.append(JunkItem(url: url, name: name, size: size, modified: modified))
             }
         }
-        return out
+        if category.mode == .trash && unreadable {
+            // Without Full Disk Access the Trash can't be listed; offer emptying it through Finder.
+            out = [JunkItem(url: category.roots[0], name: "", size: 0, modified: nil)]
+        }
+        return (out.filter { $0.size > 0 || category.mode == .trash }.sorted { $0.size > $1.size }, unreadable)
     }
 
-    static func measure(_ category: inout JunkCategory) {
-        let items = targets(for: category)
-        category.size = items.reduce(Int64(0)) { $0 + DiskSize.of($1) }
-        category.count = items.count
-        category.scanned = true
-    }
-
-    /// Returns bytes freed.
-    static func clean(_ category: JunkCategory) -> Int64 {
-        let items = targets(for: category)
+    /// Removes exactly the selected items. Returns (items removed, bytes freed).
+    static func clean(_ category: JunkCategory) -> (count: Int, bytes: Int64) {
+        let fm = FileManager.default
+        let chosen = category.selectedItems
+        guard !chosen.isEmpty else { return (0, 0) }
         switch category.mode {
         case .installers:
+            var count = 0
             var freed: Int64 = 0
-            for url in items {
-                let size = DiskSize.of(url)
-                if Trash.move([url]) == 1 { freed += size }
+            for item in chosen where Trash.move([item.url]) == 1 {
+                count += 1
+                freed += item.size
             }
-            return freed
+            return (count, freed)
         case .trash:
-            let size = category.size
-            let result = Shell.osascript(["tell application \"Finder\" to empty trash"])
-            return result.status == 0 ? size : 0
-        case .contents:
-            var freed: Int64 = 0
-            for url in items {
-                let size = DiskSize.of(url)
-                if (try? FileManager.default.removeItem(at: url)) != nil { freed += size }
+            if category.unreadable || chosen.count == category.items.count {
+                let result = Shell.osascript(["tell application \"Finder\" to empty trash"])
+                return result.status == 0 ? (chosen.count, category.items.reduce(Int64(0)) { $0 + $1.size }) : (0, 0)
             }
-            return freed
+            var count = 0
+            var freed: Int64 = 0
+            for item in chosen where (try? fm.removeItem(at: item.url)) != nil {
+                count += 1
+                freed += item.size
+            }
+            return (count, freed)
+        case .contents:
+            var count = 0
+            var freed: Int64 = 0
+            for item in chosen {
+                if (try? fm.removeItem(at: item.url)) != nil {
+                    count += 1
+                    freed += item.size
+                } else {
+                    // Partly in use: delete what can be deleted inside it.
+                    let before = DiskSize.of(item.url)
+                    if let kids = try? fm.contentsOfDirectory(at: item.url, includingPropertiesForKeys: nil) {
+                        for kid in kids { try? fm.removeItem(at: kid) }
+                    }
+                    let gone = before - DiskSize.of(item.url)
+                    if gone > 0 {
+                        count += 1
+                        freed += gone
+                    }
+                }
+            }
+            return (count, freed)
         }
     }
 }
@@ -434,9 +500,9 @@ enum ShredderService {
 enum HistoryCleaner {
     static func items() -> [HistoryItem] {
         [
-            HistoryItem(id: "recents", titleKey: "hist.recents", detailKey: "hist.recents.d", symbol: "clock.arrow.circlepath", selected: true),
-            HistoryItem(id: "quicklook", titleKey: "hist.quicklook", detailKey: "hist.quicklook.d", symbol: "eye", selected: true),
-            HistoryItem(id: "clipboard", titleKey: "hist.clipboard", detailKey: "hist.clipboard.d", symbol: "doc.on.clipboard", selected: true),
+            HistoryItem(id: "recents", titleKey: "hist.recents", detailKey: "hist.recents.d", symbol: "clock.arrow.circlepath", selected: false),
+            HistoryItem(id: "quicklook", titleKey: "hist.quicklook", detailKey: "hist.quicklook.d", symbol: "eye", selected: false),
+            HistoryItem(id: "clipboard", titleKey: "hist.clipboard", detailKey: "hist.clipboard.d", symbol: "doc.on.clipboard", selected: false),
             HistoryItem(id: "shell", titleKey: "hist.shell", detailKey: "hist.shell.d", symbol: "terminal", selected: false),
         ]
     }

@@ -17,6 +17,7 @@ struct OblivionApp: App {
     @StateObject private var loc = Loc()
     @StateObject private var prefs = Prefs()
     @StateObject private var state = AppState()
+    @StateObject private var system = SystemMonitor()
     @StateObject private var monitor = MonitorModel()
     @StateObject private var browser = BrowserExtensionsModel()
     @StateObject private var logs = LogsModel()
@@ -33,6 +34,7 @@ struct OblivionApp: App {
                 .environmentObject(loc)
                 .environmentObject(prefs)
                 .environmentObject(state)
+                .environmentObject(system)
                 .environmentObject(monitor)
                 .environmentObject(browser)
                 .environmentObject(logs)
@@ -44,12 +46,17 @@ struct OblivionApp: App {
                 .environmentObject(history)
                 .preferredColorScheme(prefs.colorScheme)
                 .frame(minWidth: 1180, minHeight: 720)
+                .onAppear { SnapshotRunner.register(junk: junk, startup: startup, system: system) }
         }
         .windowStyle(.hiddenTitleBar)
         .windowResizability(.contentMinSize)
         .defaultSize(width: 1380, height: 860)
         .commands {
             CommandGroup(replacing: .newItem) {}
+            // "About Oblivion" in the app menu opens Oblivion's own About sheet.
+            CommandGroup(replacing: .appInfo) {
+                Button(loc["rail.about"]) { state.showAbout = true }
+            }
         }
     }
 }

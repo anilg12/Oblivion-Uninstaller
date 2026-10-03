@@ -10,23 +10,19 @@ on:
     paths:
       - "macos/**"
   workflow_dispatch:
-    inputs:
-      release_tag:
-        description: "Attach the DMG to this existing release (e.g. v2.0.0). Leave empty to skip."
-        required: false
-        default: ""
 
 permissions:
   contents: write
 
 jobs:
+  # Apple Silicon runner: builds all three DMGs, runs the full self-test on the
+  # universal app, checks the thin Apple Silicon app starts, tests the installer.
   build:
     runs-on: macos-15
 
     steps:
       - uses: actions/checkout@v4
         with:
-          # The repo also contains large Windows build folders; only fetch macos/.
           sparse-checkout: |
             macos
           sparse-checkout-cone-mode: true
@@ -39,6 +35,7 @@ jobs:
           xcodebuild -version
           swift --version
           sw_vers
+          uname -m
 
       # Optional: Apple Developer ID signing + notarization (no Gatekeeper warning).
       # Add these repository secrets to enable it: MACOS_CERT_P12 (base64 of the
@@ -66,7 +63,7 @@ jobs:
           echo "Signing identity: $ID"
           echo "DEVELOPER_ID=$ID" >> "$GITHUB_ENV"
 
-      - name: Build app and DMG
+      - name: Build apps and DMGs
         working-directory: macos
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -76,24 +73,38 @@ jobs:
           chmod +x build-mac.sh
           ./build-mac.sh
 
-      - name: Upload DMG
+      - name: Upload DMGs
         uses: actions/upload-artifact@v4
         with:
           name: Oblivion-macOS
           path: macos/build/*.dmg
           if-no-files-found: error
 
-      - name: Smoke test (launch, capture every page, uninstall fixture apps)
+      - name: Smoke test (universal app — every page, fixtures, nothing pre-selected)
         working-directory: macos
         run: |
           chmod +x ci-smoke-test.sh
           ./ci-smoke-test.sh
 
+      - name: Apple Silicon build starts
+        working-directory: macos
+        run: |
+          lipo -archs build/arm64/Oblivion.app/Contents/MacOS/Oblivion
+          build/arm64/Oblivion.app/Contents/MacOS/Oblivion > build/arm64-launch.txt 2>&1 &
+          PID=$!
+          sleep 10
+          if ! kill -0 "$PID" 2>/dev/null; then
+            cat build/arm64-launch.txt
+            echo "::error::The Apple Silicon build quit or crashed on launch"; exit 1
+          fi
+          kill "$PID"
+          echo "Apple Silicon build OK"
+
       - name: Test the one-line installer (install-mac.sh)
         working-directory: macos
         run: |
           chmod +x install-mac.sh
-          OBLIVION_DMG="$(ls build/*.dmg | head -1)" OBLIVION_NO_OPEN=1 ./install-mac.sh
+          OBLIVION_DMG="$(ls build/*-AppleSilicon.dmg | head -1)" OBLIVION_NO_OPEN=1 ./install-mac.sh
           test -x /Applications/Oblivion.app/Contents/MacOS/Oblivion
           codesign --verify --verbose=2 /Applications/Oblivion.app
           if xattr -p com.apple.quarantine /Applications/Oblivion.app 2>/dev/null; then
@@ -109,23 +120,61 @@ jobs:
           path: macos/build/snapshots
           if-no-files-found: warn
 
-      - name: Attach DMG to release
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.release_tag != '' }}
+      - name: Push screenshots to the ci-snapshots-mac branch
+        if: always() && github.ref == 'refs/heads/claude/v3'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          TAG="${{ github.event.inputs.release_tag }}"
-          gh release upload "$TAG" macos/build/*.dmg --clobber --repo "$GITHUB_REPOSITORY"
-          # Add the macOS section to the release notes once (before the footer line).
-          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json body -q .body > body.md
-          if ! grep -q "🍏 macOS" body.md; then
-            python3 - <<'PY'
-          body = open("body.md", encoding="utf-8").read().replace("\r\n", "\n")
-          mac = open("macos/release-notes-macos.md", encoding="utf-8").read().strip()
-          marker = "\n---\n"
-          i = body.rfind(marker)
-          body = body[:i] + "\n" + mac + "\n" + body[i:] if i != -1 else body + "\n\n" + mac + "\n"
-          open("body.md", "w", encoding="utf-8").write(body)
-          PY
-            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --notes-file body.md
-          fi
+          SNAP="$GITHUB_WORKSPACE/macos/build/snapshots"
+          [ -d "$SNAP" ] && [ -n "$(ls -A "$SNAP")" ] || { echo "No snapshots."; exit 0; }
+          cd "$SNAP"
+          git init -q -b ci-snapshots-mac
+          git add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "macOS self-test screenshots"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots-mac
+
+  # Intel runner: the full self-test on the Intel-only app (SMC temperature path).
+  intel:
+    runs-on: macos-15-intel
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            macos
+          sparse-checkout-cone-mode: true
+          filter: blob:none
+
+      - name: Select newest stable Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -viE 'beta|rc|release' | sort -V | tail -1 || true)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          swift --version
+          sw_vers
+          uname -m
+
+      - name: Build
+        working-directory: macos
+        run: |
+          chmod +x build-mac.sh
+          ./build-mac.sh
+
+      - name: Smoke test (Intel app)
+        working-directory: macos
+        run: |
+          chmod +x ci-smoke-test.sh
+          OBLIVION_APP="$PWD/build/x86_64/Oblivion.app" ./ci-smoke-test.sh
+
+      - name: Push screenshots to the ci-snapshots-mac-intel branch
+        if: always() && github.ref == 'refs/heads/claude/v3'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          SNAP="$GITHUB_WORKSPACE/macos/build/snapshots"
+          [ -d "$SNAP" ] && [ -n "$(ls -A "$SNAP")" ] || { echo "No snapshots."; exit 0; }
+          cd "$SNAP"
+          git init -q -b ci-snapshots-mac-intel
+          git add -A
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "macOS (Intel) self-test screenshots"
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots-mac-intel

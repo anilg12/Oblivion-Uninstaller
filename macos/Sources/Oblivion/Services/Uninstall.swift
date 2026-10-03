@@ -7,7 +7,8 @@ import Foundation
 ///   • High   — names built from the bundle identifier (com.vendor.app, com.vendor.app.plist,
 ///              TEAMID.com.vendor.app, com.vendor.app.savedState …)
 ///   • Medium — a folder named exactly like the app (Application Support/Spotify)
-///   • Low    — looser name / vendor matches, shown but never pre-selected
+///   • Low    — looser name / vendor matches
+/// Nothing is ever pre-selected: the user reviews the list and ticks what goes.
 enum LeftoverScanner {
     private struct Root {
         let url: URL
@@ -48,10 +49,8 @@ enum LeftoverScanner {
         ]
     }
 
-    /// - Parameters:
-    ///   - aggressive: "Force uninstall" — also vendor-prefix matches.
-    ///   - preselectMedium: pre-tick exact app-name matches.
-    static func scan(name: String, bundleID: String?, aggressive: Bool, preselectMedium: Bool) -> [Leftover] {
+    /// - Parameter aggressive: "Force uninstall" — also vendor-prefix matches.
+    static func scan(name: String, bundleID: String?, aggressive: Bool) -> [Leftover] {
         let fm = FileManager.default
         let nameKey = normalize(name)
         let firstWord = normalize(name.split(separator: " ").first.map(String.init) ?? name)
@@ -78,9 +77,8 @@ enum LeftoverScanner {
 
         func add(_ url: URL, _ found: Leftover.Confidence, _ root: Root) {
             guard !isProtected(url.lastPathComponent.lowercased()), seen.insert(url.path).inserted else { return }
-            let selected = found == .high || (found == .medium && (preselectMedium || aggressive))
             out.append(Leftover(path: url.path, kind: root.kind, size: DiskSize.of(url),
-                                confidence: found, isSystem: root.system, selected: selected))
+                                confidence: found, isSystem: root.system, selected: false))
         }
 
         for root in roots() {
@@ -133,8 +131,7 @@ enum LeftoverScanner {
                 confidence = .medium
             }
             guard let found = confidence else { continue }
-            out.append(Leftover(path: pkg, kind: .receipt, size: 0, confidence: found, isSystem: true,
-                                selected: found == .high || (found == .medium && (preselectMedium || aggressive))))
+            out.append(Leftover(path: pkg, kind: .receipt, size: 0, confidence: found, isSystem: true, selected: false))
         }
 
         return out.sorted { a, b in

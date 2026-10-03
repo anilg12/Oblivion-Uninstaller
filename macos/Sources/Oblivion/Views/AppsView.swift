@@ -308,15 +308,23 @@ struct LeftoverReviewView: View {
                 Text(loc.t("left.selected", ["count": "\(selected.count)", "size": Fmt.bytes(selectedBytes)]))
                     .font(.system(size: 12.5, weight: .medium))
                     .foregroundStyle(p.subtext)
+                    .contentTransition(.numericText())
+                    .animation(.snappy, value: selected.count)
                 Spacer()
+                Button { state.selectCertainLeftovers() } label: {
+                    Label(loc["left.selectCertain"], systemImage: "checkmark.shield")
+                }
+                .buttonStyle(OBButtonStyle(kind: .secondary))
+                .disabled(!state.leftovers.contains { $0.confidence == .high })
                 Button(loc["action.selectAll"]) { state.setAllLeftovers(true) }
                     .buttonStyle(OBButtonStyle(kind: .secondary))
                 Button(loc["action.selectNone"]) { state.setAllLeftovers(false) }
                     .buttonStyle(OBButtonStyle(kind: .secondary))
+                    .disabled(selected.isEmpty)
                 Button(loc["action.skip"]) { state.finishFlow() }
                     .buttonStyle(OBButtonStyle(kind: .secondary))
                 Button {
-                    state.removeSelectedLeftovers()
+                    askToRemove(selected, selectedBytes)
                 } label: {
                     Label(loc["left.remove"], systemImage: "trash.fill")
                 }
@@ -325,6 +333,18 @@ struct LeftoverReviewView: View {
             }
         }
         .padding(24)
+    }
+
+    private func askToRemove(_ items: [Leftover], _ bytes: Int64) {
+        state.confirm = ConfirmRequest(
+            title: loc.t("left.confirmTitle", ["count": "\(items.count)"]),
+            message: loc.t("left.confirmBody", ["size": Fmt.bytes(bytes)]),
+            details: items.map { $0.kind == .receipt ? "pkgutil: \($0.path)" : "\($0.path) — \(Fmt.bytes($0.size))" },
+            confirmTitle: loc["left.remove"],
+            symbol: "trash.fill"
+        ) {
+            state.removeSelectedLeftovers()
+        }
     }
 }
 
@@ -409,6 +429,7 @@ struct DoneView: View {
                 .symbolEffect(.bounce, value: appeared)
                 .scaleEffect(appeared ? 1 : 0.6)
                 .opacity(appeared ? 1 : 0)
+                .background { Burst(count: 34, spread: 120).frame(width: 300, height: 240) }
             Text(loc["done.title"])
                 .font(.system(size: 26, weight: .bold, design: .rounded))
                 .foregroundStyle(p.text)
