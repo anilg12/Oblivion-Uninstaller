@@ -41,7 +41,7 @@
             <!-- ============ gauges ============ -->
             <UniformGrid Columns="4" Margin="-6,0,-6,0">
                 <!-- CPU -->
-                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
@@ -58,7 +58,7 @@
                     </StackPanel>
                 </Border>
                 <!-- RAM -->
-                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="50">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="50">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Board24" FontSize="16" Foreground="#18C29C" Margin="0,0,8,0" />
@@ -75,7 +75,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Temperature -->
-                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Foreground="#FF7A45" Margin="0,0,8,0" />
@@ -91,7 +91,7 @@
                     </StackPanel>
                 </Border>
                 <!-- Network -->
-                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="16" Foreground="{StaticResource OB.Info}" Margin="0,0,8,0" />
@@ -125,7 +125,7 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
+                <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
                     <StackPanel>
                         <Grid Margin="0,0,0,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -189,7 +189,7 @@
                 </Border>
 
                 <StackPanel Grid.Column="2">
-                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="160">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                                 <ui:SymbolIcon Symbol="Desktop24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
@@ -221,7 +221,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                                 <ui:SymbolIcon Symbol="HardDrive24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
@@ -243,7 +243,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
                             Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">

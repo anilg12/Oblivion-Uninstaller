@@ -24,7 +24,7 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource OB.Card}" Margin="0,0,10,10" CornerRadius="18" Padding="14" c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                        <Border Style="{StaticResource OB.CardBox}" Margin="0,0,10,10" CornerRadius="18" Padding="14" c:Reveal.Enabled="True" c:Reveal.Stagger="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -46,7 +46,7 @@
             </ItemsControl>
         </ScrollViewer>
 
-        <Border Grid.Row="2" Margin="0,4,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+        <Border Grid.Row="2" Margin="0,4,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
             <Grid>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource OB.Success}" Margin="0,0,8,0" />

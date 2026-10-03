@@ -10,7 +10,7 @@
         <StackPanel Margin="26,22,26,24">
             <c:PageHeader Title="{h:L Tool_Evidence}" Subtitle="{h:L Evid_Subtitle}" Symbol="EraserTool24" From="#EC4899" To="#8B5CF6" />
 
-            <Border Style="{StaticResource OB.Card}" CornerRadius="18" Padding="16" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="18" Padding="16" c:Reveal.Enabled="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -75,7 +75,7 @@
             </Border>
 
             <!-- running -->
-            <Border Style="{StaticResource OB.Card}" CornerRadius="18" Padding="18" Margin="0,14,0,0"
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="18" Padding="18" Margin="0,14,0,0"
                     Visibility="{Binding IsRunning, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
                 <StackPanel>
                     <Grid>

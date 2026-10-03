@@ -164,7 +164,7 @@
         </Grid>
 
         <!-- =============================== WORKING =============================== -->
-        <Border Grid.Row="1" Style="{StaticResource OB.Card}" CornerRadius="22" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Width="520" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
@@ -213,7 +213,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border Style="{StaticResource OB.Card}" Padding="16,12" CornerRadius="16">
+            <Border Style="{StaticResource OB.CardBox}" Padding="16,12" CornerRadius="16">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -328,7 +328,7 @@
             </Grid>
 
             <!-- footer -->
-            <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+            <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <ui:SymbolIcon Symbol="CheckboxChecked24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
@@ -348,7 +348,7 @@
         </Grid>
 
         <!-- =============================== DONE =============================== -->
-        <Border Grid.Row="1" Style="{StaticResource OB.Card}" CornerRadius="22" Padding="30" Width="500" HorizontalAlignment="Center"
+        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="30" Width="500" HorizontalAlignment="Center"
                 VerticalAlignment="Center" Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}">
             <StackPanel HorizontalAlignment="Center">
                 <c:GradientBadge Symbol="Checkmark24" Size="72" From="#22C55E" To="#18C29C" HorizontalAlignment="Center" c:PopIn.Enabled="True" />

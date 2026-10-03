@@ -73,7 +73,7 @@
             <TextBlock Text="{h:L Store_Loading}" Style="{StaticResource OB.Caption}" Margin="0,10,0,0" HorizontalAlignment="Center" />
         </StackPanel>
 
-        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
             <Grid>
                 <TextBlock Style="{StaticResource OB.Caption}" VerticalAlignment="Center">
                     <Run Text="{Binding VisibleCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{h:L Store_AppsShown}" />
