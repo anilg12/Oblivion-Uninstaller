@@ -18,6 +18,22 @@
             <conv:NullToVisibilityConverter x:Key="NullToVisibility" />
             <conv:LangCodeUpperConverter x:Key="LangCodeUpper" />
             <conv:ZeroCountToVisibilityConverter x:Key="ZeroCountToVisibility" />
+
+            <!-- Daccord-inspired palette -->
+            <LinearGradientBrush x:Key="OblivionWindowBrush" StartPoint="0,0" EndPoint="0.35,1">
+                <GradientStop Color="#2C2F66" Offset="0" />
+                <GradientStop Color="#222549" Offset="0.55" />
+                <GradientStop Color="#191B36" Offset="1" />
+            </LinearGradientBrush>
+            <SolidColorBrush x:Key="OblivionPanelBrush" Color="#2B3164" />
+            <SolidColorBrush x:Key="OblivionRightBrush" Color="#2C2F48" />
+            <SolidColorBrush x:Key="OblivionRailBrush" Color="#1C1F3D" />
+            <SolidColorBrush x:Key="OblivionNavSelectedBrush" Color="#13152B" />
+            <SolidColorBrush x:Key="OblivionAccentBrush" Color="#7C6CF6" />
+            <LinearGradientBrush x:Key="OblivionLogoBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#6E5BFF" Offset="0" />
+                <GradientStop Color="#B45BFF" Offset="1" />
+            </LinearGradientBrush>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

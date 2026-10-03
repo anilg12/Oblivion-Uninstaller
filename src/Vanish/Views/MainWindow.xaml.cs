@@ -19,8 +19,7 @@ public partial class MainWindow : FluentWindow
         DataContext = _viewModel;
         InitializeComponent();
 
-        // Tools hub and other pages can request navigation by tag.
-        navigation.Navigated += NavigateTo;
+        navigation.Navigated += SelectAndNavigate;
 
         Loaded += (_, _) =>
         {
@@ -33,6 +32,24 @@ public partial class MainWindow : FluentWindow
     {
         if (NavList.SelectedItem is ListBoxItem { Tag: string tag })
             NavigateTo(tag);
+    }
+
+    /// <summary>Rail / external navigation: also sync the labelled list selection.</summary>
+    private void SelectAndNavigate(string tag)
+    {
+        foreach (var item in NavList.Items)
+        {
+            if (item is ListBoxItem { Tag: string t } li && t == tag)
+            {
+                if (!ReferenceEquals(NavList.SelectedItem, li))
+                {
+                    NavList.SelectedItem = li; // triggers NavList_SelectionChanged -> NavigateTo
+                    return;
+                }
+                break;
+            }
+        }
+        NavigateTo(tag);
     }
 
     private void NavigateTo(string tag)
@@ -55,10 +72,10 @@ public partial class MainWindow : FluentWindow
 
         if (page is null) return;
         PageHost.Content = page;
+        _viewModel.RefreshActivity();
         AnimatePage();
     }
 
-    /// <summary>Subtle fade + slide-up entrance for each page swap.</summary>
     private void AnimatePage()
     {
         var transform = new TranslateTransform(0, 16);
@@ -67,13 +84,24 @@ public partial class MainWindow : FluentWindow
 
         PageHost.BeginAnimation(OpacityProperty,
             new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
-
         transform.BeginAnimation(TranslateTransform.YProperty,
             new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(280))
             {
                 EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
             });
     }
+
+    private void Rail_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string tag })
+            SelectAndNavigate(tag);
+    }
+
+    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
+        => _viewModel.ToggleThemeCommand.Execute(null);
+
+    private void ToggleLanguage_Click(object sender, RoutedEventArgs e)
+        => _viewModel.ToggleLanguageCommand.Execute(null);
 
     private void OtherCommands_Click(object sender, RoutedEventArgs e)
     {
