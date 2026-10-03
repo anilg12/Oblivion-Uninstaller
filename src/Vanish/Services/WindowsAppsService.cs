@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using Vanish.Models;
 
 namespace Vanish.Services;
@@ -31,35 +32,108 @@ Get-AppxPackage | ForEach-Object {
         try
         {
             var output = await RunPowerShellFileAsync(scriptPath, ct);
-            var list = new List<WindowsApp>();
-
-            foreach (var raw in output.Split('\n'))
-            {
-                ct.ThrowIfCancellationRequested();
-                var line = raw.TrimEnd('\r');
-                var parts = line.Split(Sep);
-                if (parts.Length < 6 || string.IsNullOrWhiteSpace(parts[0])) continue;
-
-                bool isFramework = parts[5].Trim().Equals("True", StringComparison.OrdinalIgnoreCase);
-                list.Add(new WindowsApp
-                {
-                    Name = PrettifyName(parts[0]),
-                    PackageFullName = parts[1],
-                    Publisher = ShortPublisher(parts[2]),
-                    Version = parts[3],
-                    InstallLocation = string.IsNullOrWhiteSpace(parts[4]) ? null : parts[4],
-                    IsFramework = isFramework
-                });
-            }
-
-            return list
-                .OrderBy(a => a.IsFramework)
-                .ThenBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
-                .ToList();
+            // Parsing + logo resolution touch the disk, so keep them off the UI thread.
+            return await Task.Run<IReadOnlyList<WindowsApp>>(() => ParsePackages(output, ct), ct);
         }
         finally
         {
             try { File.Delete(scriptPath); } catch { /* ignore */ }
+        }
+    }
+
+    private static IReadOnlyList<WindowsApp> ParsePackages(string output, CancellationToken ct)
+    {
+        var list = new List<WindowsApp>();
+        foreach (var raw in output.Split('\n'))
+        {
+            ct.ThrowIfCancellationRequested();
+            var line = raw.TrimEnd('\r');
+            var parts = line.Split(Sep);
+            if (parts.Length < 6 || string.IsNullOrWhiteSpace(parts[0])) continue;
+
+            bool isFramework = parts[5].Trim().Equals("True", StringComparison.OrdinalIgnoreCase);
+            var installLocation = string.IsNullOrWhiteSpace(parts[4]) ? null : parts[4];
+
+            list.Add(new WindowsApp
+            {
+                Name = PrettifyName(parts[0]),
+                PackageFullName = parts[1],
+                Publisher = ShortPublisher(parts[2]),
+                Version = parts[3],
+                InstallLocation = installLocation,
+                LogoPath = ResolveLogo(installLocation),
+                IsFramework = isFramework
+            });
+        }
+
+        return list
+            .OrderBy(a => a.IsFramework)
+            .ThenBy(a => a.Name, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
+
+    /// <summary>
+    /// Finds a package's tile logo by reading its AppxManifest.xml and locating the
+    /// actual PNG on disk (manifest paths often differ from the scaled file names).
+    /// </summary>
+    private static string? ResolveLogo(string? installLocation)
+    {
+        if (string.IsNullOrWhiteSpace(installLocation) || !Directory.Exists(installLocation))
+            return null;
+
+        var manifest = Path.Combine(installLocation, "AppxManifest.xml");
+        if (!File.Exists(manifest)) return null;
+
+        string text;
+        try { text = File.ReadAllText(manifest); } catch { return null; }
+
+        var rel =
+            MatchAttr(text, "Square44x44Logo") ??
+            MatchAttr(text, "Square150x150Logo") ??
+            MatchElement(text, "Logo");
+        if (string.IsNullOrWhiteSpace(rel)) return null;
+
+        return FindActualFile(installLocation, rel!);
+    }
+
+    private static string? MatchAttr(string xml, string attr)
+    {
+        var m = Regex.Match(xml, attr + @"\s*=\s*""([^""]+)""");
+        return m.Success ? m.Groups[1].Value : null;
+    }
+
+    private static string? MatchElement(string xml, string element)
+    {
+        var m = Regex.Match(xml, "<(?:[\\w]+:)?" + element + ">([^<]+)</");
+        return m.Success ? m.Groups[1].Value : null;
+    }
+
+    private static string? FindActualFile(string installLocation, string relativePath)
+    {
+        try
+        {
+            var full = Path.Combine(installLocation, relativePath.Replace('/', '\\'));
+            if (File.Exists(full)) return full;
+
+            var dir = Path.GetDirectoryName(full);
+            var nameNoExt = Path.GetFileNameWithoutExtension(full);
+            var ext = Path.GetExtension(full);
+            if (dir is null || !Directory.Exists(dir) || string.IsNullOrEmpty(nameNoExt))
+                return null;
+
+            var candidates = Directory.GetFiles(dir, nameNoExt + "*" + ext);
+            if (candidates.Length == 0) return null;
+
+            // Prefer a mid/high resolution scaled asset.
+            return candidates
+                .OrderByDescending(f => f.Contains("scale-200", StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(f => f.Contains("targetsize-44", StringComparison.OrdinalIgnoreCase))
+                .ThenByDescending(f => f.Contains("scale-100", StringComparison.OrdinalIgnoreCase))
+                .First();
+        }
+        catch
+        {
+            return null;
         }
     }
 

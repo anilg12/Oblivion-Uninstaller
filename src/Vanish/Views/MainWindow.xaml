@@ -5,112 +5,112 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
     Title="Oblivion"
-    Width="1240"
-    Height="800"
-    MinWidth="980"
-    MinHeight="620"
-    WindowBackdropType="Mica"
+    Width="1280"
+    Height="820"
+    MinWidth="1080"
+    MinHeight="640"
+    WindowBackdropType="None"
     ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterScreen">
 
-    <Grid>
+    <ui:FluentWindow.Resources>
+        <Style x:Key="RailButton" TargetType="Button">
+            <Setter Property="Width" Value="44" />
+            <Setter Property="Height" Value="44" />
+            <Setter Property="Margin" Value="0,5" />
+            <Setter Property="Foreground" Value="White" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="b" Background="#2B2F58" CornerRadius="14">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="b" Property="Background" Value="{StaticResource OblivionAccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid Background="{StaticResource OblivionWindowBrush}">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="270" />
+            <ColumnDefinition Width="68" />
+            <ColumnDefinition Width="224" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="258" />
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar
-            Grid.Row="0"
-            Grid.ColumnSpan="2"
-            Title="Oblivion"
-            Padding="14,8">
+        <ui:TitleBar Grid.Row="0" Grid.ColumnSpan="4" Title="Oblivion" Padding="14,8">
             <ui:TitleBar.Icon>
                 <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" />
             </ui:TitleBar.Icon>
         </ui:TitleBar>
 
-        <!-- ===================== SIDEBAR ===================== -->
-        <Border
-            Grid.Row="1"
-            Grid.Column="0"
-            Margin="10,0,6,10"
-            Padding="10"
-            Background="#26000000"
-            CornerRadius="14">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.25" Color="Black" />
-            </Border.Effect>
+        <!-- ============ ICON RAIL ============ -->
+        <Border Grid.Row="1" Grid.Column="0" Margin="10,0,0,10" CornerRadius="20,0,0,20"
+                Background="{StaticResource OblivionRailBrush}">
+            <DockPanel Margin="0,10">
+                <!-- Logo -->
+                <Border DockPanel.Dock="Top" Width="44" Height="44" CornerRadius="14" Margin="0,0,0,12"
+                        Background="{StaticResource OblivionLogoBrush}">
+                    <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" Foreground="White"
+                                 FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
 
+                <!-- Bottom quick toggles -->
+                <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
+                    <Button Style="{StaticResource RailButton}" Click="ToggleTheme_Click" ToolTip="Theme">
+                        <ui:FontIcon Glyph="&#xE706;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Click="ToggleLanguage_Click" ToolTip="Language">
+                        <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}"
+                                   FontSize="12" FontWeight="Bold" />
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Tag="Settings" Click="Rail_Click" ToolTip="Settings">
+                        <ui:FontIcon Glyph="&#xE713;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                </StackPanel>
+
+                <!-- Quick nav -->
+                <StackPanel HorizontalAlignment="Center">
+                    <Button Style="{StaticResource RailButton}" Tag="Dashboard" Click="Rail_Click" ToolTip="Dashboard">
+                        <ui:FontIcon Glyph="&#xE80F;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Tag="Uninstaller" Click="Rail_Click" ToolTip="Applications">
+                        <ui:FontIcon Glyph="&#xECAA;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Tag="WindowsApps" Click="Rail_Click" ToolTip="Windows apps">
+                        <ui:FontIcon Glyph="&#xE8FC;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                    <Button Style="{StaticResource RailButton}" Tag="Tools" Click="Rail_Click" ToolTip="Tools">
+                        <ui:FontIcon Glyph="&#xEC7A;" FontFamily="Segoe Fluent Icons" />
+                    </Button>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- ============ LABELLED NAV ============ -->
+        <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Padding="12"
+                Background="{StaticResource OblivionPanelBrush}">
             <DockPanel>
-                <!-- Brand -->
-                <StackPanel DockPanel.Dock="Top" Margin="8,6,8,14">
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="34" Height="34" CornerRadius="9" Margin="0,0,10,0">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF5B8CFF" Offset="0" />
-                                    <GradientStop Color="#FF9B5BFF" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons"
-                                         Foreground="White" FontSize="18"
-                                         HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="OBLIVION" FontSize="19" FontWeight="Bold"
-                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                            <TextBlock FontSize="10" Opacity="0.7"
-                                       Text="{Binding [Brand_By], Source={x:Static h:Loc.I}}" />
-                        </StackPanel>
-                    </StackPanel>
+                <StackPanel DockPanel.Dock="Top" Margin="6,4,6,14">
+                    <TextBlock Text="OBLIVION" FontSize="20" FontWeight="Bold" Foreground="White" />
+                    <TextBlock FontSize="10" Opacity="0.7" Foreground="White"
+                               Text="{Binding [Brand_By], Source={x:Static h:Loc.I}}" />
                 </StackPanel>
 
-                <!-- Bottom: theme + language + signature -->
-                <StackPanel DockPanel.Dock="Bottom" Margin="6,12,6,2">
-                    <Grid Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <ui:Button Grid.Column="0" Margin="0,0,4,0" HorizontalAlignment="Stretch"
-                                   Appearance="Secondary" Command="{Binding ToggleThemeCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE706;" FontFamily="Segoe Fluent Icons" Margin="0,0,6,0" />
-                                <TextBlock Text="{Binding [Theme], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ui:Button>
-                        <ui:Button Grid.Column="1" Margin="4,0,0,0" HorizontalAlignment="Stretch"
-                                   Appearance="Secondary" Command="{Binding ToggleLanguageCommand}">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE774;" FontFamily="Segoe Fluent Icons" Margin="0,0,6,0" />
-                                <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}" />
-                            </StackPanel>
-                        </ui:Button>
-                    </Grid>
-                    <TextBlock Text="ANIL G&#220;L" TextAlignment="Center" Margin="0,2,0,0"
-                               FontFamily="Ink Free, Segoe Script, Gabriola" FontSize="26" FontStyle="Italic">
-                        <TextBlock.Foreground>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#FF7FB0FF" Offset="0" />
-                                <GradientStop Color="#FFC79BFF" Offset="1" />
-                            </LinearGradientBrush>
-                        </TextBlock.Foreground>
-                    </TextBlock>
-                    <TextBlock FontSize="10" Opacity="0.45" TextAlignment="Center" Margin="0,1,0,0"
-                               Text="{Binding [Brand_By], Source={x:Static h:Loc.I}}" TextWrapping="Wrap" />
-                    <TextBlock FontSize="10" Opacity="0.35" TextAlignment="Center" Margin="0,2,0,0"
-                               Text="v1.0.0 · Windows 11" />
-                </StackPanel>
-
-                <!-- Middle: action card + nav -->
                 <StackPanel>
                     <!-- Action card -->
-                    <Border Padding="8" CornerRadius="10" Margin="0,0,0,10"
-                            Background="{DynamicResource ControlFillColorDefaultBrush}">
+                    <Border Padding="8" CornerRadius="14" Margin="0,0,0,12" Background="#1E2147">
                         <StackPanel>
                             <ui:Button HorizontalAlignment="Stretch" Appearance="Danger" Height="42"
                                        Command="{Binding Uninstaller.UninstallCommand}">
@@ -130,8 +130,7 @@
                                            Content="{Binding [Act_ForceUninstall], Source={x:Static h:Loc.I}}"
                                            Command="{Binding Uninstaller.ForceUninstallCommand}" />
                                 <ui:Button Grid.Column="1" Margin="4,0,0,0" HorizontalAlignment="Stretch"
-                                           x:Name="OtherCommandsButton"
-                                           Appearance="Secondary"
+                                           x:Name="OtherCommandsButton" Appearance="Secondary"
                                            Click="OtherCommands_Click"
                                            Content="{Binding [Act_OtherCommands], Source={x:Static h:Loc.I}}">
                                     <ui:Button.ContextMenu>
@@ -156,29 +155,28 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Navigation -->
                     <ListBox x:Name="NavList" BorderThickness="0" Background="Transparent"
-                             SelectionChanged="NavList_SelectionChanged">
+                             Foreground="White" SelectionChanged="NavList_SelectionChanged">
                         <ListBox.Resources>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="Padding" Value="10,9" />
                                 <Setter Property="Margin" Value="0,2" />
+                                <Setter Property="Foreground" Value="White" />
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                 <Setter Property="Template">
                                     <Setter.Value>
                                         <ControlTemplate TargetType="ListBoxItem">
                                             <Border x:Name="Bd" Padding="{TemplateBinding Padding}"
-                                                    Background="Transparent" CornerRadius="9">
+                                                    Background="Transparent" CornerRadius="10">
                                                 <ContentPresenter />
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background"
-                                                            Value="{DynamicResource ControlFillColorSecondaryBrush}" />
+                                                    <Setter TargetName="Bd" Property="Background" Value="#33121633" />
                                                 </Trigger>
                                                 <Trigger Property="IsSelected" Value="True">
                                                     <Setter TargetName="Bd" Property="Background"
-                                                            Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                                            Value="{StaticResource OblivionNavSelectedBrush}" />
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -246,10 +244,80 @@
             </DockPanel>
         </Border>
 
-        <!-- ===================== PAGE HOST ===================== -->
-        <Border Grid.Row="1" Grid.Column="1" Margin="6,0,10,10"
-                Background="#18000000" CornerRadius="14">
+        <!-- ============ PAGE HOST ============ -->
+        <Border Grid.Row="1" Grid.Column="2" Margin="10,0,10,10" CornerRadius="20"
+                Background="#22244B">
             <ContentControl x:Name="PageHost" />
+        </Border>
+
+        <!-- ============ RIGHT INFO PANEL ============ -->
+        <Border Grid.Row="1" Grid.Column="3" Margin="0,0,10,10" CornerRadius="0,20,20,0"
+                Background="{StaticResource OblivionRightBrush}">
+            <StackPanel Margin="18,20">
+                <!-- Profile / signature card -->
+                <Grid Width="92" Height="92" HorizontalAlignment="Center">
+                    <Ellipse>
+                        <Ellipse.Fill>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#6E5BFF" Offset="0" />
+                                <GradientStop Color="#B45BFF" Offset="1" />
+                            </LinearGradientBrush>
+                        </Ellipse.Fill>
+                    </Ellipse>
+                    <TextBlock Text="AG" FontSize="34" FontWeight="Bold" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Grid>
+                <TextBlock Text="ANIL G&#220;L" TextAlignment="Center" Margin="0,12,0,0"
+                           FontFamily="Ink Free, Segoe Script, Gabriola" FontSize="30" FontStyle="Italic">
+                    <TextBlock.Foreground>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#8FC0FF" Offset="0" />
+                            <GradientStop Color="#D7ABFF" Offset="1" />
+                        </LinearGradientBrush>
+                    </TextBlock.Foreground>
+                </TextBlock>
+                <TextBlock Text="@anilgul" TextAlignment="Center" Foreground="White" Opacity="0.6" FontSize="12" />
+
+                <Separator Margin="0,18,0,14" Background="#22FFFFFF" />
+
+                <!-- System -->
+                <TextBlock Text="{Binding [Dash_System], Source={x:Static h:Loc.I}}" Foreground="White"
+                           FontWeight="SemiBold" Margin="0,0,0,8" />
+                <Grid Margin="0,0,0,6">
+                    <TextBlock Text="Windows" Foreground="White" Opacity="0.6" FontSize="12" />
+                    <TextBlock Text="{Binding WindowsVersion}" Foreground="White" HorizontalAlignment="Right" FontSize="12" />
+                </Grid>
+                <Grid Margin="0,0,0,4">
+                    <TextBlock Text="{Binding [Dash_FreeSpace], Source={x:Static h:Loc.I}}" Foreground="White" Opacity="0.6"
+                               FontSize="12" TextTrimming="CharacterEllipsis" />
+                </Grid>
+                <TextBlock Text="{Binding FreeSpace}" Foreground="White" FontSize="13" FontWeight="SemiBold" />
+
+                <Separator Margin="0,16,0,14" Background="#22FFFFFF" />
+
+                <!-- Recent activity -->
+                <TextBlock Text="{Binding [Dash_RecentActivity], Source={x:Static h:Loc.I}}" Foreground="White"
+                           FontWeight="SemiBold" Margin="0,0,0,8" />
+                <ItemsControl ItemsSource="{Binding RecentActivity}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding Action}" Foreground="White" FontSize="12" FontWeight="SemiBold" />
+                                    <TextBlock Text="{Binding Detail}" Foreground="White" Opacity="0.55" FontSize="11"
+                                               TextTrimming="CharacterEllipsis" />
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="{Binding TimeText}" Foreground="White" Opacity="0.45"
+                                           FontSize="10" VerticalAlignment="Center" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
         </Border>
     </Grid>
 </ui:FluentWindow>

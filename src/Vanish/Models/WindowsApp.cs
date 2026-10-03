@@ -9,6 +9,9 @@ public sealed class WindowsApp
     public string? Version { get; init; }
     public string? InstallLocation { get; init; }
 
+    /// <summary>Absolute path to the package logo PNG, resolved from its manifest.</summary>
+    public string? LogoPath { get; init; }
+
     /// <summary>True for system/framework packages that should not normally be removed.</summary>
     public bool IsFramework { get; init; }
 
