@@ -35,6 +35,29 @@ enum Fmt {
     }
 
     static func dateTime(_ date: Date) -> String { dateTimeFormatter.string(from: date) }
+
+    /// "%42" in Turkish, "42%" in English.
+    static func percent(_ value: Double, _ loc: Loc) -> String {
+        let n = Int((value.isFinite ? value : 0).rounded())
+        return loc.isTurkish ? "%\(n)" : "\(n)%"
+    }
+
+    /// Transfer speed, e.g. "1.2 MB/s".
+    static func rate(_ bytesPerSecond: Double) -> String {
+        let v = bytesPerSecond.isFinite ? max(0, bytesPerSecond) : 0
+        if v < 1000 { return "\(Int(v)) B/s" }
+        return byteFormatter.string(fromByteCount: Int64(v)) + "/s"
+    }
+
+    /// Compact duration: "3 gün 4 sa" / "3d 4h", "2 sa 5 dk" / "2h 5m", "7 dk" / "7m".
+    static func duration(_ seconds: TimeInterval, _ loc: Loc) -> String {
+        let total = Int(max(0, seconds.isFinite ? seconds : 0)) / 60
+        let days = total / 1440, hours = (total % 1440) / 60, minutes = total % 60
+        let tr = loc.isTurkish
+        if days > 0 { return tr ? "\(days) gün \(hours) sa" : "\(days)d \(hours)h" }
+        if hours > 0 { return tr ? "\(hours) sa \(minutes) dk" : "\(hours)h \(minutes)m" }
+        return tr ? "\(minutes) dk" : "\(minutes)m"
+    }
 }
 
 // MARK: - Paths

@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 enum Page: String, CaseIterable, Identifiable {
-    case dashboard, apps, storeApps, monitor, browserExt, logs, hunter
+    case dashboard, apps, storeApps, monitor, browserExt, systemMonitor, logs, hunter
     case tools, startup, junk, largeFiles, shredder, history, settings
 
     var id: String { rawValue }
@@ -15,18 +15,29 @@ final class Prefs: ObservableObject {
     @Published var appearance: String {
         didSet { UserDefaults.standard.set(appearance, forKey: "oblivion.appearance") }
     }
-    @Published var preselectMedium: Bool {
-        didSet { UserDefaults.standard.set(preselectMedium, forKey: "oblivion.preselectMedium") }
-    }
     @Published var confirmBeforeDelete: Bool {
         didSet { UserDefaults.standard.set(confirmBeforeDelete, forKey: "oblivion.confirm") }
+    }
+    /// The live CPU / memory / disk / network panel on the right.
+    @Published var showLivePanel: Bool {
+        didSet { UserDefaults.standard.set(showLivePanel, forKey: "oblivion.livePanel") }
+    }
+    /// Fewer decorative animations (also on when macOS "Reduce motion" is set).
+    @Published var reduceMotion: Bool {
+        didSet { UserDefaults.standard.set(reduceMotion, forKey: "oblivion.reduceMotion") }
     }
 
     init() {
         let defaults = UserDefaults.standard
         appearance = defaults.string(forKey: "oblivion.appearance") ?? "dark"
-        preselectMedium = defaults.object(forKey: "oblivion.preselectMedium") as? Bool ?? true
         confirmBeforeDelete = defaults.object(forKey: "oblivion.confirm") as? Bool ?? true
+        showLivePanel = defaults.object(forKey: "oblivion.livePanel") as? Bool ?? true
+        reduceMotion = defaults.object(forKey: "oblivion.reduceMotion") as? Bool ?? false
+    }
+
+    /// True when decorative, continuously running animations should be skipped.
+    var calmMotion: Bool {
+        reduceMotion || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
 
     var colorScheme: ColorScheme? {
@@ -74,6 +85,9 @@ final class AppState: ObservableObject {
     @Published var appRemoved = false
 
     // Dialogs
+    @Published var showAbout = false
+    /// Pending destructive action, shown as a sheet with the exact list of what it affects.
+    @Published var confirm: ConfirmRequest?
     @Published var confirmApp: InstalledApp?
     @Published var showForceSheet = false
     @Published var forceQuery = ""
@@ -187,7 +201,6 @@ final class AppState: ObservableObject {
         if !isOnAppList { navigate(app.isAppStore ? .storeApps : .apps) }
         beginFlow(name: app.name, iconPath: app.url.path)
         workKey = "work.quitting"
-        let preselect = prefs?.preselectMedium ?? true
 
         Task {
             let removed = await Task.detached { () -> Bool in
@@ -210,7 +223,7 @@ final class AppState: ObservableObject {
 
             self.workKey = "work.scanning"
             let found = await Task.detached {
-                LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false, preselectMedium: preselect)
+                LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false)
             }.value
             await self.settle()
             self.finishScan(found)
@@ -252,7 +265,7 @@ final class AppState: ObservableObject {
             }
             self.workKey = "work.scanning"
             let found = await Task.detached {
-                LeftoverScanner.scan(name: name, bundleID: bundleID, aggressive: true, preselectMedium: true)
+                LeftoverScanner.scan(name: name, bundleID: bundleID, aggressive: true)
             }.value
             ActivityLog.append("log.forced", name)
             await self.settle()
@@ -306,6 +319,11 @@ final class AppState: ObservableObject {
 
     func setAllLeftovers(_ value: Bool) {
         for i in leftovers.indices { leftovers[i].selected = value }
+    }
+
+    /// Ticks only the exact (bundle-id) matches — a deliberate one-click choice, never automatic.
+    func selectCertainLeftovers() {
+        for i in leftovers.indices { leftovers[i].selected = leftovers[i].confidence == .high }
     }
 
     func finishFlow() {

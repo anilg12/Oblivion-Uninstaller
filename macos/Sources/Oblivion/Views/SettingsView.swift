@@ -23,6 +23,7 @@ struct SettingsView: View {
                     .labelsHidden()
                     .frame(width: 260)
                 }
+                .appearIn(0)
 
                 settingRow(symbol: "globe", colors: [0x3A8DFF, 0x6F5BFF],
                            title: loc["set.language"], detail: loc["set.language.d"], p: p) {
@@ -34,16 +35,25 @@ struct SettingsView: View {
                     .labelsHidden()
                     .frame(width: 200)
                 }
+                .appearIn(0.04)
 
-                settingRow(symbol: "checkmark.circle.fill", colors: [0x22C55E, 0x14B8A6],
-                           title: loc["set.preselect"], detail: loc["set.preselect.d"], p: p) {
-                    Toggle("", isOn: $prefs.preselectMedium).toggleStyle(.switch).labelsHidden()
+                settingRow(symbol: "gauge.with.dots.needle.67percent", colors: [0x18C29C, 0x2E8BFF],
+                           title: loc["set.livePanel"], detail: loc["set.livePanel.d"], p: p) {
+                    Toggle("", isOn: $prefs.showLivePanel).toggleStyle(.switch).labelsHidden()
                 }
+                .appearIn(0.08)
+
+                settingRow(symbol: "figure.walk.motion", colors: [0x9B5BFF, 0xE15BBE],
+                           title: loc["set.motion"], detail: loc["set.motion.d"], p: p) {
+                    Toggle("", isOn: $prefs.reduceMotion).toggleStyle(.switch).labelsHidden()
+                }
+                .appearIn(0.12)
 
                 settingRow(symbol: "hand.raised.fill", colors: [0xFF9F45, 0xF5A524],
                            title: loc["set.confirm"], detail: loc["set.confirm.d"], p: p) {
                     Toggle("", isOn: $prefs.confirmBeforeDelete).toggleStyle(.switch).labelsHidden()
                 }
+                .appearIn(0.16)
 
                 settingRow(symbol: "lock.shield.fill", colors: [0xFF6B6B, 0xE5484D],
                            title: loc["set.fda"], detail: state.hasFullDiskAccess ? loc["set.fda.on"] : loc["set.fda.off"], p: p) {
@@ -56,8 +66,10 @@ struct SettingsView: View {
                             .buttonStyle(OBButtonStyle(kind: .secondary))
                     }
                 }
+                .appearIn(0.2)
 
                 about(p)
+                    .appearIn(0.24)
             }
             .padding(26)
         }
@@ -81,36 +93,24 @@ struct SettingsView: View {
     }
 
     private func about(_ p: Palette) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 14) {
-                LogoMark(size: 54)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Oblivion").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(p.text)
-                    Text(loc.t("set.version", ["version": appVersion]))
-                        .font(.system(size: 12)).foregroundStyle(p.subtext)
-                }
+        HStack(alignment: .center, spacing: 14) {
+            LogoMark(size: 54, glow: !prefs.calmMotion)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Oblivion").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(p.text)
+                Text(loc.t("set.version", ["version": AppInfo.version]))
+                    .font(.system(size: 12)).foregroundStyle(p.subtext)
+                Text(loc["set.about"]).font(.system(size: 12.5)).foregroundStyle(p.subtext)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Text(loc["set.about"]).font(.system(size: 12.5)).foregroundStyle(p.subtext)
-                .fixedSize(horizontal: false, vertical: true)
-            VStack(alignment: .leading, spacing: 2) {
-                SignatureText(size: 40)
-                Text(loc["brand.made"]).font(.system(size: 11.5)).foregroundStyle(p.subtext)
+            Spacer(minLength: 12)
+            Button { state.showAbout = true } label: {
+                Label(loc["set.aboutOpen"], systemImage: "info.circle")
             }
-            .padding(.horizontal, 18)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(LinearGradient(colors: [Palette.accent.opacity(0.18), Palette.accent2.opacity(0.18)],
-                                         startPoint: .leading, endPoint: .trailing))
-            )
+            .buttonStyle(OBButtonStyle(kind: .secondary))
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.card))
         .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.stroke, lineWidth: 1))
-    }
-
-    private var appVersion: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "2.0.0"
     }
 }
