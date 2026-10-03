@@ -7,26 +7,25 @@ import Foundation
 ///   • High   — names built from the bundle identifier (com.vendor.app, com.vendor.app.plist,
 ///              TEAMID.com.vendor.app, com.vendor.app.savedState …)
 ///   • Medium — a folder named exactly like the app (Application Support/Spotify)
-///   • Low    — looser name / vendor matches
+///   • Low    — looser name matches
 /// Nothing is ever pre-selected: the user reviews the list and ticks what goes.
 enum LeftoverScanner {
     private struct Root {
         let url: URL
         let system: Bool
         let kind: Leftover.Kind
-        let vendorMatch: Bool
     }
 
     private static func roots() -> [Root] {
         let lib = AppPaths.library
-        func user(_ p: String, _ kind: Leftover.Kind, vendor: Bool = false) -> Root {
-            Root(url: lib.appendingPathComponent(p), system: false, kind: kind, vendorMatch: vendor)
+        func user(_ p: String, _ kind: Leftover.Kind) -> Root {
+            Root(url: lib.appendingPathComponent(p), system: false, kind: kind)
         }
-        func sys(_ p: String, _ kind: Leftover.Kind, vendor: Bool = false) -> Root {
-            Root(url: URL(fileURLWithPath: p), system: true, kind: kind, vendorMatch: vendor)
+        func sys(_ p: String, _ kind: Leftover.Kind) -> Root {
+            Root(url: URL(fileURLWithPath: p), system: true, kind: kind)
         }
         return [
-            user("Application Support", .folder, vendor: true),
+            user("Application Support", .folder),
             user("Caches", .folder),
             user("Preferences", .preferences),
             user("Preferences/ByHost", .preferences),
@@ -38,24 +37,22 @@ enum LeftoverScanner {
             user("WebKit", .folder),
             user("Cookies", .file),
             user("Application Scripts", .folder),
-            user("LaunchAgents", .launchItem, vendor: true),
-            sys("/Library/Application Support", .folder, vendor: true),
+            user("LaunchAgents", .launchItem),
+            sys("/Library/Application Support", .folder),
             sys("/Library/Caches", .folder),
             sys("/Library/Preferences", .preferences),
-            sys("/Library/LaunchAgents", .launchItem, vendor: true),
-            sys("/Library/LaunchDaemons", .launchItem, vendor: true),
-            sys("/Library/PrivilegedHelperTools", .file, vendor: true),
+            sys("/Library/LaunchAgents", .launchItem),
+            sys("/Library/LaunchDaemons", .launchItem),
+            sys("/Library/PrivilegedHelperTools", .file),
             sys("/Library/Logs", .folder),
         ]
     }
 
-    /// - Parameter aggressive: "Force uninstall" — also vendor-prefix matches.
-    static func scan(name: String, bundleID: String?, aggressive: Bool) -> [Leftover] {
+    static func scan(name: String, bundleID: String?) -> [Leftover] {
         let fm = FileManager.default
         let nameKey = normalize(name)
         let firstWord = normalize(name.split(separator: " ").first.map(String.init) ?? name)
         let bid = bundleID?.lowercased()
-        let vendor = vendorPrefix(bid)
 
         // Many apps keep data one level down, inside a vendor folder:
         //   Application Support/Google/Chrome, Caches/Google/Chrome, Application Support/Adobe/Photoshop 2025
@@ -89,14 +86,13 @@ enum LeftoverScanner {
                 let compact = normalize(child)
                 var confidence: Leftover.Confidence?
 
-                // Vendor folder: take only this app's subfolder, never the whole vendor folder.
+                // Vendor folder (Application Support/Google, …/Microsoft): only this app's own
+                // subfolders are offered — the vendor folder itself never is, it holds other apps' data.
                 if vendorKeys.contains(compact), compact != nameKey {
                     let nested = nestedMatches(in: root.url.appendingPathComponent(child),
                                                nameKey: nameKey, restKey: restKey, bid: bid)
-                    if !nested.isEmpty {
-                        for (url, found) in nested { add(url, found, root) }
-                        continue
-                    }
+                    for (url, found) in nested { add(url, found, root) }
+                    continue
                 }
 
                 if let bid, !bid.isEmpty,
@@ -106,10 +102,6 @@ enum LeftoverScanner {
                 } else if !nameKey.isEmpty, compact == nameKey {
                     confidence = .medium
                 } else if nameKey.count >= 5, compact.contains(nameKey) {
-                    confidence = .low
-                } else if firstWord.count >= 4, compact == firstWord, root.vendorMatch {
-                    confidence = .low
-                } else if aggressive, root.vendorMatch, let vendor, base.hasPrefix(vendor + ".") {
                     confidence = .low
                 }
 
@@ -168,15 +160,6 @@ enum LeftoverScanner {
             result = String(result.dropLast(ext.count))
         }
         return result
-    }
-
-    /// "com.vendor.app" -> "com.vendor" (ignoring very generic prefixes).
-    private static func vendorPrefix(_ bid: String?) -> String? {
-        guard let bid else { return nil }
-        let parts = bid.split(separator: ".")
-        guard parts.count >= 3 else { return nil }
-        let prefix = parts.prefix(2).joined(separator: ".")
-        return ["com.apple", "com.google", "com.microsoft", "org.mozilla"].contains(prefix) ? nil : prefix
     }
 
     private static func isProtected(_ lowerName: String) -> Bool {

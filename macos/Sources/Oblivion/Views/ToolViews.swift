@@ -377,7 +377,7 @@ struct JunkView: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 18))
                 .foregroundStyle(Palette.success)
-                .symbolEffect(.bounce, value: r)
+                .symbolEffect(.bounce, value: GraphicsSupport.richEffects ? r.id : nil)
                 .overlay { Burst(count: 22, spread: 70).frame(width: 160, height: 120).id(r) }
             Text(loc.t("junk.result", ["count": "\(r.count)", "size": Fmt.bytes(r.bytes)]))
                 .font(.system(size: 13, weight: .semibold))

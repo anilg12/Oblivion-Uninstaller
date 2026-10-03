@@ -426,7 +426,7 @@ struct DoneView: View {
             Image(systemName: "checkmark.seal.fill")
                 .font(.system(size: 72, weight: .semibold))
                 .foregroundStyle(Palette.brandGradient)
-                .symbolEffect(.bounce, value: appeared)
+                .symbolEffect(.bounce, value: GraphicsSupport.richEffects && appeared)
                 .scaleEffect(appeared ? 1 : 0.6)
                 .opacity(appeared ? 1 : 0)
                 .background { Burst(count: 34, spread: 120).frame(width: 300, height: 240) }

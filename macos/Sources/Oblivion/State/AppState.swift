@@ -223,7 +223,7 @@ final class AppState: ObservableObject {
 
             self.workKey = "work.scanning"
             let found = await Task.detached {
-                LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false)
+                LeftoverScanner.scan(name: app.name, bundleID: app.bundleID)
             }.value
             await self.settle()
             self.finishScan(found)
@@ -265,7 +265,7 @@ final class AppState: ObservableObject {
             }
             self.workKey = "work.scanning"
             let found = await Task.detached {
-                LeftoverScanner.scan(name: name, bundleID: bundleID, aggressive: true)
+                LeftoverScanner.scan(name: name, bundleID: bundleID)
             }.value
             ActivityLog.append("log.forced", name)
             await self.settle()

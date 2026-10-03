@@ -166,13 +166,18 @@ enum SnapshotRunner {
         // Dry run (nothing removed): what would a real browser uninstall find on this Mac?
         for bundleID in ["com.google.Chrome", "org.mozilla.firefox", "com.microsoft.edgemac"] {
             guard let app = state.apps.first(where: { $0.bundleID == bundleID }) else { continue }
-            let found = LeftoverScanner.scan(name: app.name, bundleID: app.bundleID, aggressive: false)
+            let found = LeftoverScanner.scan(name: app.name, bundleID: app.bundleID)
             report.append("")
             report.append("== Dry run \(app.name) (\(bundleID)): \(found.count) items")
             for item in found {
                 report.append("  [\(item.confidence)] \(item.selected ? "x" : " ") \(item.path)")
             }
             if found.contains(where: \.selected) { report.append("!! dry run pre-selected items") }
+            // A whole vendor folder (Application Support/Google, …/Microsoft) must never be offered.
+            let vendors: Set<String> = ["google", "microsoft", "mozilla", "adobe", "apple"]
+            for item in found where vendors.contains(URL(fileURLWithPath: item.path).lastPathComponent.lowercased()) {
+                report.append("!! vendor folder offered: \(item.path)")
+            }
         }
 
         // Force uninstall of an app that is already gone (only leftovers remain).

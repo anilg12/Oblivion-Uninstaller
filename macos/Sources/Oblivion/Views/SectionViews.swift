@@ -483,7 +483,7 @@ struct HunterView: View {
                         Image(systemName: "scope")
                             .font(.system(size: 34, weight: .semibold))
                             .foregroundStyle(Palette.brandGradient)
-                            .symbolEffect(.pulse, isActive: !prefs.calmMotion)
+                            .symbolEffect(.pulse, isActive: !prefs.calmMotion && GraphicsSupport.richEffects)
                     }
                 }
                 .frame(width: 80, height: 80)
