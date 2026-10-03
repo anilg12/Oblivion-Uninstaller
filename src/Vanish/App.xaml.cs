@@ -22,35 +22,64 @@ public partial class App : Application
 
     private ServiceProvider? _services;
 
+    private static string? SnapshotDir => Environment.GetEnvironmentVariable("OBLIVION_SNAPSHOT_DIR");
+
+    private static bool SelfTest => !string.IsNullOrWhiteSpace(SnapshotDir);
+
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
         DispatcherUnhandledException += OnDispatcherUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += (_, a) =>
+        {
+            if (a.ExceptionObject is Exception ex) CrashLog.Write("AppDomain", ex);
+        };
+        TaskScheduler.UnobservedTaskException += (_, a) =>
+        {
+            CrashLog.Write("Task", a.Exception);
+            a.SetObserved();
+        };
+        if (SelfTest) SnapshotRunner.Prepare(SnapshotDir!);
 
-        // Animations never need more than 60 fps; on 120/144 Hz screens this halves the
-        // render work. Without GPU acceleration (or when the user asks), entrance
-        // animations are skipped entirely.
-        Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
+        try
+        {
+            CrashLog.Mark("startup: begin");
+            // Animations never need more than 60 fps; on 120/144 Hz screens this halves the
+            // render work. Without GPU acceleration (or when the user asks), entrance
+            // animations are skipped entirely.
+            Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
 
-        _services = ConfigureServices();
-        Ioc.Configure(_services);
+            _services = ConfigureServices();
+            Ioc.Configure(_services);
 
-        var settings = _services.GetRequiredService<SettingsService>();
-        SettingsViewModel.ApplyAnimationSetting(settings.Current);
-        Loc.I.Language = settings.Current.Language;
-        _services.GetRequiredService<ThemeService>().Apply();
-        // Read the activity log in the background, before any page needs it.
-        _ = _services.GetRequiredService<OperationLogService>().WarmUpAsync();
+            var settings = _services.GetRequiredService<SettingsService>();
+            SettingsViewModel.ApplyAnimationSetting(settings.Current);
+            Loc.I.Language = settings.Current.Language;
+            _services.GetRequiredService<ThemeService>().Apply();
+            CrashLog.Mark("startup: theme applied");
+            // Read the activity log in the background, before any page needs it.
+            _ = _services.GetRequiredService<OperationLogService>().WarmUpAsync();
 
-        var snapshotDir = Environment.GetEnvironmentVariable("OBLIVION_SNAPSHOT_DIR");
-        bool selfTest = !string.IsNullOrWhiteSpace(snapshotDir);
-        if (selfTest) SnapshotRunner.Prepare();
+            var window = _services.GetRequiredService<MainWindow>();
+            CrashLog.Mark("startup: window created");
+            MainWindow = window;
+            window.Show();
+            CrashLog.Mark("startup: window shown");
 
-        var window = _services.GetRequiredService<MainWindow>();
-        MainWindow = window;
-        window.Show();
-
-        if (selfTest) _ = SnapshotRunner.RunAsync(window, snapshotDir!);
+            if (SelfTest) _ = SnapshotRunner.RunAsync(window, SnapshotDir!);
+        }
+        catch (Exception ex)
+        {
+            CrashLog.Write("Startup", ex);
+            if (SelfTest)
+            {
+                SnapshotRunner.WriteFailure(SnapshotDir!, ex);
+                Environment.Exit(4);
+            }
+            MessageBox.Show($"Oblivion could not start:\n\n{ex.Message}\n\n{CrashLog.FilePath}", "Oblivion",
+                MessageBoxButton.OK, MessageBoxImage.Error);
+            Shutdown(1);
+        }
     }
 
     private static ServiceProvider ConfigureServices()
@@ -133,6 +162,12 @@ public partial class App : Application
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
         e.Handled = true;
+        CrashLog.Write("UI", e.Exception);
+        if (SelfTest)
+        {
+            SnapshotRunner.WriteFailure(SnapshotDir!, e.Exception);
+            Environment.Exit(5);
+        }
         try
         {
             Ioc.Resolve<ToastService>().Show(e.Exception.Message, ToastKind.Error);

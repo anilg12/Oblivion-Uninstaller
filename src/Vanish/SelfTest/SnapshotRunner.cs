@@ -36,8 +36,10 @@ public static class SnapshotRunner
     private static readonly BindingErrorListener BindingErrors = new();
 
     /// <summary>Called before the main window is created so binding errors of the first page are caught too.</summary>
-    public static void Prepare()
+    public static void Prepare(string dir)
     {
+        Directory.CreateDirectory(dir);
+        CrashLog.ProgressFile = Path.Combine(dir, "progress.log");
         PresentationTraceSources.Refresh();
         PresentationTraceSources.DataBindingSource.Listeners.Add(BindingErrors);
         PresentationTraceSources.DataBindingSource.Switch.Level = SourceLevels.Warning;
@@ -56,8 +58,24 @@ public static class SnapshotRunner
         }
     }
 
+    /// <summary>Writes a report for a crash that stopped the self-test.</summary>
+    public static void WriteFailure(string dir, Exception ex)
+    {
+        try
+        {
+            Directory.CreateDirectory(dir);
+            var report = new Dictionary<string, object?> { ["errors"] = new[] { ex.ToString() }, ["fatal"] = true };
+            lock (BindingErrors.Messages)
+                report["bindingErrors"] = BindingErrors.Messages.Distinct().Take(300).ToList();
+            File.WriteAllText(Path.Combine(dir, "report.json"),
+                JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }), Encoding.UTF8);
+        }
+        catch { /* ignore */ }
+    }
+
     public static async Task RunAsync(MainWindow window, string dir)
     {
+        CrashLog.Mark("selftest: started");
         var report = new Dictionary<string, object?>();
         var errors = new List<string>();
         try
@@ -72,6 +90,7 @@ public static class SnapshotRunner
             report["renderTier"] = RenderCapability.Tier >> 16;
 
             var mode = Environment.GetEnvironmentVariable("OBLIVION_SELFTEST_MODE") ?? "full";
+            CrashLog.Mark($"selftest: mode {mode}, first render {MainWindow.FirstRenderMs} ms");
             report["mode"] = mode;
             if (mode == "perf") await PerfAsync(window, report);
             else await FullAsync(window, dir, report, errors);
@@ -85,6 +104,7 @@ public static class SnapshotRunner
             lock (BindingErrors.Messages)
                 report["bindingErrors"] = BindingErrors.Messages.Distinct().Take(300).ToList();
             report["errors"] = errors;
+            CrashLog.Mark($"selftest: finished with {errors.Count} error(s)");
             try
             {
                 File.WriteAllText(Path.Combine(dir, "report.json"),
@@ -104,6 +124,7 @@ public static class SnapshotRunner
         var nav = new Dictionary<string, long>();
         foreach (var tag in Pages)
         {
+            CrashLog.Mark($"perf: {tag}");
             var sw = Stopwatch.StartNew();
             window.NavigateTo(tag);
             await Idle();
@@ -155,6 +176,7 @@ public static class SnapshotRunner
             foreach (var tag in Pages)
             {
                 if (lang == "en" && tag is not ("Dashboard" or "Junk" or "SystemMonitor" or "Uninstaller" or "Tools")) continue;
+                CrashLog.Mark($"full: {theme}/{lang}/{tag}");
                 window.NavigateTo(tag);
                 await Idle();
                 await Task.Delay(tag is "SystemMonitor" or "Junk" or "Dashboard" ? 2600 : 900);
