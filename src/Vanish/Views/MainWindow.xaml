@@ -330,7 +330,7 @@
                             <StackPanel>
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="HardDrive24" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                        <ui:SymbolIcon Symbol="HardDrive20" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
                                         <TextBlock Style="{StaticResource OB.BodyStrong}" FontSize="12">
                                             <Run Text="{h:L Live_Disk}" /><Run Text=" " /><Run Text="{Binding DiskTitle, Mode=OneWay}" />
                                         </TextBlock>

@@ -153,7 +153,7 @@ public sealed partial class DashboardViewModel : PageViewModel
                     Text = F("Tip_DiskFullFmt", drive.Name.TrimEnd('\\'), ByteSize.Humanize(drive.Free)),
                     ActionText = T("Tip_CleanJunk"),
                     Target = "Junk",
-                    Symbol = SymbolRegular.HardDrive24
+                    Symbol = SymbolRegular.HardDrive20
                 });
         }
 

@@ -40,7 +40,7 @@
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="*" />
                                             </Grid.ColumnDefinitions>
-                                            <c:GradientBadge Symbol="HardDrive24" Size="40" From="#EC4899" To="#8B5CF6" />
+                                            <c:GradientBadge Symbol="HardDrive20" Size="40" From="#EC4899" To="#8B5CF6" />
                                             <StackPanel Grid.Column="1" Margin="12,0,0,0" VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" />

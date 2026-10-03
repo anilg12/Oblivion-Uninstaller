@@ -181,6 +181,7 @@ public static class SnapshotRunner
                 await Idle();
                 await Task.Delay(tag is "SystemMonitor" or "Junk" or "Dashboard" ? 2600 : 900);
                 shots.Add(Save(window, dir, $"{theme}-{lang}-{tag}"));
+                CheckSymbols(window, tag, errors);
             }
         }
 
@@ -200,6 +201,7 @@ public static class SnapshotRunner
             await Idle();
             await Task.Delay(600);
             shots.Add(Save(window, dir, "dark-tr-Junk-expanded"));
+            CheckSymbols(window, "Junk (expanded)", errors);
             cat.IsExpanded = false;
         }
 
@@ -209,6 +211,7 @@ public static class SnapshotRunner
         _ = main.ShowAboutCommand.ExecuteAsync(null);
         await Task.Delay(900);
         shots.Add(Save(window, dir, "dark-tr-About"));
+        CheckSymbols(window, "About", errors);
         Ioc.Resolve<DialogService>().Close(false);
         await Task.Delay(300);
 
@@ -260,6 +263,27 @@ public static class SnapshotRunner
 
     private static Task Idle() =>
         Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle).Task;
+
+    /// <summary>
+    /// WPF-UI draws a symbol as a single UTF-16 char, so icons whose code point is above U+FFFF
+    /// come out as a stray accent ("˘"). Reports every such icon on screen.
+    /// </summary>
+    private static void CheckSymbols(DependencyObject root, string page, List<string> errors)
+    {
+        var stack = new Stack<DependencyObject>();
+        stack.Push(root);
+        while (stack.Count > 0)
+        {
+            var node = stack.Pop();
+            if (node is Wpf.Ui.Controls.SymbolIcon icon && (int)icon.Symbol > 0xFFFF)
+            {
+                var message = $"Icon {icon.Symbol} can't be drawn (code point above U+FFFF) on {page}";
+                if (!errors.Contains(message)) errors.Add(message);
+            }
+            int count = VisualTreeHelper.GetChildrenCount(node);
+            for (int i = 0; i < count; i++) stack.Push(VisualTreeHelper.GetChild(node, i));
+        }
+    }
 
     private static string Save(Window window, string dir, string name)
     {

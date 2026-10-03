@@ -224,7 +224,7 @@
                     <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <ui:SymbolIcon Symbol="HardDrive24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <ui:SymbolIcon Symbol="HardDrive20" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
                                 <TextBlock Text="{h:L SysMon_Drives}" Style="{StaticResource OB.Section}" />
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding Drives}">

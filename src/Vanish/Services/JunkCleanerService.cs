@@ -38,7 +38,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
         new() { Id = "installers", TitleKey = "Junk_Installers", DetailKey = "Junk_Installers_D", NoteKey = "Junk_Installers_Note",
                 Symbol = SymbolRegular.BoxMultiple24, From = C(0xF5A524), To = C(0xFF7A45), Mode = JunkMode.Recycle },
         new() { Id = "recyclebin", TitleKey = "Junk_RecycleBin", DetailKey = "Junk_RecycleBin_D", NoteKey = "Junk_RecycleBin_Note",
-                Symbol = SymbolRegular.BinRecycle24, From = C(0x22C55E), To = C(0x14B8A6), Mode = JunkMode.EmptyRecycleBin },
+                Symbol = SymbolRegular.BinFull24, From = C(0x22C55E), To = C(0x14B8A6), Mode = JunkMode.EmptyRecycleBin },
     };
 
     private static Color C(uint rgb) => Color.FromRgb((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);

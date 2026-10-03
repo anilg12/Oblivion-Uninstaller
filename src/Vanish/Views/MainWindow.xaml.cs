@@ -43,10 +43,6 @@ public partial class MainWindow : FluentWindow
             if (e.PropertyName == nameof(AppSettings.ShowLivePanel)) UpdateRightPanel();
         };
 
-        ContentRendered += (_, _) =>
-        {
-            if (FirstRenderMs == 0) FirstRenderMs = App.Clock.ElapsedMilliseconds;
-        };
         SizeChanged += (_, _) => UpdateRightPanel();
         StateChanged += (_, _) => UpdateRightPanel();
         Loaded += (_, _) =>
@@ -54,14 +50,30 @@ public partial class MainWindow : FluentWindow
             SyncThemeIcon();
             UpdateRightPanel();
             if (_currentPage is null) NavigateTo("Dashboard");
+            CompositionTarget.Rendering += OnFirstFrame;
         };
     }
 
     /// <summary>Tag of the page currently shown.</summary>
     public string CurrentTag { get; private set; } = "";
 
-    /// <summary>Milliseconds from process start to the first rendered frame (self-test).</summary>
+    /// <summary>Milliseconds from process start to the first composed frame (self-test).</summary>
     public static long FirstRenderMs { get; private set; }
+
+    // ContentRendered is not raised for this window, so the first composition frame is used instead.
+    private static void OnFirstFrame(object? sender, EventArgs e)
+    {
+        CompositionTarget.Rendering -= OnFirstFrame;
+        if (FirstRenderMs != 0) return;
+        try
+        {
+            FirstRenderMs = (long)(DateTime.Now - System.Diagnostics.Process.GetCurrentProcess().StartTime).TotalMilliseconds;
+        }
+        catch
+        {
+            FirstRenderMs = App.Clock.ElapsedMilliseconds;
+        }
+    }
 
     protected override void OnSourceInitialized(EventArgs e)
     {
