@@ -7,7 +7,7 @@
     xmlns:c="clr-namespace:Vanish.Controls">
 
     <UserControl.Resources>
-        <Style x:Key="SettingRow" TargetType="Border" BasedOn="{StaticResource OB.Card}">
+        <Style x:Key="SettingRow" TargetType="Border" BasedOn="{StaticResource OB.CardBox}">
             <Setter Property="CornerRadius" Value="16" />
             <Setter Property="Padding" Value="16,13" />
             <Setter Property="Margin" Value="0,0,0,8" />

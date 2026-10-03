@@ -86,7 +86,7 @@
     </Style>
 
     <!-- ===================== Surfaces ===================== -->
-    <Style x:Key="OB.Card" TargetType="Border">
+    <Style x:Key="OB.CardBox" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource OB.Card}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
         <Setter Property="BorderThickness" Value="1" />

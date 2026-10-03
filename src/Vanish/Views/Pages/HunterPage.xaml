@@ -21,7 +21,7 @@
 
         <StackPanel Grid.Row="1">
             <!-- crosshair -->
-            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="18" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="18" c:Reveal.Enabled="True">
                 <StackPanel HorizontalAlignment="Center">
                     <Grid x:Name="TargetArea" Width="150" Height="150" Cursor="Cross" Background="Transparent"
                           MouseLeftButtonDown="Target_MouseDown" MouseMove="Target_MouseMove" MouseLeftButtonUp="Target_MouseUp"
@@ -38,7 +38,7 @@
             </Border>
 
             <!-- target -->
-            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
                     Visibility="{Binding HasTarget, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
@@ -71,7 +71,7 @@
         </StackPanel>
 
         <!-- running apps -->
-        <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource OB.Card}" CornerRadius="20" Padding="14" c:Reveal.Enabled="True" c:Reveal.Delay="80">
+        <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="14" c:Reveal.Enabled="True" c:Reveal.Delay="80">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto" />

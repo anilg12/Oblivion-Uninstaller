@@ -108,7 +108,7 @@
         <c:EmptyState Grid.Row="3" Symbol="PuzzlePiece24" Title="{h:L Ext_None}" Text="{h:L Ext_NoneText}"
                       Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
 
-        <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+        <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
             <Grid>
                 <TextBlock Style="{StaticResource OB.Caption}" VerticalAlignment="Center">
                     <Run Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="Bold" /><Run Text=" " /><Run Text="{h:L Ext_SelectedWord}" />

@@ -18,7 +18,7 @@
             </c:PageHeader>
 
             <!-- ============ Health ============ -->
-            <Border Style="{StaticResource OB.Card}" CornerRadius="22" Padding="22" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="22" c:Reveal.Enabled="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -163,7 +163,7 @@
             </UniformGrid>
 
             <!-- ============ Recent activity ============ -->
-            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" />
