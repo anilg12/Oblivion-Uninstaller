@@ -4,48 +4,114 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Tool_Startup], Source={x:Static h:Loc.I}}" />
-                <TextBlock Opacity="0.6" Text="{Binding [Tool_Startup_Desc], Source={x:Static h:Loc.I}}" />
-            </StackPanel>
-            <ui:Button HorizontalAlignment="Right" VerticalAlignment="Center" Appearance="Secondary"
-                       Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}" Command="{Binding LoadCommand}" />
+        <c:PageHeader Title="{h:L Tool_Startup}" Subtitle="{h:L Startup_Subtitle}" Symbol="Power24">
+            <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
+                <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
+            </Button>
+        </c:PageHeader>
+
+        <!-- counters -->
+        <UniformGrid Grid.Row="1" Columns="3" Margin="-6,0,-6,8" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.Card}" Margin="6" Padding="14,12" CornerRadius="16">
+                <StackPanel Orientation="Horizontal">
+                    <c:GradientBadge Symbol="Power24" Size="36" />
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding TotalCount}" Style="{StaticResource OB.BigNumber}" FontSize="20" />
+                        <TextBlock Text="{h:L Startup_Total}" Style="{StaticResource OB.FaintText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource OB.Card}" Margin="6" Padding="14,12" CornerRadius="16">
+                <StackPanel Orientation="Horizontal">
+                    <c:GradientBadge Symbol="Play24" Size="36" From="#22C55E" To="#14B8A6" />
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding EnabledCount}" Style="{StaticResource OB.BigNumber}" FontSize="20" />
+                        <TextBlock Text="{h:L Startup_EnabledCount}" Style="{StaticResource OB.FaintText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource OB.Card}" Margin="6" Padding="14,12" CornerRadius="16">
+                <StackPanel Orientation="Horizontal">
+                    <c:GradientBadge Symbol="Pause24" Size="36" From="#94A3B8" To="#64748B" />
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DisabledCount}" Style="{StaticResource OB.BigNumber}" FontSize="20" />
+                        <TextBlock Text="{h:L Startup_DisabledCount}" Style="{StaticResource OB.FaintText}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="320" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox PlaceholderText="{h:L Startup_Search}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ClearButtonEnabled="True">
+                <ui:TextBox.Icon>
+                    <ui:SymbolIcon Symbol="Search24" />
+                </ui:TextBox.Icon>
+            </ui:TextBox>
+            <Border Grid.Column="1" Style="{StaticResource OB.SegmentHost}" HorizontalAlignment="Right" Margin="12,0,0,0">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="startupFilter" Content="{h:L Apps_FilterAll}"
+                                 IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=all}" />
+                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="startupFilter" Content="{h:L Startup_On}"
+                                 IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=on}" />
+                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="startupFilter" Content="{h:L Startup_Off}"
+                                 IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=off}" />
+                </StackPanel>
+            </Border>
         </Grid>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Entries}" BorderThickness="0" Background="Transparent"
-                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="230" Header="{Binding [Col_Name], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Width="200" Header="{Binding [Col_Location], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding LocationLabel}" />
-                    <GridViewColumn Width="380" Header="{Binding [Col_Command], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Command}" />
-                    <GridViewColumn Width="110">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:StartupEntry}">
-                                <ui:Button Padding="10,4" Appearance="Danger"
-                                           Content="{Binding [Act_Remove], Source={x:Static h:Loc.I}}"
-                                           Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                           CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
-        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+        <ListBox Grid.Row="3" Style="{StaticResource OB.List}" ItemsSource="{Binding Entries}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="46" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Grid Width="34" Height="34" HorizontalAlignment="Left">
+                            <Border CornerRadius="10" Background="{DynamicResource OB.CardStrong}">
+                                <ui:SymbolIcon Symbol="Power24" FontSize="15" Foreground="{DynamicResource OB.Faint}" />
+                            </Border>
+                            <Image c:IconLoader.Path="{Binding ExecutablePath}" Width="28" Height="28" RenderOptions.BitmapScalingMode="HighQuality" />
+                        </Grid>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{Binding Command}" Style="{StaticResource OB.FaintText}" ToolTip="{Binding Command}" />
+                        </StackPanel>
+                        <c:Chip Grid.Column="2" Text="{Binding LocationLabel}" Tint="#7C6CF6" Margin="0,0,12,0" />
+                        <ui:ToggleSwitch Grid.Column="3" IsChecked="{Binding IsEnabled}" IsEnabled="{Binding CanToggle}" Margin="0,0,6,0"
+                                         ToolTip="{h:L Startup_ToggleTip}" />
+                        <Button Grid.Column="4" Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_ShowLocation}" CommandParameter="{Binding}"
+                                Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ui:SymbolIcon Symbol="FolderOpen24" FontSize="14" />
+                        </Button>
+                        <Button Grid.Column="5" Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_Delete}" CommandParameter="{Binding}"
+                                Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ui:SymbolIcon Symbol="Delete24" FontSize="14" Foreground="{StaticResource OB.Danger}" />
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+            <c:Spinner Width="34" Height="34" Thickness="3.5" />
+        </StackPanel>
     </Grid>
 </UserControl>

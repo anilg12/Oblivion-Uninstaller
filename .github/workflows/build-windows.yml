@@ -1,0 +1,183 @@
+name: Build Oblivion for Windows
+
+on:
+  push:
+    branches: [ "**" ]
+    paths-ignore:
+      - "macos/**"
+      - ".github/workflows/build-macos.yml"
+      - ".github/workflows/release.yml"
+      - "README.md"
+      - "docs/**"
+  workflow_dispatch:
+    inputs:
+      snapshots:
+        description: "Push the self-test screenshots to the ci-snapshots-win branch"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish (installer build, ReadyToRun)
+        run: >
+          dotnet publish src/Vanish/Vanish.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -o dist/app
+
+      - name: Publish (portable single file)
+        run: >
+          dotnet publish src/Vanish/Vanish.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -o dist/portable
+
+      - name: Stage portable exe
+        run: copy dist\portable\Oblivion.exe dist\Oblivion.exe
+
+      # ---------------------------------------------------------------- self-tests
+      - name: Self-test helper
+        shell: pwsh
+        run: |
+          @'
+          param([string]$Exe, [string]$Dir, [string]$Mode, [int]$TimeoutSec = 240)
+          New-Item -ItemType Directory -Force -Path $Dir | Out-Null
+          $env:OBLIVION_SNAPSHOT_DIR = $Dir
+          $env:OBLIVION_SELFTEST_MODE = $Mode
+          $p = Start-Process -FilePath $Exe -PassThru
+          if (-not $p.WaitForExit($TimeoutSec * 1000)) {
+            Stop-Process -Id $p.Id -Force
+            throw "Oblivion did not finish the $Mode self-test within $TimeoutSec s"
+          }
+          $report = Join-Path $Dir "report.json"
+          if (-not (Test-Path $report)) { throw "No report written ($Mode), exit code $($p.ExitCode)" }
+          Get-Content $report -Raw | Write-Host
+          $json = Get-Content $report -Raw | ConvertFrom-Json
+          if ($json.errors.Count -gt 0) { throw "Self-test ($Mode) reported errors" }
+          return $json
+          '@ | Set-Content -Path selftest.ps1 -Encoding utf8
+
+      - name: Self-test 1 - first launch (clean profile)
+        shell: pwsh
+        run: |
+          Remove-Item -Recurse -Force "$env:LOCALAPPDATA\Oblivion" -ErrorAction SilentlyContinue
+          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf1" -Mode perf
+          "FIRST_RENDER_1=$($r.firstRenderMs)" | Out-File -Append $env:GITHUB_ENV
+
+      - name: Self-test 2 - later launch (settings + a full activity log)
+        shell: pwsh
+        run: |
+          # Later launches used to stutter: simulate a long history (2000 log entries).
+          $log = "$env:LOCALAPPDATA\Oblivion\activity.log"
+          New-Item -ItemType Directory -Force -Path (Split-Path $log) | Out-Null
+          $lines = 1..2000 | ForEach-Object { '{"Timestamp":"2026-09-01T10:00:00","ActionKey":"Log_Junk","Action":"","Detail":"' + $_ + ' MB freed"}' }
+          [IO.File]::WriteAllLines($log, $lines)
+          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf2" -Mode perf
+          Write-Host "First launch: $env:FIRST_RENDER_1 ms   Later launch: $($r.firstRenderMs) ms   Slowest page switch: $($r.navigationMaxMs) ms   Transition fps: $($r.transitionFps)"
+          if ($r.navigationMaxMs -gt 3000) { throw "A page switch took longer than 3 s" }
+          if ([int]$r.firstRenderMs -gt ([int]$env:FIRST_RENDER_1 * 2 + 2000)) { throw "Later launch is much slower than the first one" }
+
+      - name: Create a leftover-scan fixture app
+        shell: pwsh
+        run: |
+          $name = "Oblivion CI Fixture"
+          $dir = "$env:ProgramFiles\$name"
+          New-Item -ItemType Directory -Force -Path $dir | Out-Null
+          Copy-Item "$env:WINDIR\System32\notepad.exe" "$dir\OblivionCIFixture.exe"
+          foreach ($d in @("$env:LOCALAPPDATA\$name", "$env:APPDATA\$name", "$env:ProgramData\$name")) {
+            New-Item -ItemType Directory -Force -Path $d | Out-Null
+            Set-Content -Path "$d\settings.ini" -Value "fixture"
+          }
+          New-Item -Force -Path "HKCU:\Software\$name" | Out-Null
+          New-ItemProperty -Force -Path "HKCU:\Software\$name" -Name "Fixture" -Value 1 | Out-Null
+          $key = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\OblivionCIFixture"
+          New-Item -Force -Path $key | Out-Null
+          New-ItemProperty -Force -Path $key -Name DisplayName -Value $name | Out-Null
+          # Publisher "Microsoft Corporation" on purpose: Microsoft folders/keys must never be offered.
+          New-ItemProperty -Force -Path $key -Name Publisher -Value "Microsoft Corporation" | Out-Null
+          New-ItemProperty -Force -Path $key -Name InstallLocation -Value $dir | Out-Null
+          New-ItemProperty -Force -Path $key -Name DisplayIcon -Value "$dir\OblivionCIFixture.exe,0" | Out-Null
+          New-ItemProperty -Force -Path $key -Name UninstallString -Value "`"$dir\OblivionCIFixture.exe`" /uninstall" | Out-Null
+
+      - name: Self-test 3 - screenshots and leftover safety check
+        shell: pwsh
+        run: |
+          $env:OBLIVION_FIXTURE_APP = "Oblivion CI Fixture"
+          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\full" -Mode full -TimeoutSec 420
+          Write-Host "Screenshots: $($r.screenshots.Count)   Binding errors: $($r.bindingErrors.Count)"
+          $r.bindingErrors | ForEach-Object { Write-Host "BINDING: $_" }
+          Write-Host "Fixture leftovers found:"
+          $r.fixtureFound | Format-Table -AutoSize | Out-String -Width 300 | Write-Host
+
+      - name: Portable exe smoke test
+        shell: pwsh
+        run: |
+          $r = ./selftest.ps1 -Exe "$pwd\dist\Oblivion.exe" -Dir "$pwd\snap\portable" -Mode perf
+          Write-Host "Portable first render: $($r.firstRenderMs) ms"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-Windows-selftest
+          path: snap/
+
+      # ---------------------------------------------------------------- installer
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $version = ([xml](Get-Content src/Vanish/Vanish.csproj)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Vanish.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+
+      - name: Upload portable build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-portable
+          path: dist/Oblivion.exe
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: Oblivion-Setup
+          path: dist/OblivionSetup.exe
+
+      - name: Push screenshots to the ci-snapshots-win branch
+        # Development branch only (the release workflow removes this branch again).
+        if: always() && (inputs.snapshots || github.ref == 'refs/heads/claude/v3')
+        shell: pwsh
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          $tmp = "$env:RUNNER_TEMP\snaps"
+          New-Item -ItemType Directory -Force -Path $tmp | Out-Null
+          Copy-Item -Recurse snap\* $tmp
+          git checkout --orphan ci-snapshots-win
+          git rm -rf --quiet .
+          git clean -fdxq
+          Copy-Item -Recurse "$tmp\*" .
+          git add -A
+          git commit -m "Windows self-test screenshots" --quiet
+          git push -f origin ci-snapshots-win

@@ -4,138 +4,202 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Margin="24,18">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+        <StackPanel Margin="26,22,26,24">
+            <c:PageHeader Title="{Binding Greeting}" Subtitle="{h:L Dash_Subtitle}" Symbol="Home24">
+                <Button Style="{StaticResource OB.Btn}" Command="{Binding RefreshCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="15" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Act_Refresh}" />
+                    </StackPanel>
+                </Button>
+            </c:PageHeader>
 
-            <StackPanel Grid.Row="0" Margin="0,0,0,18">
-                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Nav_Dashboard], Source={x:Static h:Loc.I}}" />
-                <TextBlock Opacity="0.6" Text="{Binding [Made_By], Source={x:Static h:Loc.I}}" />
-            </StackPanel>
+            <!-- ============ Health ============ -->
+            <Border Style="{StaticResource OB.Card}" CornerRadius="22" Padding="22" c:Reveal.Enabled="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid Width="132" Height="132" VerticalAlignment="Top">
+                        <c:RingGauge Value="{Binding HealthFraction}" Thickness="11" From="#22C55E" To="#18C29C" />
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <c:CountUpText Value="{Binding HealthScore}" FontSize="36" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                                           Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" />
+                            <TextBlock Text="/ 100" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Center" Margin="0,-4,0,0" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Grid.Column="1" Margin="24,2,0,0">
+                        <TextBlock Text="{h:L Dash_Health}" Style="{StaticResource OB.Caption}" />
+                        <TextBlock Text="{Binding HealthTitle}" Style="{StaticResource OB.Title}" FontSize="22" Margin="0,2,0,0" />
+                        <TextBlock Text="{Binding HealthText}" Style="{StaticResource OB.Subtitle}" />
+                        <ItemsControl ItemsSource="{Binding Tips}" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource OB.Row}" Padding="12,8" c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="17" Foreground="{StaticResource OB.Accent}" Margin="0,0,10,0" />
+                                            <TextBlock Grid.Column="1" Text="{Binding Text}" Style="{StaticResource OB.Body}" TextWrapping="Wrap"
+                                                       TextTrimming="None" VerticalAlignment="Center" />
+                                            <Button Grid.Column="2" Style="{StaticResource OB.Btn}" Padding="11,5" FontSize="12" Margin="10,0,0,0"
+                                                    Content="{Binding ActionText}" CommandParameter="{Binding Target}"
+                                                    Command="{Binding DataContext.GoCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
-            <!-- Stat cards -->
-            <UniformGrid Grid.Row="1" Columns="4" Margin="0,0,0,12">
-                <ui:Card Margin="0,0,6,0" Padding="18">
+            <!-- ============ Stats ============ -->
+            <UniformGrid Columns="4" Margin="-6,14,-6,0" c:Reveal.Enabled="True" c:Reveal.Delay="70">
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16" Command="{Binding GoCommand}" CommandParameter="Uninstaller">
                     <StackPanel>
-                        <ui:FontIcon Glyph="&#xE71D;" FontFamily="Segoe Fluent Icons" FontSize="20" Opacity="0.7" />
-                        <TextBlock Margin="0,8,0,0" Text="{Binding InstalledCount}" FontSize="28" FontWeight="Bold" />
-                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Stat_Installed], Source={x:Static h:Loc.I}}" />
+                        <c:GradientBadge Symbol="AppsList24" Size="40" />
+                        <c:CountUpText Value="{Binding ProgramCount}" Style="{StaticResource OB.BigNumber}" Margin="0,12,0,0" />
+                        <TextBlock Text="{h:L Dash_Programs}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" />
+                        <TextBlock Text="{Binding ProgramSizeText}" Style="{StaticResource OB.FaintText}" Margin="0,2,0,0" />
                     </StackPanel>
-                </ui:Card>
-                <ui:Card Margin="6,0" Padding="18">
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16" Command="{Binding GoCommand}" CommandParameter="WindowsApps">
                     <StackPanel>
-                        <ui:FontIcon Glyph="&#xEDA2;" FontFamily="Segoe Fluent Icons" FontSize="20" Opacity="0.7" />
-                        <TextBlock Margin="0,8,0,0" Text="{Binding TotalSize}" FontSize="28" FontWeight="Bold" />
-                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Stat_Footprint], Source={x:Static h:Loc.I}}" />
+                        <c:GradientBadge Symbol="StoreMicrosoft24" Size="40" From="#22C55E" To="#14B8A6" />
+                        <c:CountUpText Value="{Binding StoreAppCount}" Style="{StaticResource OB.BigNumber}" Margin="0,12,0,0" />
+                        <TextBlock Text="{h:L Dash_StoreApps}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" />
+                        <TextBlock Text="{h:L Dash_StoreAppsDetail}" Style="{StaticResource OB.FaintText}" Margin="0,2,0,0" />
                     </StackPanel>
-                </ui:Card>
-                <ui:Card Margin="6,0" Padding="18">
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16" Command="{Binding GoCommand}" CommandParameter="Startup">
                     <StackPanel>
-                        <ui:FontIcon Glyph="&#xE7E8;" FontFamily="Segoe Fluent Icons" FontSize="20" Opacity="0.7" />
-                        <TextBlock Margin="0,8,0,0" Text="{Binding StartupCount}" FontSize="28" FontWeight="Bold" />
-                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Dash_Startup], Source={x:Static h:Loc.I}}" />
+                        <c:GradientBadge Symbol="Power24" Size="40" From="#F5A524" To="#FF7A45" />
+                        <c:CountUpText Value="{Binding StartupCount}" Style="{StaticResource OB.BigNumber}" Margin="0,12,0,0" />
+                        <TextBlock Text="{h:L Dash_Startup}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" />
+                        <TextBlock Text="{Binding StartupDetail}" Style="{StaticResource OB.FaintText}" Margin="0,2,0,0" />
                     </StackPanel>
-                </ui:Card>
-                <ui:Card Margin="6,0,0,0" Padding="18">
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16" Command="{Binding GoCommand}" CommandParameter="BrowserExt">
                     <StackPanel>
-                        <ui:FontIcon Glyph="&#xEDA2;" FontFamily="Segoe Fluent Icons" FontSize="20" Foreground="#4CAF50" />
-                        <TextBlock Margin="0,8,0,0" Text="{Binding FreeSpace}" FontSize="18" FontWeight="Bold" TextWrapping="Wrap" />
-                        <TextBlock Opacity="0.6" FontSize="12" Text="{Binding [Dash_FreeSpace], Source={x:Static h:Loc.I}}" />
+                        <c:GradientBadge Symbol="PuzzlePiece24" Size="40" From="#3A8DFF" To="#6F5BFF" />
+                        <c:CountUpText Value="{Binding ExtensionCount}" Style="{StaticResource OB.BigNumber}" Margin="0,12,0,0" />
+                        <TextBlock Text="{h:L Dash_Extensions}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" />
+                        <TextBlock Text="{Binding ExtensionDetail}" Style="{StaticResource OB.FaintText}" Margin="0,2,0,0" />
                     </StackPanel>
-                </ui:Card>
+                </Button>
             </UniformGrid>
 
-            <!-- Quick actions -->
-            <ui:Card Grid.Row="2" Padding="16" Margin="0,0,0,12">
-                <StackPanel>
-                    <TextBlock FontWeight="SemiBold" Margin="0,0,0,10" Text="{Binding [Dash_QuickActions], Source={x:Static h:Loc.I}}" />
+            <!-- ============ Quick actions ============ -->
+            <TextBlock Text="{h:L Dash_QuickActions}" Style="{StaticResource OB.Section}" Margin="0,18,0,4" />
+            <UniformGrid Columns="3" Margin="-6,0,-6,0">
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="Uninstaller"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="120">
                     <StackPanel Orientation="Horizontal">
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Nav_AllApps], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding GoCommand}" CommandParameter="Uninstaller" />
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Nav_WindowsApps], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding GoCommand}" CommandParameter="WindowsApps" />
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Tool_Junk], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding GoCommand}" CommandParameter="Junk" />
-                        <ui:Button Appearance="Secondary"
-                                   Content="{Binding [Tool_Startup], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding GoCommand}" CommandParameter="Startup" />
+                        <c:GradientBadge Symbol="Delete24" Size="38" From="#FF6B6B" To="#E5484D" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_Uninstall}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_Uninstall_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
                     </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="Junk"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="150">
+                    <StackPanel Orientation="Horizontal">
+                        <c:GradientBadge Symbol="Broom24" Size="38" From="#3A8DFF" To="#6F5BFF" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_Junk}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_Junk_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="SystemMonitor"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="180">
+                    <StackPanel Orientation="Horizontal">
+                        <c:GradientBadge Symbol="Pulse24" Size="38" From="#18C29C" To="#2E8BFF" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_Monitor}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_Monitor_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="Startup"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="210">
+                    <StackPanel Orientation="Horizontal">
+                        <c:GradientBadge Symbol="Power24" Size="38" From="#6E5BFF" To="#B45BFF" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_Startup}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_Startup_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="LargeFiles"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="240">
+                    <StackPanel Orientation="Horizontal">
+                        <c:GradientBadge Symbol="DocumentSearch24" Size="38" From="#F5A524" To="#FF7A45" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_LargeFiles}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_LargeFiles_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="History"
+                        c:Reveal.Enabled="True" c:Reveal.Delay="270">
+                    <StackPanel Orientation="Horizontal">
+                        <c:GradientBadge Symbol="EyeOff24" Size="38" From="#14B8A6" To="#22C55E" />
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{h:L Quick_Privacy}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Text="{h:L Quick_Privacy_D}" Style="{StaticResource OB.FaintText}" />
+                        </StackPanel>
+                    </StackPanel>
+                </Button>
+            </UniformGrid>
+
+            <!-- ============ Recent activity ============ -->
+            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+                <StackPanel>
+                    <Grid Margin="0,0,0,10">
+                        <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" />
+                        <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnGhost}" Padding="8,3" FontSize="12"
+                                Command="{Binding GoCommand}" CommandParameter="Logs">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{h:L Dash_AllLogs}" Foreground="{StaticResource OB.Accent}" />
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12" Margin="3,1,0,0" Foreground="{StaticResource OB.Accent}" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                    <TextBlock Text="{h:L Dash_NoActivity}" Style="{StaticResource OB.Caption}"
+                               Visibility="{Binding Activity.Count, Converter={StaticResource ZeroToVisibility}}" />
+                    <ItemsControl ItemsSource="{Binding Activity}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border Width="32" Height="32" CornerRadius="10" Background="{StaticResource OB.AccentSoft}" Margin="0,0,12,0">
+                                        <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{StaticResource OB.Accent}" />
+                                    </Border>
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" />
+                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource OB.Caption}" />
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="2" Text="{Binding TimeText}" Style="{StaticResource OB.FaintText}" VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
-            </ui:Card>
-
-            <!-- Largest apps + recent activity -->
-            <Grid Grid.Row="3">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <ui:Card Grid.Column="0" Margin="0,0,6,0" Padding="16">
-                    <StackPanel>
-                        <TextBlock FontWeight="SemiBold" Margin="0,0,0,8" Text="{Binding [Dash_Largest], Source={x:Static h:Loc.I}}" />
-                        <ItemsControl ItemsSource="{Binding LargestApps}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type models:InstalledProgram}">
-                                    <Grid Margin="0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto" />
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Image Grid.Column="0" Width="20" Height="20" Margin="0,0,10,0"
-                                               Source="{Binding DisplayIcon, Converter={StaticResource DisplayIconToImage}}" />
-                                        <TextBlock Grid.Column="1" Text="{Binding DisplayName}" TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                                        <TextBlock Grid.Column="2" Text="{Binding DisplaySize}" FontWeight="SemiBold" Opacity="0.8" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ui:Card>
-
-                <ui:Card Grid.Column="1" Margin="6,0,0,0" Padding="16">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,8">
-                            <TextBlock FontWeight="SemiBold" VerticalAlignment="Center"
-                                       Text="{Binding [Dash_RecentActivity], Source={x:Static h:Loc.I}}" />
-                            <ui:Button HorizontalAlignment="Right" Appearance="Secondary" Padding="10,3"
-                                       Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}" Command="{Binding LoadCommand}" />
-                        </Grid>
-                        <TextBlock Opacity="0.5" FontSize="12" TextWrapping="Wrap"
-                                   Text="{Binding [Dash_NoActivity], Source={x:Static h:Loc.I}}"
-                                   Visibility="{Binding RecentActivity.Count, Converter={StaticResource ZeroCountToVisibility}}" />
-                        <ItemsControl ItemsSource="{Binding RecentActivity}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate DataType="{x:Type models:LogEntry}">
-                                    <Grid Margin="0,5">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <StackPanel Grid.Column="0">
-                                            <TextBlock Text="{Binding Action}" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                                            <TextBlock Text="{Binding Detail}" Opacity="0.6" FontSize="12" />
-                                        </StackPanel>
-                                        <TextBlock Grid.Column="1" Text="{Binding TimeText}" Opacity="0.55" FontSize="11" VerticalAlignment="Center" />
-                                    </Grid>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </ui:Card>
-            </Grid>
-        </Grid>
+            </Border>
+        </StackPanel>
     </ScrollViewer>
 </UserControl>

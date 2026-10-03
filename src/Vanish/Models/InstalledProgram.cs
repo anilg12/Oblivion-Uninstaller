@@ -1,4 +1,4 @@
-using Microsoft.Win32;
+﻿using Vanish.Helpers;
 
 namespace Vanish.Models;
 
@@ -24,6 +24,9 @@ public sealed class InstalledProgram
     /// <summary>Raw DisplayIcon value (may be "path,index").</summary>
     public string? DisplayIcon { get; init; }
 
+    /// <summary>Best icon source for the list ("path,index", .exe or .ico), resolved in the background.</summary>
+    public string? IconPath { get; init; }
+
     /// <summary>Estimated install size in bytes (EstimatedSize * 1024).</summary>
     public long EstimatedSizeBytes { get; init; }
 
@@ -39,16 +42,34 @@ public sealed class InstalledProgram
     public string? Comments { get; init; }
 
     public string DisplaySize =>
-        EstimatedSizeBytes > 0 ? Helpers.ByteSize.Humanize(EstimatedSizeBytes) : "—";
+        EstimatedSizeBytes > 0 ? ByteSize.Humanize(EstimatedSizeBytes) : "—";
 
-    public string PublisherOrUnknown => string.IsNullOrWhiteSpace(Publisher) ? "Unknown publisher" : Publisher!;
+    public string PublisherOrUnknown => string.IsNullOrWhiteSpace(Publisher) ? Loc.I["App_UnknownPublisher"] : Publisher!;
+
+    public string InstallDateText => InstallDate?.ToString("dd.MM.yyyy") ?? "—";
+
+    public string VersionText => string.IsNullOrWhiteSpace(DisplayVersion) ? "—" : DisplayVersion!;
+
+    /// <summary>One or two letters shown while (or instead of) the icon loading.</summary>
+    public string Initials
+    {
+        get
+        {
+            var words = DisplayName.Split(new[] { ' ', '-', '_', '.' }, StringSplitOptions.RemoveEmptyEntries)
+                .Where(w => char.IsLetterOrDigit(w[0])).ToList();
+            if (words.Count == 0) return "?";
+            return words.Count == 1
+                ? words[0][..1].ToUpperInvariant()
+                : string.Concat(words[0][0], words[1][0]).ToUpperInvariant();
+        }
+    }
 
     /// <summary>Architecture label derived from which hive/view the entry lives in.</summary>
     public string Architecture => Root switch
     {
         RegistryRoot.LocalMachine64 => "64-bit",
         RegistryRoot.LocalMachine32 => "32-bit",
-        RegistryRoot.CurrentUser => "user",
+        RegistryRoot.CurrentUser => Loc.I["App_PerUser"],
         _ => ""
     };
 

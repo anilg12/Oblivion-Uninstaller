@@ -4,68 +4,87 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock FontSize="26" FontWeight="Bold"
-                           Text="{Binding [WinApps_Title], Source={x:Static h:Loc.I}}" />
-                <TextBlock Opacity="0.6" Text="{Binding [WinApps_Subtitle], Source={x:Static h:Loc.I}}" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
-                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
-                <ui:Button Appearance="Secondary"
-                           Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
-                           Command="{Binding LoadCommand}" />
+        <c:PageHeader Title="{h:L Nav_WindowsApps}" Subtitle="{h:L Store_Subtitle}" Symbol="StoreMicrosoft24" From="#22C55E" To="#14B8A6">
+            <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
+                <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
+            </Button>
+        </c:PageHeader>
+
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" MaxWidth="340" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox PlaceholderText="{h:L Store_Search}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ClearButtonEnabled="True">
+                <ui:TextBox.Icon>
+                    <ui:SymbolIcon Symbol="Search24" />
+                </ui:TextBox.Icon>
+            </ui:TextBox>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <TextBlock Text="{h:L Store_ShowSystem}" Style="{StaticResource OB.Caption}" FontSize="12.5" VerticalAlignment="Center" Margin="0,0,10,0" />
+                <ui:ToggleSwitch IsChecked="{Binding ShowFrameworks}" />
             </StackPanel>
         </Grid>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Apps}" BorderThickness="0" Background="Transparent"
-                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="320" Header="{Binding [Col_Name], Source={x:Static h:Loc.I}}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:WindowsApp}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Grid Width="26" Height="26" Margin="0,0,12,0" VerticalAlignment="Center">
-                                        <!-- Fallback Store glyph shows through when no logo is found -->
-                                        <ui:FontIcon Glyph="&#xE8FC;" FontFamily="Segoe Fluent Icons" FontSize="18"
-                                                     Opacity="0.7" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        <Image Source="{Binding LogoPath}" Stretch="Uniform" />
-                                    </Grid>
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Width="220" Header="{Binding [Col_Publisher], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding PublisherOrUnknown}" />
-                    <GridViewColumn Width="130" Header="{Binding [Col_Version], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Version}" />
-                    <GridViewColumn Width="120">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:WindowsApp}">
-                                <ui:Button Padding="10,4" Appearance="Danger"
-                                           Content="{Binding [WinApps_Remove], Source={x:Static h:Loc.I}}"
-                                           Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                           CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <ListBox Grid.Row="2" Style="{StaticResource OB.List}" ItemsSource="{Binding Apps}" SelectedItem="{Binding SelectedApp}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid Height="42" c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="48" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Border Width="36" Height="36" CornerRadius="10" Background="{DynamicResource OB.CardStrong}" HorizontalAlignment="Left">
+                            <Grid>
+                                <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="15" Foreground="{DynamicResource OB.Faint}" />
+                                <Image c:IconLoader.Path="{Binding LogoPath}" Width="28" Height="28" RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Grid>
+                        </Border>
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Style="{StaticResource OB.FaintText}">
+                                <Run Text="{Binding PublisherOrUnknown, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding Version, Mode=OneWay}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <c:Chip Grid.Column="2" Text="{h:L Store_SystemChip}" Tint="#F5A524" Margin="0,0,8,0"
+                                Visibility="{Binding IsFramework, Converter={StaticResource BoolToVisibility}}" />
+                        <Button Grid.Column="3" Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_ShowLocation}" CommandParameter="{Binding}"
+                                Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ui:SymbolIcon Symbol="FolderOpen24" FontSize="14" />
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+            <c:Spinner Width="34" Height="34" Thickness="3.5" />
+            <TextBlock Text="{h:L Store_Loading}" Style="{StaticResource OB.Caption}" Margin="0,10,0,0" HorizontalAlignment="Center" />
+        </StackPanel>
 
-        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+            <Grid>
+                <TextBlock Style="{StaticResource OB.Caption}" VerticalAlignment="Center">
+                    <Run Text="{Binding VisibleCount, Mode=OneWay}" /><Run Text=" " /><Run Text="{h:L Store_AppsShown}" />
+                </TextBlock>
+                <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnDanger}" Command="{Binding RemoveCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Delete24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Store_RemoveSelected}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

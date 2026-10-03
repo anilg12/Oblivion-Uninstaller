@@ -4,64 +4,187 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Tool_Junk], Source={x:Static h:Loc.I}}" />
-            <TextBlock Opacity="0.6" Text="{Binding [Tool_Junk_Desc], Source={x:Static h:Loc.I}}" />
-        </StackPanel>
+        <c:PageHeader Title="{h:L Tool_Junk}" Subtitle="{h:L Junk_Subtitle}" Symbol="Broom24" From="#3A8DFF" To="#6F5BFF">
+            <StackPanel Orientation="Horizontal">
+                <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Command="{Binding ExpandAllCommand}" ToolTip="{h:L Junk_ExpandAllTip}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="TextBulletListLtr24" FontSize="15" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Junk_ExpandAll}" />
+                    </StackPanel>
+                </Button>
+                <Button Style="{StaticResource OB.Btn}" Command="{Binding ScanCommand}" IsEnabled="{Binding CanInteract}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="15" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Junk_Rescan}" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+        </c:PageHeader>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding Categories}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate DataType="{x:Type models:JunkCategory}">
-                    <Border Padding="16,12" Margin="0,3" CornerRadius="10"
-                            Background="{DynamicResource ControlFillColorDefaultBrush}">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="Auto" />
-                            </Grid.ColumnDefinitions>
-                            <CheckBox Grid.Column="0" VerticalAlignment="Center" Margin="0,0,12,0"
-                                      IsChecked="{Binding IsSelected, Mode=TwoWay}" />
-                            <ui:FontIcon Grid.Column="1" FontFamily="Segoe Fluent Icons" FontSize="20"
-                                         Glyph="{Binding Glyph}" Margin="0,0,14,0" VerticalAlignment="Center" Opacity="0.8" />
-                            <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
-                                <TextBlock Text="{Binding Description}" Opacity="0.55" FontSize="12" />
+        <!-- ================= summary ================= -->
+        <Border Grid.Row="1" Style="{StaticResource OB.Card}" CornerRadius="20" Padding="18,16" Margin="0,0,0,12" c:Reveal.Enabled="True">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="{h:L Junk_Found}" Style="{StaticResource OB.Caption}" />
+                        <StackPanel Orientation="Horizontal">
+                            <c:CountUpText Value="{Binding FoundBytes}" Mode="Bytes" Style="{StaticResource OB.BigNumber}" FontSize="26" />
+                            <c:Spinner Width="18" Height="18" Thickness="2.4" Margin="10,0,0,0" VerticalAlignment="Center"
+                                       Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibility}}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <Border Grid.Column="1" Width="1" Margin="22,4" Background="{DynamicResource OB.Stroke}" />
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{h:L Junk_Selected}" Style="{StaticResource OB.Caption}" />
+                        <TextBlock Text="{Binding SelectedText}" Style="{StaticResource OB.BodyStrong}" FontSize="14" Margin="0,3,0,0" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Style="{StaticResource OB.BtnGhost}" Margin="0,0,8,0" Content="{h:L Act_SelectNone}" Command="{Binding SelectNoneCommand}"
+                                Visibility="{Binding SelectedCount, Converter={StaticResource PositiveToVisibility}}" />
+                        <Button Style="{StaticResource OB.BtnDangerLarge}" Command="{Binding CleanCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Broom24" FontSize="17" Foreground="White" Margin="0,0,8,0" />
+                                <TextBlock Text="{h:L Junk_CleanSelected}" />
                             </StackPanel>
-                            <TextBlock Grid.Column="3" VerticalAlignment="Center" FontWeight="SemiBold"
-                                       Text="{Binding DisplaySize}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+                        </Button>
+                    </StackPanel>
+                </Grid>
 
-        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16,12" CornerRadius="12"
-                Background="{DynamicResource ControlFillColorDefaultBrush}">
-            <Grid>
-                <StackPanel VerticalAlignment="Center">
-                    <TextBlock Text="{Binding TotalText}" FontSize="20" FontWeight="Bold" />
-                    <TextBlock Text="{Binding StatusMessage}" Opacity="0.65" FontSize="12" />
+                <!-- cleaning progress -->
+                <StackPanel Margin="0,14,0,0" Visibility="{Binding IsCleaning, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
+                    <TextBlock Text="{h:L Junk_Cleaning}" Style="{StaticResource OB.Caption}" Margin="0,0,0,6" />
+                    <c:GradientBar Value="{Binding CleanProgress}" />
                 </StackPanel>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
-                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
-                    <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                               Content="{Binding [Act_Analyze], Source={x:Static h:Loc.I}}" Command="{Binding AnalyzeCommand}" />
-                    <ui:Button Appearance="Primary"
-                               Content="{Binding [Act_Clean], Source={x:Static h:Loc.I}}" Command="{Binding CleanCommand}" />
-                </StackPanel>
-            </Grid>
+
+                <!-- result -->
+                <Border Margin="0,14,0,0" CornerRadius="12" Padding="12,10" Background="{StaticResource OB.SuccessSoft}"
+                        Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" Foreground="{StaticResource OB.Success}" Margin="0,0,10,0" />
+                        <c:CountUpText Value="{Binding ResultFreed}" Mode="Bytes" FontWeight="Bold" FontSize="13.5" Foreground="{DynamicResource OB.Text}"
+                                       VerticalAlignment="Center" />
+                        <TextBlock Text="{h:L Junk_Freed}" Style="{StaticResource OB.BodyStrong}" Margin="5,0,0,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding ResultText}" Style="{StaticResource OB.Caption}" Margin="10,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Border>
+
+        <!-- ================= categories ================= -->
+        <ScrollViewer x:Name="Scroller" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+            <ItemsControl ItemsSource="{Binding Categories}" Margin="0,0,6,0">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource OB.Card}" Padding="0" CornerRadius="18" Margin="0,0,0,10"
+                                c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                            <StackPanel>
+                                <!-- category header -->
+                                <Grid Margin="14,12,12,12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <CheckBox IsChecked="{Binding SelectionState, Mode=TwoWay}" IsEnabled="{Binding HasItems}" MinWidth="0"
+                                              VerticalAlignment="Center" Margin="0,0,6,0" ToolTip="{h:L Junk_SelectCategoryTip}" />
+                                    <c:GradientBadge Grid.Column="1" Symbol="{Binding Symbol}" From="{Binding From}" To="{Binding To}" Size="42" Margin="0,0,14,0" />
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Background="Transparent" Cursor="Hand">
+                                        <StackPanel.InputBindings>
+                                            <MouseBinding Gesture="LeftClick" CommandParameter="{Binding}"
+                                                          Command="{Binding DataContext.ToggleExpandCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                                        </StackPanel.InputBindings>
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
+                                        <TextBlock Text="{Binding Detail}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" Margin="0,2,0,0" />
+                                        <TextBlock Text="{Binding SelectedText}" Style="{StaticResource OB.Caption}" Foreground="{StaticResource OB.Accent}"
+                                                   FontWeight="SemiBold" Margin="0,3,0,0"
+                                                   Visibility="{Binding SelectedText, Converter={StaticResource NullToVisibility}}" />
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="12,0" MinWidth="86">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <c:Spinner Width="14" Height="14" Thickness="2" Margin="0,0,6,0"
+                                                       Visibility="{Binding IsScanning, Converter={StaticResource BoolToVisibility}}" />
+                                            <TextBlock Text="{Binding SizeText}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding CountText}" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Right" />
+                                    </StackPanel>
+                                    <ToggleButton Grid.Column="4" Style="{StaticResource OB.ChevronToggle}" IsChecked="{Binding IsExpanded}"
+                                                  IsEnabled="{Binding HasItems}" ToolTip="{h:L Junk_ShowItems}" />
+                                </Grid>
+
+                                <!-- note (what happens when cleaned) -->
+                                <Border Margin="14,0,14,12" CornerRadius="10" Padding="10,7" Background="{DynamicResource OB.Card}"
+                                        Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibility}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Info24" FontSize="13" Foreground="{StaticResource OB.Info}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding Note}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" MaxWidth="620" />
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- expanded: exactly what would be removed -->
+                                <Border BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="0,1,0,0" Padding="8,8,8,8"
+                                        Visibility="{Binding IsExpanded, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
+                                    <ListBox Style="{StaticResource OB.List}" ItemsSource="{Binding Items}" SelectionMode="Multiple" MaxHeight="330"
+                                             c:ScrollBubble.Enabled="True">
+                                        <ListBox.ItemContainerStyle>
+                                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource OB.ListItem}">
+                                                <Setter Property="Padding" Value="8,5" />
+                                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                        <ColumnDefinition Width="78" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
+                                                    <CheckBox IsChecked="{Binding IsSelected}" MinWidth="0" VerticalAlignment="Center" Margin="0,0,2,0" />
+                                                    <ui:SymbolIcon Grid.Column="1" Symbol="{Binding Symbol}" FontSize="15" Foreground="{DynamicResource OB.Subtext}"
+                                                                   Margin="0,0,10,0" />
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
+                                                        <TextBlock Text="{Binding Name}" Style="{StaticResource OB.Body}" FontSize="12.5" />
+                                                        <TextBlock Text="{Binding Location}" Style="{StaticResource OB.FaintText}" ToolTip="{Binding Location}" />
+                                                    </StackPanel>
+                                                    <TextBlock Grid.Column="3" Text="{Binding DateText}" Style="{StaticResource OB.FaintText}" VerticalAlignment="Center"
+                                                               Margin="0,0,12,0" />
+                                                    <TextBlock Grid.Column="4" Text="{Binding SizeText}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center"
+                                                               HorizontalAlignment="Right" />
+                                                    <Button Grid.Column="5" Style="{StaticResource OB.BtnGhost}" Padding="6" Margin="6,0,0,0" ToolTip="{h:L Act_ShowLocation}"
+                                                            CommandParameter="{Binding}"
+                                                            Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                                        <ui:SymbolIcon Symbol="Open24" FontSize="13" />
+                                                    </Button>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Border>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
     </Grid>
 </UserControl>

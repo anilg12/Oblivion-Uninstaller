@@ -1,4 +1,9 @@
 # Build output
+dist/
+snap/
+.dotnet/
+.build/
+*.dmg
 bin/
 obj/
 [Dd]ebug/

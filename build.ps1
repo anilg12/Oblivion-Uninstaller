@@ -1,6 +1,6 @@
 #requires -Version 5.1
 <#
-    Vanish - one-click build script.
+    Oblivion - one-click build script (Windows).
 
     EASIEST: just double-click  build.bat  (keeps the window open and shows errors).
 
@@ -9,9 +9,9 @@
 
     It will:
       1. Make sure the .NET 8 SDK is available (installs a local copy if not).
-      2. Build Vanish in Release.
-      3. Produce a portable single-file  ->  dist\Vanish.exe
-      4. Build an installer (Setup.exe)  ->  dist\VanishSetup.exe   (if Inno Setup is present)
+      2. Publish Oblivion (self-contained, ReadyToRun)        ->  dist\app\
+      3. Produce a portable single-file executable            ->  dist\Oblivion.exe
+      4. Build the installer (Setup.exe)                      ->  dist\OblivionSetup.exe   (if Inno Setup is present)
 #>
 
 [CmdletBinding()]
@@ -32,7 +32,7 @@ try {
     $ErrorActionPreference = "Stop"
     $root = Split-Path -Parent $MyInvocation.MyCommand.Definition
     Set-Location $root
-    Write-Host "Vanish build - working folder: $root" -ForegroundColor Green
+    Write-Host "Oblivion build - working folder: $root" -ForegroundColor Green
 
     # -----------------------------------------------------------------------
     # 1. Ensure the .NET 8 SDK
@@ -66,14 +66,29 @@ try {
     Write-Host "Using dotnet: $dotnet"
     & $dotnet --version
 
-    # -----------------------------------------------------------------------
-    # 2 and 3. Publish a portable single-file executable
-    # -----------------------------------------------------------------------
-    Write-Step "Publishing Vanish (portable single-file) - this can take a few minutes"
     $dist = Join-Path $root "dist"
     if (Test-Path $dist) { Remove-Item $dist -Recurse -Force }
     New-Item -ItemType Directory -Path $dist | Out-Null
 
+    # -----------------------------------------------------------------------
+    # 2. Self-contained ReadyToRun folder (used by the installer: fastest start-up)
+    # -----------------------------------------------------------------------
+    Write-Step "Publishing Oblivion (installer build) - this can take a few minutes"
+    & $dotnet publish "src\Vanish\Vanish.csproj" `
+        -c $Configuration `
+        -r $Runtime `
+        --self-contained `
+        -p:PublishReadyToRun=true `
+        -p:DebugType=None `
+        -o "$dist\app"
+    if ($LASTEXITCODE -ne 0) {
+        throw "BUILD FAILED. Please copy ALL the red/error text above and send it to me."
+    }
+
+    # -----------------------------------------------------------------------
+    # 3. Portable single-file executable
+    # -----------------------------------------------------------------------
+    Write-Step "Publishing Oblivion (portable single file)"
     & $dotnet publish "src\Vanish\Vanish.csproj" `
         -c $Configuration `
         -r $Runtime `
@@ -81,9 +96,9 @@ try {
         -p:PublishSingleFile=true `
         -p:IncludeNativeLibrariesForSelfExtract=true `
         -p:EnableCompressionInSingleFile=true `
+        -p:PublishReadyToRun=true `
         -p:DebugType=None `
         -o "$dist\portable"
-
     if ($LASTEXITCODE -ne 0) {
         throw "BUILD FAILED. Please copy ALL the red/error text above and send it to me."
     }
@@ -93,7 +108,7 @@ try {
     Write-Host "    $dist\Oblivion.exe" -ForegroundColor Green
 
     # -----------------------------------------------------------------------
-    # 4. Optional installer via Inno Setup (iscc.exe)
+    # 4. Installer via Inno Setup (iscc.exe)
     # -----------------------------------------------------------------------
     Write-Step "Building installer (optional)"
     $iscc = $null

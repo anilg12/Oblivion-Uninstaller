@@ -1,117 +1,165 @@
 using System.ComponentModel;
-using System.Diagnostics;
+using System.IO;
 using System.Windows;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
 using Vanish.Helpers;
 using Vanish.Models;
 using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>Drives the main uninstall + leftover-cleanup workflow and item commands.</summary>
-public sealed partial class UninstallerViewModel : ObservableObject
+public enum UninstallStage { Browsing, Working, Review, Done }
+
+/// <summary>
+/// All applications: the program list and the uninstall workflow
+/// (restore point → the app's own uninstaller → leftover scan → review → delete).
+/// Leftovers are never pre-selected; the user ticks what goes.
+/// </summary>
+public sealed partial class UninstallerViewModel : PageViewModel
 {
     private readonly IInstalledProgramsService _programs;
     private readonly IUninstallService _uninstall;
     private readonly ILeftoverScanService _scan;
     private readonly ISystemRestoreService _restore;
-    private readonly OperationLogService _log;
 
-    private List<InstalledProgram> _allPrograms = new();
+    private readonly ObservableCollectionEx<InstalledProgram> _items = new();
+    private readonly ListCollectionView _view;
+    private List<InstalledProgram> _all = new();
+    private Task? _loadTask;
     private CancellationTokenSource? _cts;
 
-    public UninstallerViewModel(
-        IInstalledProgramsService programs,
-        IUninstallService uninstall,
-        ILeftoverScanService scan,
-        ISystemRestoreService restore,
-        OperationLogService log)
+    public UninstallerViewModel(IInstalledProgramsService programs, IUninstallService uninstall,
+        ILeftoverScanService scan, ISystemRestoreService restore)
     {
         _programs = programs;
         _uninstall = uninstall;
         _scan = scan;
         _restore = restore;
-        _log = log;
 
-        Programs = CollectionViewSource.GetDefaultView(_view);
-        Programs.Filter = FilterProgram;
+        _view = (ListCollectionView)CollectionViewSource.GetDefaultView(_items);
+        _view.Filter = FilterProgram;
+        _view.CustomSort = new ProgramComparer(this);
+
+        LeftoverView = new ListCollectionView(Leftovers);
+        LeftoverView.Filter = o => o is LeftoverItem l && LeftoverFilter switch
+        {
+            "files" => !l.IsRegistry,
+            "registry" => l.IsRegistry,
+            _ => true
+        };
     }
 
-    public Loc Loc => Loc.I;
+    // ===================================================================== list
 
-    // ---- collections --------------------------------------------------------
+    public ICollectionView Programs => _view;
 
-    private readonly ObservableCollectionEx<InstalledProgram> _view = new();
-    public ICollectionView Programs { get; }
-
-    public ObservableCollectionEx<LeftoverItem> Leftovers { get; } = new();
-
-    // ---- state --------------------------------------------------------------
-
-    public enum WorkflowStage { Browsing, Working, ReviewLeftovers }
-
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(IsBrowsing))]
-    [NotifyPropertyChangedFor(nameof(IsWorking))]
-    [NotifyPropertyChangedFor(nameof(IsReviewing))]
-    private WorkflowStage _stage = WorkflowStage.Browsing;
-
-    public bool IsBrowsing => Stage == WorkflowStage.Browsing;
-    public bool IsWorking => Stage == WorkflowStage.Working;
-    public bool IsReviewing => Stage == WorkflowStage.ReviewLeftovers;
+    public bool IsLoaded { get; private set; }
 
     [ObservableProperty] private bool _isLoading;
-    [ObservableProperty] private string _statusMessage = "";
+    [ObservableProperty] private int _totalCount;
+    [ObservableProperty] private string _totalSizeText = "—";
+    [ObservableProperty] private int _visibleCount;
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(HasSelection))]
-    private InstalledProgram? _selectedProgram;
+    [ObservableProperty] private string _searchText = "";
+    [ObservableProperty] private string _filter = "all";   // all | recent | large
+    [ObservableProperty] private string _sort = "name";    // name | size | date | publisher
 
-    public bool HasSelection => SelectedProgram is not null;
+    partial void OnSearchTextChanged(string value) => RefreshView();
+    partial void OnFilterChanged(string value) => RefreshView();
+    partial void OnSortChanged(string value) => RefreshView();
 
-    [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(ResultCountText))]
-    private string _searchText = "";
+    /// <summary>"No match" placeholder: only once the list has loaded.</summary>
+    public bool ShowEmpty => IsLoaded && !IsLoading && VisibleCount == 0;
 
-    // ---- options ------------------------------------------------------------
+    partial void OnVisibleCountChanged(int value) => OnPropertyChanged(nameof(ShowEmpty));
+    partial void OnIsLoadingChanged(bool value) => OnPropertyChanged(nameof(ShowEmpty));
 
-    [ObservableProperty] private bool _createRestorePoint = true;
-    [ObservableProperty] private bool _silentUninstall;
-    [ObservableProperty] private bool _useRecycleBin = true;
-
-    public string ResultCountText => $"{_view.Count}";
-
-    partial void OnSearchTextChanged(string value) => Programs.Refresh();
+    private void RefreshView()
+    {
+        _view.Refresh();
+        VisibleCount = _view.Count;
+    }
 
     private bool FilterProgram(object obj)
     {
         if (obj is not InstalledProgram p) return false;
-        if (string.IsNullOrWhiteSpace(SearchText)) return true;
-        return p.DisplayName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-               (p.Publisher?.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ?? false);
+        switch (Filter)
+        {
+            case "recent":
+                if (p.InstallDate is not { } d || d.ToDateTime(TimeOnly.MinValue) < DateTime.Today.AddDays(-30)) return false;
+                break;
+            case "large":
+                if (p.EstimatedSizeBytes < 500L * 1024 * 1024) return false;
+                break;
+        }
+        var q = SearchText?.Trim();
+        if (string.IsNullOrEmpty(q)) return true;
+        return p.DisplayName.Contains(q, StringComparison.CurrentCultureIgnoreCase) ||
+               (p.Publisher?.Contains(q, StringComparison.CurrentCultureIgnoreCase) ?? false);
     }
 
-    // ---- load ---------------------------------------------------------------
+    private sealed class ProgramComparer(UninstallerViewModel owner) : System.Collections.IComparer
+    {
+        public int Compare(object? x, object? y)
+        {
+            if (x is not InstalledProgram a || y is not InstalledProgram b) return 0;
+            int r = owner.Sort switch
+            {
+                "size" => b.EstimatedSizeBytes.CompareTo(a.EstimatedSizeBytes),
+                "date" => Nullable.Compare(b.InstallDate, a.InstallDate),
+                "publisher" => string.Compare(a.PublisherOrUnknown, b.PublisherOrUnknown, StringComparison.CurrentCultureIgnoreCase),
+                _ => 0
+            };
+            return r != 0 ? r : string.Compare(a.DisplayName, b.DisplayName, StringComparison.CurrentCultureIgnoreCase);
+        }
+    }
+
+    public override void OnShown()
+    {
+        base.OnShown();
+        _ = EnsureLoadedAsync(false);
+    }
+
+    public override void RefreshTexts()
+    {
+        OnPropertyChanged(nameof(SelectionHint));
+        _items.Reset(_all);
+        RefreshView();
+        var keep = Leftovers.ToList();
+        Leftovers.Reset(keep);
+        UpdateLeftoverSelection();
+        if (Stage == UninstallStage.Done && Target is not null) OnPropertyChanged(nameof(DoneTitle));
+    }
+
+    /// <summary>Loads the list once (or again when <paramref name="force"/>); shared with the dashboard.</summary>
+    public Task EnsureLoadedAsync(bool force)
+    {
+        if (_loadTask is null || (force && _loadTask.IsCompleted)) _loadTask = LoadCoreAsync();
+        return _loadTask;
+    }
 
     [RelayCommand]
-    private async Task LoadAsync()
+    private Task RefreshAsync() => EnsureLoadedAsync(true);
+
+    private async Task LoadCoreAsync()
     {
         IsLoading = true;
-        StatusMessage = Loc.I.T("Status_Reading");
         try
         {
-            _allPrograms = (await _programs.GetInstalledProgramsAsync()).ToList();
-            _view.Reset(_allPrograms);
-            Programs.Refresh();
-            OnPropertyChanged(nameof(ResultCountText));
-            StatusMessage = $"{_allPrograms.Count} {Loc.I.T("Status_Apps")}";
+            var selectedKey = SelectedProgram?.RegistryKeyName;
+            _all = (await _programs.GetInstalledProgramsAsync()).ToList();
+            _items.Reset(_all);
+            TotalCount = _all.Count;
+            TotalSizeText = ByteSize.Humanize(_all.Sum(p => p.EstimatedSizeBytes));
+            RefreshView();
+            IsLoaded = true;
+            SelectedProgram = selectedKey is null ? null : _all.FirstOrDefault(p => p.RegistryKeyName == selectedKey);
         }
         catch (Exception ex)
         {
-            StatusMessage = ex.Message;
+            Toast.Show(ex.Message, ToastKind.Error);
         }
         finally
         {
@@ -119,214 +167,274 @@ public sealed partial class UninstallerViewModel : ObservableObject
         }
     }
 
-    // ---- uninstall ----------------------------------------------------------
+    /// <summary>Finds the installed program an executable belongs to (Hunter mode).</summary>
+    public InstalledProgram? FindByExecutable(string? exePath)
+    {
+        if (string.IsNullOrWhiteSpace(exePath)) return null;
+        InstalledProgram? best = null;
+        int bestLen = 0;
+        foreach (var p in _all)
+        {
+            var folder = p.InstallLocation ?? LeftoverScanService.GuessInstallFolder(p);
+            if (string.IsNullOrWhiteSpace(folder)) continue;
+            folder = folder.TrimEnd('\\') + "\\";
+            if (folder.Length > bestLen && exePath.StartsWith(folder, StringComparison.OrdinalIgnoreCase))
+            {
+                best = p;
+                bestLen = folder.Length;
+            }
+        }
+        return best;
+    }
+
+    /// <summary>Selects a program by name (used by other pages) and opens this page.</summary>
+    public void Reveal(InstalledProgram program)
+    {
+        SearchText = "";
+        Filter = "all";
+        SelectedProgram = program;
+        Navigation.Navigate("Uninstaller");
+    }
+
+    public InstalledProgram? FindByName(string displayName) =>
+        _all.FirstOrDefault(p => string.Equals(p.DisplayName, displayName, StringComparison.OrdinalIgnoreCase));
+
+    // ================================================================ selection
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasSelection))]
+    [NotifyPropertyChangedFor(nameof(SelectionHint))]
+    [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ForceUninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenInstallFolderCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenRegistryCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SearchWebCommand))]
+    [NotifyCanExecuteChangedFor(nameof(OpenWebsiteCommand))]
+    [NotifyCanExecuteChangedFor(nameof(CopyDetailsCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RemoveEntryCommand))]
+    private InstalledProgram? _selectedProgram;
+
+    public bool HasSelection => SelectedProgram is not null && Stage == UninstallStage.Browsing;
+
+    public string SelectionHint => SelectedProgram is { } p ? p.DisplayName : T("Apps_SelectHint");
+
+    // ================================================================= workflow
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsBrowsing))]
+    [NotifyPropertyChangedFor(nameof(IsWorking))]
+    [NotifyPropertyChangedFor(nameof(IsReviewing))]
+    [NotifyPropertyChangedFor(nameof(IsDone))]
+    [NotifyPropertyChangedFor(nameof(HasSelection))]
+    [NotifyCanExecuteChangedFor(nameof(UninstallCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ForceUninstallCommand))]
+    private UninstallStage _stage = UninstallStage.Browsing;
+
+    public bool IsBrowsing => Stage == UninstallStage.Browsing;
+    public bool IsWorking => Stage == UninstallStage.Working;
+    public bool IsReviewing => Stage == UninstallStage.Review;
+    public bool IsDone => Stage == UninstallStage.Done;
+
+    [ObservableProperty] private InstalledProgram? _target;
+    [ObservableProperty] private string _workTitle = "";
+    [ObservableProperty] private string _workStatus = "";
+    [ObservableProperty] private int _workStep;
+    [ObservableProperty] private bool _restoreStepEnabled = true;
+    [ObservableProperty] private bool _canCancel;
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private Task UninstallAsync() => RunUninstallAsync(force: false);
+    private Task UninstallAsync() => RunAsync(force: false);
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
-    private Task ForceUninstallAsync() => RunUninstallAsync(force: true);
+    private Task ForceUninstallAsync() => RunAsync(force: true);
 
-    private async Task RunUninstallAsync(bool force)
+    private async Task RunAsync(bool force)
     {
         var program = SelectedProgram;
-        if (program is null) return;
+        if (program is null || Stage != UninstallStage.Browsing) return;
 
-        var title = force ? Loc.I.T("Act_ForceUninstall") : Loc.I.T("Act_Uninstall");
-        var confirm = MessageBox.Show(
-            $"{title}: \"{program.DisplayName}\"?",
-            Loc.I.T("Confirm"), MessageBoxButton.OKCancel, MessageBoxImage.Question);
-        if (confirm != MessageBoxResult.OK) return;
+        if (Settings.ConfirmBeforeUninstall || force)
+        {
+            var details = new List<string> { $"{T("Apps_Publisher")}: {program.PublisherOrUnknown}" };
+            if (!string.IsNullOrWhiteSpace(program.DisplayVersion)) details.Add($"{T("Apps_Version")}: {program.DisplayVersion}");
+            if (!string.IsNullOrWhiteSpace(program.InstallLocation)) details.Add($"{T("Apps_Location")}: {program.InstallLocation}");
+            details.Add(Settings.CreateRestorePoint ? T("Uninst_WillCreateRestorePoint") : T("Uninst_NoRestorePoint"));
+            bool ok = await Dialogs.ConfirmAsync(
+                F(force ? "Uninst_ForceConfirmTitleFmt" : "Uninst_ConfirmTitleFmt", program.DisplayName),
+                T(force ? "Uninst_ForceConfirmText" : "Uninst_ConfirmText"),
+                T(force ? "Act_ForceUninstall" : "Act_Uninstall"),
+                force ? DialogTone.Danger : DialogTone.Warning,
+                details);
+            if (!ok) return;
+        }
+
+        Navigation.Navigate("Uninstaller");
+        Target = program;
+        WorkTitle = F("Work_TitleFmt", program.DisplayName);
+        RestoreStepEnabled = Settings.CreateRestorePoint;
+        WorkStep = 0;
+        WorkStatus = T("Work_Preparing");
+        CanCancel = false;
+        Stage = UninstallStage.Working;
 
         _cts = new CancellationTokenSource();
-        Stage = WorkflowStage.Working;
-        var progress = new Progress<string>(m => StatusMessage = m);
-
+        var ct = _cts.Token;
         try
         {
-            if (CreateRestorePoint)
+            // What the app looks like *before* its uninstaller runs (the folder may vanish).
+            var fingerprint = await Task.Run(() => _scan.CaptureFingerprint(program), ct);
+
+            if (Settings.CreateRestorePoint)
             {
-                StatusMessage = "Creating a System Restore point…";
-                await _restore.CreateRestorePointAsync($"Before uninstalling {program.DisplayName}", _cts.Token);
+                WorkStatus = T("Work_RestorePoint");
+                bool created = await _restore.CreateRestorePointAsync(F("Work_RestorePointDescFmt", program.DisplayName), ct);
+                if (!created) Toast.Show(T("Work_RestorePointFailed"), ToastKind.Warning);
             }
 
-            // Force uninstall: if the entry is broken we may skip running the native
-            // uninstaller, but normally we still run it first.
-            if (!force || !string.IsNullOrWhiteSpace(program.UninstallString))
+            WorkStep = 1;
+            UninstallResult? result = null;
+            bool hasUninstaller = !string.IsNullOrWhiteSpace(program.UninstallString) || !string.IsNullOrWhiteSpace(program.QuietUninstallString);
+            if (hasUninstaller)
             {
-                StatusMessage = "Launching the uninstaller…";
-                var result = await _uninstall.RunUninstallerAsync(program, SilentUninstall, progress, _cts.Token);
-                if (!result.Succeeded)
-                    StatusMessage = result.Message ?? "The uninstaller reported a problem.";
+                WorkStatus = T("Work_RunUninstaller");
+                var progress = new Progress<string>(k => WorkStatus = T(k));
+                result = await _uninstall.RunUninstallerAsync(program, Settings.SilentUninstall, progress, ct);
             }
 
-            _log.Append(force ? "Force uninstall" : "Uninstall", program.DisplayName);
-
-            StatusMessage = "Scanning for leftovers…";
-            var leftovers = await _scan.ScanAsync(program, progress, _cts.Token);
-
-            // Force mode also pre-selects medium-confidence remnants for a deeper clean.
-            if (force)
-                foreach (var l in leftovers.Where(l => l.Confidence == MatchConfidence.Medium))
-                    l.IsSelected = true;
-
-            Leftovers.Reset(leftovers);
-
-            if (Leftovers.Count == 0)
+            bool stillInstalled = _programs.StillInstalled(program) && FolderHasFiles(fingerprint.InstallLocation);
+            if (stillInstalled && !force)
             {
-                StatusMessage = Loc.I.T("Leftovers_None");
-                await BackToListAsync();
+                // The uninstaller was cancelled or failed: scanning now could offer the app's own files.
+                bool scanAnyway = await Dialogs.ConfirmAsync(
+                    T("Uninst_NotFinishedTitle"),
+                    (result?.Message is { Length: > 0 } m ? m + "\n\n" : "") + T("Uninst_NotFinishedText"),
+                    T("Uninst_ScanAnyway"),
+                    DialogTone.Warning);
+                if (!scanAnyway)
+                {
+                    Stage = UninstallStage.Browsing;
+                    Toast.Show(F("Uninst_StoppedFmt", program.DisplayName));
+                    return;
+                }
+            }
+            else if (!stillInstalled)
+            {
+                Log.Append(force ? "Log_Forced" : "Log_Uninstalled", program.DisplayName);
+            }
+
+            WorkStep = 2;
+            CanCancel = true;
+            WorkStatus = T("Work_Folders");
+            var others = _all.Where(p => !ReferenceEquals(p, program)).Select(p => p.InstallLocation ?? "").ToList();
+            var scanProgress = new Progress<string>(k => WorkStatus = T(k));
+            var found = await _scan.ScanAsync(fingerprint, others, scanProgress, ct);
+            CanCancel = false;
+
+            StillInstalledWarning = stillInstalled;
+            var ordered = found
+                .OrderBy(l => l.IsRegistry)
+                .ThenBy(l => l.Confidence)
+                .ThenBy(l => l.Path, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            SetLeftovers(ordered);
+
+            if (ordered.Count == 0)
+            {
+                ShowDone(0, 0, 0, nothingFound: true);
+                _ = EnsureLoadedAsync(true);
             }
             else
             {
-                Stage = WorkflowStage.ReviewLeftovers;
+                LeftoverFilter = "all";
+                Stage = UninstallStage.Review;
             }
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = Loc.I.T("Act_Cancel");
-            Stage = WorkflowStage.Browsing;
+            Stage = UninstallStage.Browsing;
+            Toast.Show(T("Work_Cancelled"));
+            _ = EnsureLoadedAsync(true);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Error: {ex.Message}";
-            Stage = WorkflowStage.Browsing;
+            Stage = UninstallStage.Browsing;
+            Toast.Show(ex.Message, ToastKind.Error);
         }
-    }
-
-    partial void OnSelectedProgramChanged(InstalledProgram? value)
-    {
-        UninstallCommand.NotifyCanExecuteChanged();
-        ForceUninstallCommand.NotifyCanExecuteChanged();
-        OpenInstallFolderCommand.NotifyCanExecuteChanged();
-        OpenRegistryCommand.NotifyCanExecuteChanged();
-        SearchWebCommand.NotifyCanExecuteChanged();
-        OpenWebsiteCommand.NotifyCanExecuteChanged();
-        CopyDetailsCommand.NotifyCanExecuteChanged();
-        RemoveEntryCommand.NotifyCanExecuteChanged();
-    }
-
-    // ---- "other commands" ---------------------------------------------------
-
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void OpenInstallFolder()
-    {
-        var path = SelectedProgram?.InstallLocation;
-        if (string.IsNullOrWhiteSpace(path) || !System.IO.Directory.Exists(path))
+        finally
         {
-            StatusMessage = "Install folder is not available.";
-            return;
+            CanCancel = false;
         }
-        TryStart("explorer.exe", $"\"{path}\"");
     }
 
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void OpenRegistry()
+    private static bool FolderHasFiles(string? folder)
     {
-        var program = SelectedProgram;
-        if (program is null) return;
-
-        // regedit reopens at the key stored in its LastKey value.
+        if (string.IsNullOrWhiteSpace(folder)) return true; // unknown: assume installed
         try
         {
-            using var key = Registry.CurrentUser.CreateSubKey(
-                @"SOFTWARE\Microsoft\Windows\CurrentVersion\Applets\Regedit");
-            key?.SetValue("LastKey", program.UninstallRegistryPath);
+            return Directory.Exists(folder) && Directory.EnumerateFiles(folder, "*.exe", SearchOption.TopDirectoryOnly).Any();
         }
-        catch { /* best effort */ }
-
-        TryStart("regedit.exe", "");
-    }
-
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void SearchWeb()
-    {
-        var program = SelectedProgram;
-        if (program is null) return;
-        var query = Uri.EscapeDataString($"{program.DisplayName} {program.Publisher}");
-        TryStart($"https://www.bing.com/search?q={query}", "");
-    }
-
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void OpenWebsite()
-    {
-        var url = SelectedProgram?.UrlInfoAbout;
-        if (string.IsNullOrWhiteSpace(url))
+        catch
         {
-            StatusMessage = "No publisher website on record.";
-            return;
+            return true;
         }
-        TryStart(url, "");
     }
 
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void CopyDetails()
+    [RelayCommand]
+    private void Cancel() => _cts?.Cancel();
+
+    // =================================================================== review
+
+    public ObservableCollectionEx<LeftoverItem> Leftovers { get; } = new();
+    public ListCollectionView LeftoverView { get; }
+
+    [ObservableProperty] private string _leftoverFilter = "all";   // all | files | registry
+    [ObservableProperty] private int _selectedLeftoverCount;
+    [ObservableProperty] private string _selectedLeftoverText = "";
+    [ObservableProperty] private int _fileLeftoverCount;
+    [ObservableProperty] private int _registryLeftoverCount;
+    [ObservableProperty] private int _highLeftoverCount;
+    [ObservableProperty] private string _leftoverSummary = "";
+    [ObservableProperty] private bool _stillInstalledWarning;
+
+    partial void OnLeftoverFilterChanged(string value) => LeftoverView.Refresh();
+
+    private void SetLeftovers(IReadOnlyList<LeftoverItem> items)
     {
-        var p = SelectedProgram;
-        if (p is null) return;
-        var details =
-            $"Name: {p.DisplayName}\r\n" +
-            $"Publisher: {p.PublisherOrUnknown}\r\n" +
-            $"Version: {p.DisplayVersion}\r\n" +
-            $"Architecture: {p.Architecture}\r\n" +
-            $"Size: {p.DisplaySize}\r\n" +
-            $"Install date: {p.InstallDate}\r\n" +
-            $"Install location: {p.InstallLocation}\r\n" +
-            $"Uninstall: {p.UninstallString}\r\n" +
-            $"Registry: {p.UninstallRegistryPath}";
-        try { Clipboard.SetText(details); StatusMessage = "Details copied."; }
-        catch { StatusMessage = "Could not copy to clipboard."; }
+        foreach (var old in Leftovers) old.PropertyChanged -= OnLeftoverChanged;
+        Leftovers.Reset(items);
+        foreach (var l in items) l.PropertyChanged += OnLeftoverChanged;
+        FileLeftoverCount = items.Count(l => !l.IsRegistry);
+        RegistryLeftoverCount = items.Count(l => l.IsRegistry);
+        HighLeftoverCount = items.Count(l => l.Confidence == MatchConfidence.High);
+        LeftoverSummary = F("Left_SummaryFmt", items.Count, ByteSize.Humanize(items.Where(l => !l.IsRegistry).Sum(l => l.SizeBytes)));
+        UpdateLeftoverSelection();
     }
 
-    [RelayCommand(CanExecute = nameof(HasSelection))]
-    private void RemoveEntry()
+    private void OnLeftoverChanged(object? sender, PropertyChangedEventArgs e)
     {
-        var program = SelectedProgram;
-        if (program is null) return;
-
-        var confirm = MessageBox.Show(
-            $"{Loc.I.T("Cmd_RemoveEntry")}: \"{program.DisplayName}\"?",
-            Loc.I.T("Confirm"), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-        if (confirm != MessageBoxResult.OK) return;
-
-        try
-        {
-            _programs.RemoveUninstallEntry(program);
-            _view.Remove(program);
-            _allPrograms.Remove(program);
-            Programs.Refresh();
-            OnPropertyChanged(nameof(ResultCountText));
-            StatusMessage = "Entry removed from the list.";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = $"Could not remove entry: {ex.Message}";
-        }
+        if (e.PropertyName == nameof(LeftoverItem.IsSelected)) UpdateLeftoverSelection();
     }
 
-    private void TryStart(string fileName, string args)
+    private void UpdateLeftoverSelection()
     {
-        try
-        {
-            Process.Start(new ProcessStartInfo
-            {
-                FileName = fileName,
-                Arguments = args,
-                UseShellExecute = true
-            });
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = ex.Message;
-        }
+        var selected = Leftovers.Where(l => l.IsSelected).ToList();
+        SelectedLeftoverCount = selected.Count;
+        SelectedLeftoverText = selected.Count == 0
+            ? T("Left_NoneSelected")
+            : F("Left_SelectedFmt", selected.Count, ByteSize.Humanize(selected.Sum(l => l.SizeBytes)));
+        DeleteLeftoversCommand.NotifyCanExecuteChanged();
     }
 
-    // ---- leftover review ----------------------------------------------------
+    [RelayCommand]
+    private void SelectSafeLeftovers()
+    {
+        foreach (var l in Leftovers) l.IsSelected = l.Confidence == MatchConfidence.High;
+    }
 
     [RelayCommand]
     private void SelectAllLeftovers()
     {
-        foreach (var l in Leftovers) l.IsSelected = true;
+        foreach (var l in LeftoverView.Cast<LeftoverItem>()) l.IsSelected = true;
     }
 
     [RelayCommand]
@@ -336,51 +444,184 @@ public sealed partial class UninstallerViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void RevealLeftover(LeftoverItem? item)
+    {
+        if (item is null) return;
+        if (item.IsRegistry) Shell.OpenRegistry(item.Path);
+        else Shell.Reveal(item.Path);
+    }
+
+    private bool CanDeleteLeftovers() => SelectedLeftoverCount > 0;
+
+    [RelayCommand(CanExecute = nameof(CanDeleteLeftovers))]
     private async Task DeleteLeftoversAsync()
     {
         var selected = Leftovers.Where(l => l.IsSelected).ToList();
-        if (selected.Count == 0)
-        {
-            StatusMessage = "Nothing selected.";
-            return;
-        }
+        if (selected.Count == 0) return;
 
-        var confirm = MessageBox.Show(
-            $"{Loc.I.T("Act_DeleteSelected")} ({selected.Count})?",
-            Loc.I.T("Confirm"), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-        if (confirm != MessageBoxResult.OK) return;
+        var lowCount = selected.Count(l => l.Confidence == MatchConfidence.Low);
+        var message = T(Settings.UseRecycleBin ? "Left_DeleteTextRecycle" : "Left_DeleteTextPermanent");
+        if (lowCount > 0) message += "\n\n" + F("Left_LowWarningFmt", lowCount);
+        bool ok = await Dialogs.ConfirmAsync(
+            F("Left_DeleteTitleFmt", selected.Count),
+            message,
+            T("Act_DeleteSelected"),
+            DialogTone.Danger,
+            selected.Select(s => s.IsRegistry && s.ValueName is not null ? $"{s.Path}  →  {s.ValueName}" : s.Path));
+        if (!ok) return;
 
-        _cts = new CancellationTokenSource();
-        Stage = WorkflowStage.Working;
-        var progress = new Progress<string>(m => StatusMessage = m);
-
+        WorkStep = 3;
+        WorkStatus = T("Work_Deleting");
+        Stage = UninstallStage.Working;
         try
         {
-            foreach (var key in selected.Where(l => l.Kind == LeftoverKind.RegistryKey))
-                await _restore.BackupRegistryKeyAsync(key.Path, _cts.Token);
-
-            int removed = await _scan.DeleteAsync(selected, UseRecycleBin, progress, _cts.Token);
-            _log.Append("Leftovers cleaned", $"{removed} item(s) removed");
-            StatusMessage = $"Removed {removed} leftover item(s).";
+            var progress = new Progress<string>(k => WorkStatus = T(k));
+            var (removed, freed, failed) = await _scan.DeleteAsync(selected, Settings.UseRecycleBin, progress);
+            Log.Append("Log_Leftovers", F("Log_LeftoversDetailFmt", Target?.DisplayName ?? "", removed, ByteSize.Humanize(freed)));
+            ShowDone(removed, freed, failed, nothingFound: false);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"Cleanup error: {ex.Message}";
+            Toast.Show(ex.Message, ToastKind.Error);
+            Stage = UninstallStage.Review;
         }
-        finally
-        {
-            await BackToListAsync();
-        }
+        _ = EnsureLoadedAsync(true);
     }
 
-    [RelayCommand]
-    private async Task BackToListAsync()
+    /// <summary>Self-test only: shows the review screen for scan results without uninstalling anything.</summary>
+    internal void ShowReviewForSelfTest(InstalledProgram program, IReadOnlyList<LeftoverItem> items)
     {
-        Leftovers.Clear();
-        Stage = WorkflowStage.Browsing;
-        await LoadAsync();
+        Target = program;
+        StillInstalledWarning = true;
+        SetLeftovers(items.OrderBy(l => l.IsRegistry).ThenBy(l => l.Confidence).ThenBy(l => l.Path, StringComparer.OrdinalIgnoreCase).ToList());
+        LeftoverFilter = "all";
+        Stage = UninstallStage.Review;
     }
 
     [RelayCommand]
-    private void Cancel() => _cts?.Cancel();
+    private void SkipLeftovers()
+    {
+        ShowDone(0, 0, 0, nothingFound: false, skipped: true);
+        _ = EnsureLoadedAsync(true);
+    }
+
+    // ===================================================================== done
+
+    [ObservableProperty] private string _doneText = "";
+    [ObservableProperty] private bool _doneHasFailures;
+    [ObservableProperty] private string _doneFailText = "";
+    [ObservableProperty] private double _doneFreed = double.NaN;
+    [ObservableProperty] private double _doneRemoved = double.NaN;
+
+    public string DoneTitle => Target is null ? "" : F("Done_TitleFmt", Target.DisplayName);
+
+    private void ShowDone(int removed, long freed, int failed, bool nothingFound, bool skipped = false)
+    {
+        OnPropertyChanged(nameof(DoneTitle));
+        DoneText = nothingFound ? T("Done_NoLeftovers") : skipped ? T("Done_Skipped") : T("Done_Cleaned");
+        DoneRemoved = removed;
+        DoneFreed = freed;
+        DoneHasFailures = failed > 0;
+        DoneFailText = F("Done_FailedFmt", failed);
+        Stage = UninstallStage.Done;
+        if (!skipped) Toast.Show(nothingFound ? T("Done_NoLeftovers") : F("Done_ToastFmt", removed, ByteSize.Humanize(freed)), ToastKind.Success);
+    }
+
+    [RelayCommand]
+    private void BackToList()
+    {
+        SetLeftovers(Array.Empty<LeftoverItem>());
+        SelectedProgram = null;
+        Stage = UninstallStage.Browsing;
+    }
+
+    // ============================================================ other commands
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void OpenInstallFolder()
+    {
+        var p = SelectedProgram;
+        if (p is null) return;
+        var folder = p.InstallLocation ?? LeftoverScanService.GuessInstallFolder(p);
+        if (string.IsNullOrWhiteSpace(folder) || !Directory.Exists(folder))
+        {
+            Toast.Show(T("Cmd_NoInstallFolder"), ToastKind.Warning);
+            return;
+        }
+        Shell.OpenFolder(folder);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void OpenRegistry()
+    {
+        if (SelectedProgram is { } p) Shell.OpenRegistry(p.UninstallRegistryPath);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void SearchWeb()
+    {
+        if (SelectedProgram is not { } p) return;
+        Shell.OpenUrl("https://www.google.com/search?q=" + Uri.EscapeDataString($"{p.DisplayName} {p.Publisher}".Trim()));
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void OpenWebsite()
+    {
+        var url = SelectedProgram?.UrlInfoAbout;
+        if (string.IsNullOrWhiteSpace(url))
+        {
+            Toast.Show(T("Cmd_NoWebsite"), ToastKind.Warning);
+            return;
+        }
+        Shell.OpenUrl(url);
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private void CopyDetails()
+    {
+        var p = SelectedProgram;
+        if (p is null) return;
+        var text =
+            $"{T("Apps_Name")}: {p.DisplayName}\r\n" +
+            $"{T("Apps_Publisher")}: {p.PublisherOrUnknown}\r\n" +
+            $"{T("Apps_Version")}: {p.VersionText}\r\n" +
+            $"{T("Apps_Architecture")}: {p.Architecture}\r\n" +
+            $"{T("Apps_Size")}: {p.DisplaySize}\r\n" +
+            $"{T("Apps_InstallDate")}: {p.InstallDateText}\r\n" +
+            $"{T("Apps_Location")}: {p.InstallLocation}\r\n" +
+            $"{T("Apps_UninstallCommand")}: {p.UninstallString}\r\n" +
+            $"{T("Apps_RegistryKey")}: {p.UninstallRegistryPath}";
+        try
+        {
+            Clipboard.SetText(text);
+            Toast.Show(T("Cmd_Copied"), ToastKind.Success);
+        }
+        catch
+        {
+            Toast.Show(T("Cmd_CopyFailed"), ToastKind.Error);
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasSelection))]
+    private async Task RemoveEntryAsync()
+    {
+        var p = SelectedProgram;
+        if (p is null) return;
+        bool ok = await Dialogs.ConfirmAsync(F("Cmd_RemoveEntryTitleFmt", p.DisplayName), T("Cmd_RemoveEntryText"),
+            T("Cmd_RemoveEntry"), DialogTone.Danger, new[] { p.UninstallRegistryPath });
+        if (!ok) return;
+        try
+        {
+            await _restore.BackupRegistryKeyAsync(p.UninstallRegistryPath);
+            _programs.RemoveUninstallEntry(p);
+            Log.Append("Log_EntryRemoved", p.DisplayName);
+            Toast.Show(T("Cmd_EntryRemoved"), ToastKind.Success);
+            SelectedProgram = null;
+            await EnsureLoadedAsync(true);
+        }
+        catch (Exception ex)
+        {
+            Toast.Show(ex.Message, ToastKind.Error);
+        }
+    }
 }

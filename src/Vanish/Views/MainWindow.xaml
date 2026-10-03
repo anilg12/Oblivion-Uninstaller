@@ -4,320 +4,400 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:c="clr-namespace:Vanish.Controls"
     Title="Oblivion"
-    Width="1280"
-    Height="820"
-    MinWidth="1080"
+    Width="1320"
+    Height="840"
+    MinWidth="1000"
     MinHeight="640"
     WindowBackdropType="None"
     ExtendsContentIntoTitleBar="True"
-    WindowStartupLocation="CenterScreen">
+    WindowStartupLocation="CenterScreen"
+    FontFamily="{StaticResource OB.Font}"
+    Icon="pack://application:,,,/Oblivion;component/Assets/Oblivion.ico"
+    UseLayoutRounding="True">
 
-    <ui:FluentWindow.Resources>
-        <Style x:Key="RailButton" TargetType="Button">
-            <Setter Property="Width" Value="44" />
-            <Setter Property="Height" Value="44" />
-            <Setter Property="Margin" Value="0,5" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Cursor" Value="Hand" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="b" Background="#2B2F58" CornerRadius="14">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="b" Property="Background" Value="{StaticResource OblivionAccentBrush}" />
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </ui:FluentWindow.Resources>
+    <Grid x:Name="RootGrid" Background="{DynamicResource OB.Window}">
+        <!-- Soft, static colour glows (no animation, no blur: free to render). -->
+        <Rectangle Fill="{DynamicResource OB.Glow1}" IsHitTestVisible="False" />
+        <Rectangle Fill="{DynamicResource OB.Glow2}" IsHitTestVisible="False" />
 
-    <Grid Background="{StaticResource OblivionWindowBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="68" />
-            <ColumnDefinition Width="224" />
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="258" />
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+        <Grid x:Name="ShellGrid">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="72" />
+                <ColumnDefinition Width="232" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition x:Name="RightColumn" Width="272" />
+            </Grid.ColumnDefinitions>
 
-        <ui:TitleBar Grid.Row="0" Grid.ColumnSpan="4" Title="Oblivion" Padding="14,8">
-            <ui:TitleBar.Icon>
-                <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" />
-            </ui:TitleBar.Icon>
-        </ui:TitleBar>
+            <ui:TitleBar Grid.Row="0" Grid.ColumnSpan="4" Title="Oblivion" Padding="16,8,8,8">
+                <ui:TitleBar.Icon>
+                    <ui:ImageIcon Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="18" Height="18" />
+                </ui:TitleBar.Icon>
+            </ui:TitleBar>
 
-        <!-- ============ ICON RAIL ============ -->
-        <Border Grid.Row="1" Grid.Column="0" Margin="10,0,0,10" CornerRadius="20,0,0,20"
-                Background="{StaticResource OblivionRailBrush}">
-            <DockPanel Margin="0,10">
-                <!-- Logo -->
-                <Border DockPanel.Dock="Top" Width="44" Height="44" CornerRadius="14" Margin="0,0,0,12"
-                        Background="{StaticResource OblivionLogoBrush}">
-                    <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" Foreground="White"
-                                 FontSize="20" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Border>
-
-                <!-- Bottom quick toggles -->
-                <StackPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
-                    <Button Style="{StaticResource RailButton}" Click="ToggleTheme_Click" ToolTip="Theme">
-                        <ui:FontIcon Glyph="&#xE706;" FontFamily="Segoe Fluent Icons" />
+            <!-- ======================= ICON RAIL ======================= -->
+            <Border Grid.Row="1" Grid.Column="0" Margin="10,0,0,10" CornerRadius="20,0,0,20" Background="{DynamicResource OB.Rail}">
+                <DockPanel Margin="0,12">
+                    <Button DockPanel.Dock="Top" Style="{StaticResource OB.RailBtn}" Tag="Dashboard" Click="Nav_Click"
+                            Width="46" Height="46" Margin="0,0,0,14" ToolTip="Oblivion">
+                        <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="34" Height="34"
+                               RenderOptions.BitmapScalingMode="HighQuality" />
                     </Button>
-                    <Button Style="{StaticResource RailButton}" Click="ToggleLanguage_Click" ToolTip="Language">
-                        <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}"
-                                   FontSize="12" FontWeight="Bold" />
-                    </Button>
-                    <Button Style="{StaticResource RailButton}" Tag="Settings" Click="Rail_Click" ToolTip="Settings">
-                        <ui:FontIcon Glyph="&#xE713;" FontFamily="Segoe Fluent Icons" />
-                    </Button>
-                </StackPanel>
 
-                <!-- Quick nav -->
-                <StackPanel HorizontalAlignment="Center">
-                    <Button Style="{StaticResource RailButton}" Tag="Dashboard" Click="Rail_Click" ToolTip="Dashboard">
-                        <ui:FontIcon Glyph="&#xE80F;" FontFamily="Segoe Fluent Icons" />
-                    </Button>
-                    <Button Style="{StaticResource RailButton}" Tag="Uninstaller" Click="Rail_Click" ToolTip="Applications">
-                        <ui:FontIcon Glyph="&#xECAA;" FontFamily="Segoe Fluent Icons" />
-                    </Button>
-                    <Button Style="{StaticResource RailButton}" Tag="WindowsApps" Click="Rail_Click" ToolTip="Windows apps">
-                        <ui:FontIcon Glyph="&#xE8FC;" FontFamily="Segoe Fluent Icons" />
-                    </Button>
-                    <Button Style="{StaticResource RailButton}" Tag="Tools" Click="Rail_Click" ToolTip="Tools">
-                        <ui:FontIcon Glyph="&#xEC7A;" FontFamily="Segoe Fluent Icons" />
-                    </Button>
-                </StackPanel>
-            </DockPanel>
-        </Border>
+                    <StackPanel x:Name="RailBottomPanel" DockPanel.Dock="Bottom" HorizontalAlignment="Center">
+                        <Button x:Name="ThemeButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleThemeCommand}"
+                                ToolTip="{h:L Rail_Theme}">
+                            <ui:SymbolIcon x:Name="ThemeIcon" Symbol="WeatherMoon24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleLanguageCommand}" ToolTip="{h:L Rail_Language}">
+                            <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}"
+                                       FontSize="12.5" FontWeight="Bold" />
+                        </Button>
+                        <Button x:Name="AboutButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ShowAboutCommand}" ToolTip="{h:L Rail_About}">
+                            <ui:SymbolIcon Symbol="Info24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="Settings" Click="Nav_Click" ToolTip="{h:L Nav_Settings}">
+                            <ui:SymbolIcon Symbol="Settings24" FontSize="20" />
+                        </Button>
+                    </StackPanel>
 
-        <!-- ============ LABELLED NAV ============ -->
-        <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Padding="12"
-                Background="{StaticResource OblivionPanelBrush}">
-            <DockPanel>
-                <StackPanel DockPanel.Dock="Top" Margin="6,4,6,14">
-                    <TextBlock Text="OBLIVION" FontSize="20" FontWeight="Bold" Foreground="White" />
-                    <TextBlock FontSize="10" Opacity="0.7" Foreground="White"
-                               Text="{Binding [Brand_By], Source={x:Static h:Loc.I}}" />
-                </StackPanel>
+                    <StackPanel x:Name="RailPanel" HorizontalAlignment="Center">
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="Dashboard" Click="Nav_Click" ToolTip="{h:L Nav_Dashboard}">
+                            <ui:SymbolIcon Symbol="Home24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="Uninstaller" Click="Nav_Click" ToolTip="{h:L Nav_AllApps}">
+                            <ui:SymbolIcon Symbol="AppsList24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="WindowsApps" Click="Nav_Click" ToolTip="{h:L Nav_WindowsApps}">
+                            <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="SystemMonitor" Click="Nav_Click" ToolTip="{h:L Nav_SystemMonitor}">
+                            <ui:SymbolIcon Symbol="Pulse24" FontSize="20" />
+                        </Button>
+                        <Button Style="{StaticResource OB.RailBtn}" Tag="Tools" Click="Nav_Click" ToolTip="{h:L Nav_Tools}">
+                            <ui:SymbolIcon Symbol="Toolbox24" FontSize="20" />
+                        </Button>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
 
-                <StackPanel>
-                    <!-- Action card -->
-                    <Border Padding="8" CornerRadius="14" Margin="0,0,0,12" Background="#1E2147">
+            <!-- ======================= LABELLED NAVIGATION ======================= -->
+            <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Background="{DynamicResource OB.Panel}">
+                <DockPanel Margin="12,14,12,12">
+                    <!-- Wordmark (the developer's name lives in About, not here). -->
+                    <Grid DockPanel.Dock="Top" Margin="6,0,4,16">
                         <StackPanel>
-                            <ui:Button HorizontalAlignment="Stretch" Appearance="Danger" Height="42"
-                                       Command="{Binding Uninstaller.UninstallCommand}">
+                            <TextBlock Text="OBLIVION" FontFamily="{StaticResource OB.DisplayFont}" FontSize="21" FontWeight="Bold"
+                                       Foreground="{DynamicResource OB.Text}" />
+                            <TextBlock Text="{h:L App_Tagline}" Style="{StaticResource OB.FaintText}" Margin="0,1,0,0" />
+                        </StackPanel>
+                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,0,0" CornerRadius="7" Padding="7,2"
+                                Background="{StaticResource OB.AccentSoft}">
+                            <TextBlock Text="{Binding VersionText}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource OB.Accent}" />
+                        </Border>
+                    </Grid>
+
+                    <!-- Action card -->
+                    <Border DockPanel.Dock="Top" CornerRadius="16" Padding="8" Margin="0,0,0,12" Background="{DynamicResource OB.Card}"
+                            BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1">
+                        <StackPanel>
+                            <Button Style="{StaticResource OB.BtnDangerLarge}" HorizontalAlignment="Stretch" Height="44"
+                                    Command="{Binding Uninstaller.UninstallCommand}">
                                 <StackPanel Orientation="Horizontal">
-                                    <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" Margin="0,0,8,0" />
-                                    <TextBlock FontSize="15" FontWeight="SemiBold"
-                                               Text="{Binding [Act_Uninstall], Source={x:Static h:Loc.I}}" />
+                                    <ui:SymbolIcon Symbol="Delete24" FontSize="18" Margin="0,0,8,0" Foreground="White" />
+                                    <TextBlock Text="{h:L Act_Uninstall}" VerticalAlignment="Center" />
                                 </StackPanel>
-                            </ui:Button>
+                            </Button>
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <ui:Button Grid.Column="0" Margin="0,0,4,0" HorizontalAlignment="Stretch"
-                                           Appearance="Secondary"
-                                           Content="{Binding [Act_ForceUninstall], Source={x:Static h:Loc.I}}"
-                                           Command="{Binding Uninstaller.ForceUninstallCommand}" />
-                                <ui:Button Grid.Column="1" Margin="4,0,0,0" HorizontalAlignment="Stretch"
-                                           x:Name="OtherCommandsButton" Appearance="Secondary"
-                                           Click="OtherCommands_Click"
-                                           Content="{Binding [Act_OtherCommands], Source={x:Static h:Loc.I}}">
-                                    <ui:Button.ContextMenu>
+                                <Button Grid.Column="0" Margin="0,0,4,0" Style="{StaticResource OB.Btn}" HorizontalAlignment="Stretch"
+                                        FontSize="12" Padding="6,8" Command="{Binding Uninstaller.ForceUninstallCommand}">
+                                    <TextBlock Text="{h:L Act_ForceUninstall}" TextTrimming="CharacterEllipsis" />
+                                </Button>
+                                <Button x:Name="OtherCommandsButton" Grid.Column="1" Margin="4,0,0,0" Style="{StaticResource OB.Btn}"
+                                        HorizontalAlignment="Stretch" FontSize="12" Padding="6,8" Click="OtherCommands_Click"
+                                        IsEnabled="{Binding Uninstaller.HasSelection}">
+                                    <TextBlock Text="{h:L Act_OtherCommands}" TextTrimming="CharacterEllipsis" />
+                                    <Button.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="{Binding [Cmd_OpenInstallFolder], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.OpenInstallFolderCommand}" />
-                                            <MenuItem Header="{Binding [Cmd_OpenRegistry], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.OpenRegistryCommand}" />
-                                            <MenuItem Header="{Binding [Cmd_SearchWeb], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.SearchWebCommand}" />
-                                            <MenuItem Header="{Binding [Cmd_OpenWebsite], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.OpenWebsiteCommand}" />
-                                            <MenuItem Header="{Binding [Cmd_CopyDetails], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.CopyDetailsCommand}" />
+                                            <MenuItem Header="{h:L Cmd_OpenInstallFolder}" Command="{Binding Uninstaller.OpenInstallFolderCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="FolderOpen24" /></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{h:L Cmd_OpenRegistry}" Command="{Binding Uninstaller.OpenRegistryCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="Key24" /></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{h:L Cmd_SearchWeb}" Command="{Binding Uninstaller.SearchWebCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="Search24" /></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{h:L Cmd_OpenWebsite}" Command="{Binding Uninstaller.OpenWebsiteCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="Globe24" /></MenuItem.Icon>
+                                            </MenuItem>
+                                            <MenuItem Header="{h:L Cmd_CopyDetails}" Command="{Binding Uninstaller.CopyDetailsCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="Copy24" /></MenuItem.Icon>
+                                            </MenuItem>
                                             <Separator />
-                                            <MenuItem Header="{Binding [Cmd_RemoveEntry], Source={x:Static h:Loc.I}}"
-                                                      Command="{Binding Uninstaller.RemoveEntryCommand}" />
+                                            <MenuItem Header="{h:L Cmd_RemoveEntry}" Command="{Binding Uninstaller.RemoveEntryCommand}">
+                                                <MenuItem.Icon><ui:SymbolIcon Symbol="DocumentDismiss24" /></MenuItem.Icon>
+                                            </MenuItem>
                                         </ContextMenu>
-                                    </ui:Button.ContextMenu>
-                                </ui:Button>
+                                    </Button.ContextMenu>
+                                </Button>
                             </Grid>
+                            <TextBlock Margin="4,8,4,0" Style="{StaticResource OB.FaintText}" TextWrapping="Wrap" TextTrimming="None"
+                                       Text="{Binding Uninstaller.SelectionHint}" />
                         </StackPanel>
                     </Border>
 
-                    <ListBox x:Name="NavList" BorderThickness="0" Background="Transparent"
-                             Foreground="White" SelectionChanged="NavList_SelectionChanged">
-                        <ListBox.Resources>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="10,9" />
-                                <Setter Property="Margin" Value="0,2" />
-                                <Setter Property="Foreground" Value="White" />
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListBoxItem">
-                                            <Border x:Name="Bd" Padding="{TemplateBinding Padding}"
-                                                    Background="Transparent" CornerRadius="10">
-                                                <ContentPresenter />
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background" Value="#33121633" />
-                                                </Trigger>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter TargetName="Bd" Property="Background"
-                                                            Value="{StaticResource OblivionNavSelectedBrush}" />
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </ListBox.Resources>
-
-                        <ListBoxItem Tag="Dashboard">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE80F;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Dashboard], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Uninstaller">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE74D;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_AllApps], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Monitored">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE9D9;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Monitored], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="WindowsApps">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE8FC;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_WindowsApps], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="BrowserExt">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE774;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_BrowserExt], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Logs">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE81C;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Logs], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Hunter">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xEADF;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Hunter], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Tools">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xEC7A;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Tools], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                        <ListBoxItem Tag="Settings">
-                            <StackPanel Orientation="Horizontal">
-                                <ui:FontIcon Glyph="&#xE713;" FontFamily="Segoe Fluent Icons" Margin="0,0,12,0" />
-                                <TextBlock VerticalAlignment="Center" Text="{Binding [Nav_Settings], Source={x:Static h:Loc.I}}" />
-                            </StackPanel>
-                        </ListBoxItem>
-                    </ListBox>
-                </StackPanel>
-            </DockPanel>
-        </Border>
-
-        <!-- ============ PAGE HOST ============ -->
-        <Border Grid.Row="1" Grid.Column="2" Margin="10,0,10,10" CornerRadius="20"
-                Background="#22244B">
-            <ContentControl x:Name="PageHost" />
-        </Border>
-
-        <!-- ============ RIGHT INFO PANEL ============ -->
-        <Border Grid.Row="1" Grid.Column="3" Margin="0,0,10,10" CornerRadius="0,20,20,0"
-                Background="{StaticResource OblivionRightBrush}">
-            <StackPanel Margin="18,20">
-                <!-- Profile / signature card -->
-                <Grid Width="92" Height="92" HorizontalAlignment="Center">
-                    <Ellipse>
-                        <Ellipse.Fill>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#6E5BFF" Offset="0" />
-                                <GradientStop Color="#B45BFF" Offset="1" />
-                            </LinearGradientBrush>
-                        </Ellipse.Fill>
-                    </Ellipse>
-                    <TextBlock Text="AG" FontSize="34" FontWeight="Bold" Foreground="White"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Grid>
-                <TextBlock Text="ANIL G&#220;L" TextAlignment="Center" Margin="0,12,0,0"
-                           FontFamily="Ink Free, Segoe Script, Gabriola" FontSize="30" FontStyle="Italic">
-                    <TextBlock.Foreground>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                            <GradientStop Color="#8FC0FF" Offset="0" />
-                            <GradientStop Color="#D7ABFF" Offset="1" />
-                        </LinearGradientBrush>
-                    </TextBlock.Foreground>
-                </TextBlock>
-                <TextBlock Text="@anilgul" TextAlignment="Center" Foreground="White" Opacity="0.6" FontSize="12" />
-
-                <Separator Margin="0,18,0,14" Background="#22FFFFFF" />
-
-                <!-- System -->
-                <TextBlock Text="{Binding [Dash_System], Source={x:Static h:Loc.I}}" Foreground="White"
-                           FontWeight="SemiBold" Margin="0,0,0,8" />
-                <Grid Margin="0,0,0,6">
-                    <TextBlock Text="Windows" Foreground="White" Opacity="0.6" FontSize="12" />
-                    <TextBlock Text="{Binding WindowsVersion}" Foreground="White" HorizontalAlignment="Right" FontSize="12" />
-                </Grid>
-                <Grid Margin="0,0,0,4">
-                    <TextBlock Text="{Binding [Dash_FreeSpace], Source={x:Static h:Loc.I}}" Foreground="White" Opacity="0.6"
-                               FontSize="12" TextTrimming="CharacterEllipsis" />
-                </Grid>
-                <TextBlock Text="{Binding FreeSpace}" Foreground="White" FontSize="13" FontWeight="SemiBold" />
-
-                <Separator Margin="0,16,0,14" Background="#22FFFFFF" />
-
-                <!-- Recent activity -->
-                <TextBlock Text="{Binding [Dash_RecentActivity], Source={x:Static h:Loc.I}}" Foreground="White"
-                           FontWeight="SemiBold" Margin="0,0,0,8" />
-                <ItemsControl ItemsSource="{Binding RecentActivity}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Grid Margin="0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{Binding Action}" Foreground="White" FontSize="12" FontWeight="SemiBold" />
-                                    <TextBlock Text="{Binding Detail}" Foreground="White" Opacity="0.55" FontSize="11"
-                                               TextTrimming="CharacterEllipsis" />
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel x:Name="NavPanel">
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Dashboard" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Home24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Dashboard}" VerticalAlignment="Center" FontSize="13" />
                                 </StackPanel>
-                                <TextBlock Grid.Column="1" Text="{Binding TimeText}" Foreground="White" Opacity="0.45"
-                                           FontSize="10" VerticalAlignment="Center" />
-                            </Grid>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </StackPanel>
-        </Border>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Uninstaller" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="AppsList24" FontSize="17" Margin="0,0,12,0" />
+                                        <TextBlock Text="{h:L Nav_AllApps}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                    <Border HorizontalAlignment="Right" CornerRadius="8" Padding="7,1" Background="{DynamicResource OB.CardStrong}"
+                                            Visibility="{Binding Uninstaller.TotalCount, Converter={StaticResource PositiveToVisibility}}">
+                                        <TextBlock Text="{Binding Uninstaller.TotalCount}" FontSize="11" FontWeight="SemiBold" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Monitored" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="EyeTracking24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Monitored}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="WindowsApps" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_WindowsApps}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="BrowserExt" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="PuzzlePiece24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_BrowserExt}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="SystemMonitor" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Pulse24" FontSize="17" Margin="0,0,12,0" />
+                                        <TextBlock Text="{h:L Nav_SystemMonitor}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                    <Border HorizontalAlignment="Right" CornerRadius="7" Padding="6,1" Background="{StaticResource OB.SuccessSoft}">
+                                        <TextBlock Text="{h:L Badge_New}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OB.Success}" />
+                                    </Border>
+                                </Grid>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Logs" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="History24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Logs}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Hunter" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Target24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Hunter}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Tools" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Toolbox24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Tools}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Settings" Click="Nav_Click">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Settings24" FontSize="17" Margin="0,0,12,0" />
+                                    <TextBlock Text="{h:L Nav_Settings}" VerticalAlignment="Center" FontSize="13" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </Border>
+
+            <!-- ======================= PAGE HOST ======================= -->
+            <Border Grid.Row="1" Grid.Column="2" Margin="10,0,10,10" CornerRadius="20" Background="{DynamicResource OB.Content}"
+                    BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1" ClipToBounds="True">
+                <ContentControl x:Name="PageHost" Focusable="False" />
+            </Border>
+
+            <!-- ======================= LIVE SYSTEM PANEL ======================= -->
+            <Border x:Name="RightPanel" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10" CornerRadius="20"
+                    Background="{DynamicResource OB.Right}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1"
+                    DataContext="{Binding Live}">
+                <DockPanel Margin="18,18,18,14">
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+                        <StackPanel Orientation="Horizontal">
+                            <c:PulseDot Margin="0,0,8,0" VerticalAlignment="Center" />
+                            <TextBlock Text="{h:L Live_Title}" Style="{StaticResource OB.Section}" VerticalAlignment="Center" />
+                        </StackPanel>
+                        <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnGhost}" Padding="6,3" FontSize="11.5"
+                                Tag="SystemMonitor" Click="Nav_Click" ToolTip="{h:L Nav_SystemMonitor}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{h:L Live_Details}" Foreground="{StaticResource OB.Accent}" />
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12" Margin="3,1,0,0" Foreground="{StaticResource OB.Accent}" />
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- Bottom: recent activity -->
+                    <StackPanel DockPanel.Dock="Bottom" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
+                        <Border Style="{StaticResource OB.Divider}" Margin="0,4,0,12" />
+                        <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" FontSize="13" Margin="0,0,0,8" />
+                        <TextBlock Text="{h:L Dash_NoActivity}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap"
+                                   Visibility="{Binding RecentActivity.Count, Converter={StaticResource ZeroToVisibility}}" />
+                        <ItemsControl ItemsSource="{Binding RecentActivity}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Border Width="28" Height="28" CornerRadius="9" Background="{StaticResource OB.AccentSoft}" Margin="0,0,10,0">
+                                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="14" Foreground="{StaticResource OB.Accent}" />
+                                        </Border>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
+                                            <TextBlock Style="{StaticResource OB.FaintText}">
+                                                <Run Text="{Binding Detail, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding TimeText, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+
+                    <StackPanel>
+                        <!-- CPU + RAM rings -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border Style="{StaticResource OB.Card}" Padding="10,12" CornerRadius="16">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <Grid Width="78" Height="78">
+                                        <c:RingGauge Value="{Binding Cpu}" Thickness="7" />
+                                        <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="17" FontWeight="Bold"
+                                                       FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <TextBlock Text="{h:L Live_Cpu}" Style="{StaticResource OB.BodyStrong}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                                        <ui:SymbolIcon Symbol="Temperature24" FontSize="12" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,3,0" />
+                                        <TextBlock Text="{Binding TempText}" Style="{StaticResource OB.Caption}" FontSize="11" />
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="2" Style="{StaticResource OB.Card}" Padding="10,12" CornerRadius="16">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <Grid Width="78" Height="78">
+                                        <c:RingGauge Value="{Binding Ram}" Thickness="7" From="#18C29C" To="#2E8BFF" />
+                                        <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="17" FontWeight="Bold"
+                                                       FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                    </Grid>
+                                    <TextBlock Text="{h:L Live_Ram}" Style="{StaticResource OB.BodyStrong}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                    <TextBlock Text="{Binding RamText}" Style="{StaticResource OB.Caption}" FontSize="11" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <!-- Disk -->
+                        <Border Style="{StaticResource OB.Card}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0">
+                            <StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="HardDrive24" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                        <TextBlock Style="{StaticResource OB.BodyStrong}" FontSize="12">
+                                            <Run Text="{h:L Live_Disk}" /><Run Text=" " /><Run Text="{Binding DiskTitle, Mode=OneWay}" />
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+                                <c:GradientBar Value="{Binding Disk}" Margin="0,9,0,6" />
+                                <TextBlock Text="{Binding DiskText}" Style="{StaticResource OB.Caption}" FontSize="11" />
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Network -->
+                        <Border Style="{StaticResource OB.Card}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0">
+                            <StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                        <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
+                                    </StackPanel>
+                                </Grid>
+                                <c:Sparkline Values="{Binding NetHistory}" Height="34" Margin="0,8,0,6" Color="#8B7BFF" />
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="ArrowDown24" FontSize="12" Foreground="{StaticResource OB.Success}" Margin="0,0,3,0" />
+                                        <TextBlock Text="{Binding NetDownText}" Style="{StaticResource OB.Caption}" FontSize="11" />
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <ui:SymbolIcon Symbol="ArrowUp24" FontSize="12" Foreground="{StaticResource OB.Info}" Margin="0,0,3,0" />
+                                        <TextBlock Text="{Binding NetUpText}" Style="{StaticResource OB.Caption}" FontSize="11" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Battery (laptops) -->
+                        <Border Style="{StaticResource OB.Card}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0"
+                                Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Battery1024" FontSize="15" Foreground="{StaticResource OB.Success}" Margin="0,0,8,0" />
+                                    <TextBlock Text="{Binding BatteryText}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
+                                </StackPanel>
+                                <c:GradientBar Value="{Binding Battery}" Margin="0,9,0,0" />
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- ======================= DIALOG LAYER ======================= -->
+            <Grid x:Name="DialogLayer" Grid.Row="1" Grid.ColumnSpan="4" Visibility="Collapsed" Panel.ZIndex="10">
+                <Border x:Name="DialogBackdrop" Background="{DynamicResource OB.Backdrop}" Margin="10,0,10,10" CornerRadius="20" />
+                <ContentControl x:Name="DialogHost" HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False" />
+            </Grid>
+
+            <!-- ======================= TOAST ======================= -->
+            <Border x:Name="ToastHost" Grid.Row="1" Grid.ColumnSpan="4" Panel.ZIndex="20" Visibility="Collapsed"
+                    HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,28" MaxWidth="560"
+                    CornerRadius="14" Padding="12,10,18,10" Background="{DynamicResource OB.DialogBg}"
+                    BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1" Cursor="Hand">
+                <StackPanel Orientation="Horizontal">
+                    <Border x:Name="ToastBadge" Width="26" Height="26" CornerRadius="13" Margin="0,0,11,0" Background="{StaticResource OB.Accent}">
+                        <ui:SymbolIcon x:Name="ToastIcon" Symbol="Info24" FontSize="15" Foreground="White" />
+                    </Border>
+                    <TextBlock x:Name="ToastText" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource OB.Text}" TextWrapping="Wrap" MaxWidth="480" />
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </ui:FluentWindow>

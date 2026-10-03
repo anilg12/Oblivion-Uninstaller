@@ -1,36 +1,53 @@
-using System.Reflection;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.IO;
+using System.Windows.Media;
 using CommunityToolkit.Mvvm.Input;
+using Vanish.Controls;
 using Vanish.Helpers;
-using Wpf.Ui.Appearance;
+using Vanish.Services;
+using Vanish.Views;
 
 namespace Vanish.ViewModels.Pages;
 
-public sealed partial class SettingsViewModel : ObservableObject
+public sealed partial class SettingsViewModel : PageViewModel
 {
-    public Loc Loc => Loc.I;
+    private readonly SettingsService _settings;
 
-    [ObservableProperty] private bool _isDarkTheme = true;
-
-    /// <summary>True when the UI language is Turkish (bound to the language switch).</summary>
-    [ObservableProperty] private bool _isTurkish = true;
-
-    public string AppVersion =>
-        $"Vanish {Assembly.GetExecutingAssembly().GetName().Version?.ToString(3) ?? "0.1.0"}";
-
-    partial void OnIsDarkThemeChanged(bool value)
+    public SettingsViewModel(SettingsService settings)
     {
-        ApplicationThemeManager.Apply(value ? ApplicationTheme.Dark : ApplicationTheme.Light);
+        _settings = settings;
+        _settings.Current.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppSettings.ReduceAnimations)) ApplyAnimationSetting(_settings.Current);
+        };
     }
 
-    partial void OnIsTurkishChanged(bool value)
+    public AppSettings Current => _settings.Current;
+
+    public string VersionText => "v" + AppInfo.Version;
+
+    /// <summary>Entrance animations are off when the user asks for it or there is no GPU acceleration.</summary>
+    public static void ApplyAnimationSetting(AppSettings s) =>
+        Reveal.AnimationsEnabled = !s.ReduceAnimations && (RenderCapability.Tier >> 16) > 0;
+
+    [RelayCommand]
+    private void SetLanguage(string code)
     {
-        Loc.I.Language = value ? "tr" : "en";
+        if (Loc.I.Language == code) return;
+        Loc.I.Language = code;
+        Current.Language = code;
+        Ioc.Resolve<MainWindowViewModel>().RefreshAllTexts();
     }
 
     [RelayCommand]
-    private void ToggleTheme() => IsDarkTheme = !IsDarkTheme;
+    private void OpenDataFolder()
+    {
+        Directory.CreateDirectory(SettingsService.DataDir);
+        Shell.OpenFolder(SettingsService.DataDir);
+    }
 
     [RelayCommand]
-    private void ToggleLanguage() => IsTurkish = !IsTurkish;
+    private Task ShowAboutAsync() => Dialogs.ShowAsync(new AboutView());
+
+    [RelayCommand]
+    private void OpenGitHub() => Shell.OpenUrl(AppInfo.Repository);
 }

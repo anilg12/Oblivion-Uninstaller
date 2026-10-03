@@ -4,9 +4,9 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,46 +14,95 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Monitored_Title], Source={x:Static h:Loc.I}}" />
-            <TextBlock Opacity="0.6" Text="{Binding [Monitored_Subtitle], Source={x:Static h:Loc.I}}" />
-        </StackPanel>
+        <c:PageHeader Title="{h:L Nav_Monitored}" Subtitle="{h:L Mon_Subtitle}" Symbol="EyeTracking24" From="#3A8DFF" To="#18C29C" />
 
-        <ui:Card Grid.Row="1" Padding="18" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock Opacity="0.8" TextWrapping="Wrap" Text="{Binding [Monitored_Body], Source={x:Static h:Loc.I}}" />
-                <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                    <ui:Button Appearance="Primary" Margin="0,0,8,0"
-                               Content="{Binding [Mon_TakeBaseline], Source={x:Static h:Loc.I}}"
-                               Command="{Binding TakeBaselineCommand}" />
-                    <ui:Button Appearance="Secondary"
-                               Content="{Binding [Mon_Compare], Source={x:Static h:Loc.I}}"
-                               Command="{Binding CompareCommand}" IsEnabled="{Binding HasBaseline}" />
-                    <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="12,0,0,0"
-                                     Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}" />
+        <!-- the three steps -->
+        <UniformGrid Grid.Row="1" Columns="3" Margin="-6,0,-6,8">
+            <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True">
+                <StackPanel>
+                    <c:GradientBadge Symbol="Camera24" Size="38" />
+                    <TextBlock Text="{h:L Mon_Step1}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
+                    <TextBlock Text="{Binding BaselineText}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" />
+                    <Button Style="{StaticResource OB.BtnPrimary}" Margin="0,12,0,0" HorizontalAlignment="Left" Command="{Binding TakeBaselineCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" Content="{h:L Mon_TakeBaseline}" />
                 </StackPanel>
-            </StackPanel>
-        </ui:Card>
+            </Border>
+            <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="60">
+                <StackPanel>
+                    <c:GradientBadge Symbol="ArrowDownload24" Size="38" From="#F5A524" To="#FF7A45" />
+                    <TextBlock Text="{h:L Mon_Step2}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
+                    <TextBlock Text="{h:L Mon_Step2Text}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" />
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
+                <StackPanel>
+                    <c:GradientBadge Symbol="DocumentSearch24" Size="38" From="#22C55E" To="#14B8A6" />
+                    <TextBlock Text="{h:L Mon_Step3}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
+                    <TextBlock Text="{h:L Mon_Step3Text}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" />
+                    <Button Style="{StaticResource OB.Btn}" Margin="0,12,0,0" HorizontalAlignment="Left" Command="{Binding CompareCommand}"
+                            IsEnabled="{Binding HasBaseline}" Content="{h:L Mon_Compare}" />
+                </StackPanel>
+            </Border>
+        </UniformGrid>
 
-        <ui:Card Grid.Row="2" Padding="0">
-            <DockPanel>
-                <TextBlock DockPanel.Dock="Top" Margin="18,14,18,8" FontWeight="SemiBold"
-                           Text="{Binding [Mon_Added], Source={x:Static h:Loc.I}}" />
-                <ListView ItemsSource="{Binding Changes}" BorderThickness="0" Background="Transparent"
-                          Foreground="{DynamicResource TextFillColorPrimaryBrush}" Margin="6,0,6,6">
-                    <ListView.ItemTemplate>
-                        <DataTemplate DataType="{x:Type models:MonitorChange}">
-                            <StackPanel Orientation="Horizontal" Margin="6,4">
-                                <ui:FontIcon Glyph="{Binding Glyph}" FontFamily="Segoe Fluent Icons" Margin="0,0,10,0" Opacity="0.7" />
-                                <TextBlock Text="{Binding Kind}" Opacity="0.6" Width="70" />
-                                <TextBlock Text="{Binding Value}" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+        <Grid Grid.Row="2">
+            <ListBox Style="{StaticResource OB.List}" ItemsSource="{Binding Changes}" SelectionMode="Multiple">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem" BasedOn="{StaticResource OB.ListItem}">
+                        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <CheckBox IsChecked="{Binding IsSelected}" MinWidth="0" VerticalAlignment="Center" Margin="0,0,4,0" />
+                            <Border Grid.Column="1" Width="32" Height="32" CornerRadius="9" Background="{DynamicResource OB.CardStrong}" Margin="0,0,12,0">
+                                <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{DynamicResource OB.Subtext}" />
+                            </Border>
+                            <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <TextBlock Text="{Binding Value}" Style="{StaticResource OB.BodyStrong}" ToolTip="{Binding Value}" />
+                                <TextBlock Text="{Binding RegistryKey}" Style="{StaticResource OB.FaintText}"
+                                           Visibility="{Binding RegistryKey, Converter={StaticResource NullToVisibility}}" />
                             </StackPanel>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-            </DockPanel>
-        </ui:Card>
+                            <c:Chip Grid.Column="3" Text="{Binding KindText}" Tint="#3A8DFF" Margin="0,0,8,0" />
+                            <StackPanel Grid.Column="4" Orientation="Horizontal">
+                                <Button Style="{StaticResource OB.Btn}" Padding="10,4" FontSize="12" Content="{h:L Act_Uninstall}" CommandParameter="{Binding}"
+                                        Command="{Binding DataContext.UninstallProgramCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Visibility="{Binding Kind, Converter={StaticResource EqualsToVisibility}, ConverterParameter=Program}" />
+                                <Button Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_ShowLocation}" CommandParameter="{Binding}"
+                                        Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                    <ui:SymbolIcon Symbol="Open24" FontSize="14" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <c:EmptyState Symbol="EyeTracking24" Title="{h:L Mon_EmptyTitle}" Text="{h:L Mon_EmptyText}"
+                          Visibility="{Binding HasCompared, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVisibility}}">
+                <c:Spinner Width="34" Height="34" Thickness="3.5" />
+            </StackPanel>
+        </Grid>
 
-        <TextBlock Grid.Row="3" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16"
+                Visibility="{Binding HasCompared, Converter={StaticResource BoolToVisibility}}">
+            <Grid>
+                <TextBlock Text="{Binding ResultText}" Style="{StaticResource OB.BodyStrong}" VerticalAlignment="Center" />
+                <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnDanger}" Command="{Binding RemoveSelectedCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Delete24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Mon_RemoveSelected}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

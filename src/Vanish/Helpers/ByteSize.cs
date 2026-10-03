@@ -1,4 +1,4 @@
-using System.Globalization;
+﻿using System.Globalization;
 
 namespace Vanish.Helpers;
 
@@ -22,5 +22,13 @@ public static class ByteSize
         // No decimals for bytes/KB, one decimal beyond that.
         string format = unit <= 1 ? "0" : "0.0";
         return string.Create(CultureInfo.InvariantCulture, $"{size.ToString(format, CultureInfo.InvariantCulture)} {Units[unit]}");
+    }
+
+    /// <summary>Transfer rate, e.g. "1.4 MB/s".</summary>
+    public static string Rate(double bytesPerSecond)
+    {
+        if (double.IsNaN(bytesPerSecond) || bytesPerSecond < 1) return "0 KB/s";
+        if (bytesPerSecond < 1024) return "1 KB/s";
+        return Humanize((long)bytesPerSecond) + "/s";
     }
 }

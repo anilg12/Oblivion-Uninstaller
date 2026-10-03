@@ -3,178 +3,56 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:h="clr-namespace:Vanish.Helpers">
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <UserControl.Resources>
-        <Style TargetType="Border" x:Key="IconBadge">
-            <Setter Property="Width" Value="58" />
-            <Setter Property="Height" Value="58" />
-            <Setter Property="CornerRadius" Value="16" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="16" ShadowDepth="0" Opacity="0.45" Color="Black" />
-                </Setter.Value>
-            </Setter>
-        </Style>
-        <Style TargetType="ui:FontIcon" x:Key="BadgeGlyph">
-            <Setter Property="FontFamily" Value="Segoe Fluent Icons" />
-            <Setter Property="FontSize" Value="27" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-        <Style TargetType="ui:Card">
-            <Setter Property="Margin" Value="7" />
-            <Setter Property="Padding" Value="20" />
-        </Style>
-    </UserControl.Resources>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+        <StackPanel Margin="26,22,26,24">
+            <c:PageHeader Title="{h:L Nav_Tools}" Subtitle="{h:L Tools_Subtitle}" Symbol="Toolbox24" />
 
-    <Grid Margin="24,18">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-
-        <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Tools_Title], Source={x:Static h:Loc.I}}" />
-            <TextBlock Opacity="0.6" Text="{Binding [Tools_Subtitle], Source={x:Static h:Loc.I}}" />
+            <ItemsControl ItemsSource="{Binding Groups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,10">
+                            <TextBlock Text="{Binding Title}" Style="{StaticResource OB.Section}" Margin="0,4,0,6" />
+                            <ItemsControl ItemsSource="{Binding Tiles}" Margin="-6,0">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="2" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,15" CommandParameter="{Binding Tag}"
+                                                Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto" />
+                                                    <ColumnDefinition Width="*" />
+                                                    <ColumnDefinition Width="Auto" />
+                                                </Grid.ColumnDefinitions>
+                                                <c:GradientBadge Symbol="{Binding Symbol}" From="{Binding From}" To="{Binding To}" Size="46" VerticalAlignment="Top" />
+                                                <StackPanel Grid.Column="1" Margin="14,0,8,0" VerticalAlignment="Center">
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
+                                                        <Border CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="{StaticResource OB.SuccessSoft}" VerticalAlignment="Center"
+                                                                Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}">
+                                                            <TextBlock Text="{h:L Badge_New}" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" />
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <TextBlock Text="{Binding Text}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" Margin="0,3,0,0" />
+                                                </StackPanel>
+                                                <ui:SymbolIcon Grid.Column="2" Symbol="ChevronRight24" FontSize="14" Foreground="{DynamicResource OB.Faint}" />
+                                            </Grid>
+                                        </Button>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </StackPanel>
-
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-            <UniformGrid Columns="3">
-
-                <!-- Startup -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF3A8DFF" Offset="0" /><GradientStop Color="#FF6F5BFF" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE7E8;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_Startup], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_Startup_Desc], Source={x:Static h:Loc.I}}" />
-                        <ui:Button Margin="0,12,0,0" HorizontalAlignment="Left" Appearance="Primary"
-                                   Content="{Binding [Act_Open], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding OpenCommand}" CommandParameter="Startup" />
-                    </StackPanel>
-                </ui:Card>
-
-                <!-- Junk -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF18C29C" Offset="0" /><GradientStop Color="#FF2E8BFF" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xEA99;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_Junk], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_Junk_Desc], Source={x:Static h:Loc.I}}" />
-                        <ui:Button Margin="0,12,0,0" HorizontalAlignment="Left" Appearance="Primary"
-                                   Content="{Binding [Act_Open], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding OpenCommand}" CommandParameter="Junk" />
-                    </StackPanel>
-                </ui:Card>
-
-                <!-- History -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF9B5BFF" Offset="0" /><GradientStop Color="#FFE15BBE" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE81C;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_History], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_History_Desc], Source={x:Static h:Loc.I}}" />
-                        <Border Margin="0,12,0,0" HorizontalAlignment="Left" CornerRadius="10" Padding="10,3"
-                                Background="{DynamicResource ControlFillColorSecondaryBrush}">
-                            <TextBlock FontSize="11" Opacity="0.85" Text="{Binding [Coming_Soon], Source={x:Static h:Loc.I}}" />
-                        </Border>
-                    </StackPanel>
-                </ui:Card>
-
-                <!-- Evidence remover -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FFFF6B6B" Offset="0" /><GradientStop Color="#FFFF9F45" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE72E;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_Evidence], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_Evidence_Desc], Source={x:Static h:Loc.I}}" />
-                        <Border Margin="0,12,0,0" HorizontalAlignment="Left" CornerRadius="10" Padding="10,3"
-                                Background="{DynamicResource ControlFillColorSecondaryBrush}">
-                            <TextBlock FontSize="11" Opacity="0.85" Text="{Binding [Coming_Soon], Source={x:Static h:Loc.I}}" />
-                        </Border>
-                    </StackPanel>
-                </ui:Card>
-
-                <!-- Shredder -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FFEC4899" Offset="0" /><GradientStop Color="#FF8B5CF6" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE83D;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_Shredder], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_Shredder_Desc], Source={x:Static h:Loc.I}}" />
-                        <Border Margin="0,12,0,0" HorizontalAlignment="Left" CornerRadius="10" Padding="10,3"
-                                Background="{DynamicResource ControlFillColorSecondaryBrush}">
-                            <TextBlock FontSize="11" Opacity="0.85" Text="{Binding [Coming_Soon], Source={x:Static h:Loc.I}}" />
-                        </Border>
-                    </StackPanel>
-                </ui:Card>
-
-                <!-- Backup manager -->
-                <ui:Card>
-                    <StackPanel>
-                        <Border Style="{StaticResource IconBadge}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#FF22C55E" Offset="0" /><GradientStop Color="#FF14B8A6" Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <ui:FontIcon Glyph="&#xE777;" Style="{StaticResource BadgeGlyph}" />
-                        </Border>
-                        <TextBlock Margin="0,14,0,2" FontSize="16" FontWeight="SemiBold"
-                                   Text="{Binding [Tool_Backup], Source={x:Static h:Loc.I}}" />
-                        <TextBlock Opacity="0.6" FontSize="12" TextWrapping="Wrap" MinHeight="34"
-                                   Text="{Binding [Tool_Backup_Desc], Source={x:Static h:Loc.I}}" />
-                        <Border Margin="0,12,0,0" HorizontalAlignment="Left" CornerRadius="10" Padding="10,3"
-                                Background="{DynamicResource ControlFillColorSecondaryBrush}">
-                            <TextBlock FontSize="11" Opacity="0.85" Text="{Binding [Coming_Soon], Source={x:Static h:Loc.I}}" />
-                        </Border>
-                    </StackPanel>
-                </ui:Card>
-
-            </UniformGrid>
-        </ScrollViewer>
-    </Grid>
+    </ScrollViewer>
 </UserControl>

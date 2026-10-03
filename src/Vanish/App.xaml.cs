@@ -1,7 +1,12 @@
+using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Vanish.Controls;
+using Vanish.Helpers;
+using Vanish.SelfTest;
 using Vanish.Services;
 using Vanish.ViewModels;
 using Vanish.ViewModels.Pages;
@@ -12,88 +17,134 @@ namespace Vanish;
 
 public partial class App : Application
 {
-    private readonly IHost _host;
+    /// <summary>Process start, for the startup-time measurement in the self-test.</summary>
+    public static readonly Stopwatch Clock = Stopwatch.StartNew();
 
-    public App()
-    {
-        _host = Host.CreateDefaultBuilder()
-            .ConfigureServices((_, services) =>
-            {
-                // Engine services
-                services.AddSingleton<IInstalledProgramsService, InstalledProgramsService>();
-                services.AddSingleton<IUninstallService, UninstallService>();
-                services.AddSingleton<ILeftoverScanService, LeftoverScanService>();
-                services.AddSingleton<ISystemRestoreService, SystemRestoreService>();
-                services.AddSingleton<IStartupService, StartupService>();
-                services.AddSingleton<IJunkCleanerService, JunkCleanerService>();
-                services.AddSingleton<IWindowsAppsService, WindowsAppsService>();
-                services.AddSingleton<NavigationService>();
-                services.AddSingleton<BrowserExtensionsService>();
-                services.AddSingleton<HunterService>();
-                services.AddSingleton<MonitorService>();
-                services.AddSingleton<OperationLogService>();
+    private ServiceProvider? _services;
 
-                // ViewModels
-                services.AddSingleton<MainWindowViewModel>();
-                services.AddSingleton<DashboardViewModel>();
-                services.AddSingleton<UninstallerViewModel>();
-                services.AddSingleton<StartupViewModel>();
-                services.AddSingleton<JunkCleanerViewModel>();
-                services.AddSingleton<WindowsAppsViewModel>();
-                services.AddSingleton<ToolsViewModel>();
-                services.AddSingleton<BrowserExtensionsViewModel>();
-                services.AddSingleton<HunterViewModel>();
-                services.AddSingleton<MonitoredViewModel>();
-                services.AddSingleton<LogsViewModel>();
-                services.AddSingleton<SettingsViewModel>();
-
-                // Views / pages
-                services.AddSingleton<MainWindow>();
-                services.AddSingleton<DashboardPage>();
-                services.AddSingleton<UninstallerPage>();
-                services.AddSingleton<StartupPage>();
-                services.AddSingleton<JunkCleanerPage>();
-                services.AddSingleton<WindowsAppsPage>();
-                services.AddSingleton<ToolsPage>();
-                services.AddSingleton<MonitoredPage>();
-                services.AddSingleton<BrowserExtensionsPage>();
-                services.AddSingleton<LogsPage>();
-                services.AddSingleton<HunterPage>();
-                services.AddSingleton<SettingsPage>();
-            })
-            .Build();
-
-        // Service locator used by the NavigationView to materialise pages.
-        Ioc.Configure(_host.Services);
-
-        DispatcherUnhandledException += OnDispatcherUnhandledException;
-    }
-
-    protected override async void OnStartup(StartupEventArgs e)
+    protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        await _host.StartAsync();
+        DispatcherUnhandledException += OnDispatcherUnhandledException;
 
-        var window = _host.Services.GetRequiredService<MainWindow>();
+        // Animations never need more than 60 fps; on 120/144 Hz screens this halves the
+        // render work. Without GPU acceleration (or when the user asks), entrance
+        // animations are skipped entirely.
+        Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
+
+        _services = ConfigureServices();
+        Ioc.Configure(_services);
+
+        var settings = _services.GetRequiredService<SettingsService>();
+        SettingsViewModel.ApplyAnimationSetting(settings.Current);
+        Loc.I.Language = settings.Current.Language;
+        _services.GetRequiredService<ThemeService>().Apply();
+        // Read the activity log in the background, before any page needs it.
+        _ = _services.GetRequiredService<OperationLogService>().WarmUpAsync();
+
+        var snapshotDir = Environment.GetEnvironmentVariable("OBLIVION_SNAPSHOT_DIR");
+        bool selfTest = !string.IsNullOrWhiteSpace(snapshotDir);
+        if (selfTest) SnapshotRunner.Prepare();
+
+        var window = _services.GetRequiredService<MainWindow>();
+        MainWindow = window;
         window.Show();
+
+        if (selfTest) _ = SnapshotRunner.RunAsync(window, snapshotDir!);
     }
 
-    protected override async void OnExit(ExitEventArgs e)
+    private static ServiceProvider ConfigureServices()
     {
-        await _host.StopAsync();
-        _host.Dispose();
+        var s = new ServiceCollection();
+
+        // Engine
+        s.AddSingleton<SettingsService>();
+        s.AddSingleton<ThemeService>();
+        s.AddSingleton<DialogService>();
+        s.AddSingleton<ToastService>();
+        s.AddSingleton<NavigationService>();
+        s.AddSingleton<OperationLogService>();
+        s.AddSingleton<SystemMonitorService>();
+        s.AddSingleton<IInstalledProgramsService, InstalledProgramsService>();
+        s.AddSingleton<IUninstallService, UninstallService>();
+        s.AddSingleton<ILeftoverScanService, LeftoverScanService>();
+        s.AddSingleton<ISystemRestoreService, SystemRestoreService>();
+        s.AddSingleton<IStartupService, StartupService>();
+        s.AddSingleton<IJunkCleanerService, JunkCleanerService>();
+        s.AddSingleton<IWindowsAppsService, WindowsAppsService>();
+        s.AddSingleton<BrowserExtensionsService>();
+        s.AddSingleton<HunterService>();
+        s.AddSingleton<MonitorService>();
+        s.AddSingleton<LargeFilesService>();
+        s.AddSingleton<ShredderService>();
+        s.AddSingleton<HistoryCleanerService>();
+        s.AddSingleton<EvidenceService>();
+
+        // View models
+        s.AddSingleton<MainWindowViewModel>();
+        s.AddSingleton<LiveStatsViewModel>();
+        s.AddSingleton<DashboardViewModel>();
+        s.AddSingleton<UninstallerViewModel>();
+        s.AddSingleton<WindowsAppsViewModel>();
+        s.AddSingleton<BrowserExtensionsViewModel>();
+        s.AddSingleton<StartupViewModel>();
+        s.AddSingleton<JunkCleanerViewModel>();
+        s.AddSingleton<SystemMonitorViewModel>();
+        s.AddSingleton<ToolsViewModel>();
+        s.AddSingleton<LargeFilesViewModel>();
+        s.AddSingleton<ShredderViewModel>();
+        s.AddSingleton<HistoryViewModel>();
+        s.AddSingleton<EvidenceViewModel>();
+        s.AddSingleton<BackupsViewModel>();
+        s.AddSingleton<MonitoredViewModel>();
+        s.AddSingleton<HunterViewModel>();
+        s.AddSingleton<LogsViewModel>();
+        s.AddSingleton<SettingsViewModel>();
+
+        // Views (pages are created on first visit and then kept)
+        s.AddSingleton<MainWindow>();
+        s.AddSingleton<DashboardPage>();
+        s.AddSingleton<UninstallerPage>();
+        s.AddSingleton<WindowsAppsPage>();
+        s.AddSingleton<BrowserExtensionsPage>();
+        s.AddSingleton<StartupPage>();
+        s.AddSingleton<JunkCleanerPage>();
+        s.AddSingleton<SystemMonitorPage>();
+        s.AddSingleton<ToolsPage>();
+        s.AddSingleton<LargeFilesPage>();
+        s.AddSingleton<ShredderPage>();
+        s.AddSingleton<HistoryPage>();
+        s.AddSingleton<EvidencePage>();
+        s.AddSingleton<BackupsPage>();
+        s.AddSingleton<MonitoredPage>();
+        s.AddSingleton<HunterPage>();
+        s.AddSingleton<LogsPage>();
+        s.AddSingleton<SettingsPage>();
+
+        return s.BuildServiceProvider();
+    }
+
+    protected override void OnExit(ExitEventArgs e)
+    {
+        _services?.Dispose();
         base.OnExit(e);
     }
 
     private void OnDispatcherUnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
     {
-        MessageBox.Show(e.Exception.Message, "Vanish — unexpected error",
-            MessageBoxButton.OK, MessageBoxImage.Error);
         e.Handled = true;
+        try
+        {
+            Ioc.Resolve<ToastService>().Show(e.Exception.Message, ToastKind.Error);
+        }
+        catch
+        {
+            MessageBox.Show(e.Exception.Message, "Oblivion", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
     }
 }
 
-/// <summary>Minimal service locator so XAML-instantiated pages can resolve their VMs.</summary>
+/// <summary>Minimal service locator for code that is not created through DI.</summary>
 public static class Ioc
 {
     private static IServiceProvider? _provider;

@@ -1,35 +1,46 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Vanish.Helpers;
 
 namespace Vanish.Models;
 
-/// <summary>An auto-start program (Run key entry or Startup-folder shortcut).</summary>
+/// <summary>An auto-start program (Run key value or Startup-folder shortcut).</summary>
 public sealed partial class StartupEntry : ObservableObject
 {
     public required string Name { get; init; }
     public required string Command { get; init; }
     public required StartupLocation Location { get; init; }
 
-    /// <summary>The registry path or folder the entry was found in (for delete/toggle).</summary>
+    /// <summary>The registry path (HKCU\…\Run) or folder the entry was found in.</summary>
     public required string Source { get; init; }
 
-    [ObservableProperty]
-    private bool _isEnabled = true;
+    /// <summary>Executable parsed from the command (for the icon and "open location").</summary>
+    public string? ExecutablePath { get; init; }
+
+    [ObservableProperty] private bool _isEnabled = true;
+
+    /// <summary>RunOnce entries can only be deleted, not toggled.</summary>
+    public bool CanToggle => Location is not (StartupLocation.HklmRunOnce or StartupLocation.HkcuRunOnce);
+
+    public bool IsMachineWide => Location is StartupLocation.HklmRun or StartupLocation.HklmRun32
+        or StartupLocation.HklmRunOnce or StartupLocation.CommonStartupFolder;
 
     public string LocationLabel => Location switch
     {
-        StartupLocation.HklmRun => "All users · Run",
-        StartupLocation.HkcuRun => "Current user · Run",
-        StartupLocation.HklmRunOnce => "All users · RunOnce",
-        StartupLocation.HkcuRunOnce => "Current user · RunOnce",
-        StartupLocation.CommonStartupFolder => "All users · Startup folder",
-        StartupLocation.UserStartupFolder => "Current user · Startup folder",
-        _ => "Unknown"
+        StartupLocation.HklmRun => Loc.I["Startup_AllUsersRun"],
+        StartupLocation.HklmRun32 => Loc.I["Startup_AllUsersRun32"],
+        StartupLocation.HkcuRun => Loc.I["Startup_UserRun"],
+        StartupLocation.HklmRunOnce => Loc.I["Startup_AllUsersOnce"],
+        StartupLocation.HkcuRunOnce => Loc.I["Startup_UserOnce"],
+        StartupLocation.CommonStartupFolder => Loc.I["Startup_AllUsersFolder"],
+        StartupLocation.UserStartupFolder => Loc.I["Startup_UserFolder"],
+        _ => ""
     };
 }
 
 public enum StartupLocation
 {
     HklmRun,
+    HklmRun32,
     HkcuRun,
     HklmRunOnce,
     HkcuRunOnce,

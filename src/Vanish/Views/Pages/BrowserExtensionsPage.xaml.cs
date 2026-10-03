@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 using Vanish.ViewModels.Pages;
 
@@ -5,17 +6,22 @@ namespace Vanish.Views.Pages;
 
 public partial class BrowserExtensionsPage : UserControl
 {
-    private bool _loaded;
+    private readonly BrowserExtensionsViewModel _vm;
 
     public BrowserExtensionsPage(BrowserExtensionsViewModel viewModel)
     {
+        _vm = viewModel;
         DataContext = viewModel;
         InitializeComponent();
-        Loaded += async (_, _) =>
-        {
-            if (_loaded) return;
-            _loaded = true;
-            await viewModel.LoadCommand.ExecuteAsync(null);
-        };
+    }
+
+    private void Browser_Checked(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string key }) _vm.BrowserFilter = key;
+    }
+
+    private void Browser_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is RadioButton { Tag: string key } rb) rb.IsChecked = key == _vm.BrowserFilter;
     }
 }

@@ -1,4 +1,4 @@
-using Vanish.Models;
+﻿using Vanish.Models;
 
 namespace Vanish.Services;
 
@@ -15,4 +15,7 @@ public interface IInstalledProgramsService
     /// for broken/orphaned items). Does not touch the program's files.
     /// </summary>
     void RemoveUninstallEntry(InstalledProgram program);
+
+    /// <summary>True while the program's uninstall entry still exists (e.g. the uninstaller was cancelled).</summary>
+    bool StillInstalled(InstalledProgram program);
 }

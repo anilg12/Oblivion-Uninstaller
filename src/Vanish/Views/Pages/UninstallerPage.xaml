@@ -4,185 +4,378 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <Grid Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock FontSize="26" FontWeight="Bold"
-                           Text="{Binding [Nav_AllApps], Source={x:Static h:Loc.I}}" />
-                <StackPanel Orientation="Horizontal" Opacity="0.6">
-                    <TextBlock Text="{Binding ResultCountText}" />
-                    <TextBlock Margin="4,0,0,0" Text="{Binding [Group_NewApps], Source={x:Static h:Loc.I}}" />
-                </StackPanel>
+        <c:PageHeader Title="{h:L Nav_AllApps}" Subtitle="{h:L Apps_Subtitle}" Symbol="AppsList24">
+            <StackPanel Orientation="Horizontal" Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
+                <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{DynamicResource OB.CardStrong}">
+                    <TextBlock Style="{StaticResource OB.Caption}" FontSize="12" VerticalAlignment="Center">
+                        <Run Text="{Binding TotalCount, Mode=OneWay}" FontWeight="Bold" /><Run Text=" " /><Run Text="{h:L Apps_ProgramsWord}" /><Run Text="  ·  " /><Run Text="{Binding TotalSizeText, Mode=OneWay}" />
+                    </TextBlock>
+                </Border>
+                <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
+                    <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
+                </Button>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center"
-                        Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
-                <ui:TextBox Width="240" Margin="0,0,8,0"
-                            PlaceholderText="{Binding [Search_Placeholder], Source={x:Static h:Loc.I}}"
-                            Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=150}" />
-                <ui:Button Appearance="Secondary"
-                           Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
-                           Command="{Binding LoadCommand}" />
-            </StackPanel>
-        </Grid>
+        </c:PageHeader>
 
-        <!-- BROWSING -->
-        <ListView Grid.Row="1"
-                  Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}"
-                  ItemsSource="{Binding Programs}"
-                  SelectedItem="{Binding SelectedProgram, Mode=TwoWay}"
-                  BorderThickness="0" Background="Transparent"
-                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="380" Header="{Binding [Col_App], Source={x:Static h:Loc.I}}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:InstalledProgram}">
-                                <StackPanel Orientation="Horizontal">
-                                    <Image Width="26" Height="26" Margin="0,0,12,0"
-                                           Source="{Binding DisplayIcon, Converter={StaticResource DisplayIconToImage}}" />
-                                    <StackPanel VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                                        <TextBlock Text="{Binding PublisherOrUnknown}" Opacity="0.55" FontSize="11"
-                                                   Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
-                                    </StackPanel>
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Width="95" Header="{Binding [Col_Size], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding DisplaySize}" />
-                    <GridViewColumn Width="110" Header="{Binding [Col_Version], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding DisplayVersion}" />
-                    <GridViewColumn Width="70" Header="{Binding [Col_Type], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Architecture}" />
-                    <GridViewColumn Width="110" Header="{Binding [Col_InstallDate], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding InstallDate}" />
-                    <GridViewColumn Width="180" Header="{Binding [Col_Publisher], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding PublisherOrUnknown}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
-
-        <!-- WORKING -->
-        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center"
-                    Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}">
-            <ui:ProgressRing IsIndeterminate="True" Width="64" Height="64" HorizontalAlignment="Center" />
-            <TextBlock Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="15" Text="{Binding StatusMessage}" />
-            <ui:Button Margin="0,18,0,0" HorizontalAlignment="Center" Appearance="Secondary"
-                       Content="{Binding [Act_Cancel], Source={x:Static h:Loc.I}}" Command="{Binding CancelCommand}" />
-        </StackPanel>
-
-        <!-- REVIEW LEFTOVERS -->
-        <Grid Grid.Row="1" Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
+        <!-- =============================== BROWSING =============================== -->
+        <Grid Grid.Row="1" Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <ui:InfoBar Grid.Row="0" Margin="0,0,0,12" IsOpen="True" Severity="Warning"
-                        Title="{Binding [Leftovers_Title], Source={x:Static h:Loc.I}}"
-                        Message="{Binding [Leftovers_Msg], Source={x:Static h:Loc.I}}" />
-            <ListView Grid.Row="1" ItemsSource="{Binding Leftovers}" BorderThickness="0" Background="Transparent">
-                <ListView.View>
-                    <GridView>
-                        <GridViewColumn Width="40">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
-                                    <CheckBox IsChecked="{Binding IsSelected, Mode=TwoWay}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Width="50">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
-                                    <ui:FontIcon FontFamily="Segoe Fluent Icons" Glyph="{Binding KindGlyph}" />
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Width="540" Header="{Binding [Col_Path], Source={x:Static h:Loc.I}}"
-                                        DisplayMemberBinding="{Binding Path}" />
-                        <GridViewColumn Width="90" Header="{Binding [Col_Size], Source={x:Static h:Loc.I}}"
-                                        DisplayMemberBinding="{Binding DisplaySize}" />
-                        <GridViewColumn Width="100" Header="{Binding [Col_Match], Source={x:Static h:Loc.I}}">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate DataType="{x:Type models:LeftoverItem}">
-                                    <Border CornerRadius="4" Padding="6,2"
-                                            Background="{Binding Confidence, Converter={StaticResource ConfidenceToBrush}}">
-                                        <TextBlock Text="{Binding Confidence}" Foreground="White" FontSize="11" />
-                                    </Border>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                    </GridView>
-                </ListView.View>
-            </ListView>
+
+            <!-- toolbar -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" MaxWidth="340" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <ui:TextBox x:Name="SearchBox" PlaceholderText="{h:L Apps_Search}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                            ClearButtonEnabled="True">
+                    <ui:TextBox.Icon>
+                        <ui:SymbolIcon Symbol="Search24" />
+                    </ui:TextBox.Icon>
+                </ui:TextBox>
+                <Border Grid.Column="1" Style="{StaticResource OB.SegmentHost}" HorizontalAlignment="Right" Margin="12,0,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <RadioButton Style="{StaticResource OB.Segment}" GroupName="appsFilter" Content="{h:L Apps_FilterAll}"
+                                     IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=all}" />
+                        <RadioButton Style="{StaticResource OB.Segment}" GroupName="appsFilter" Content="{h:L Apps_FilterRecent}"
+                                     IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=recent}" />
+                        <RadioButton Style="{StaticResource OB.Segment}" GroupName="appsFilter" Content="{h:L Apps_FilterLarge}"
+                                     IsChecked="{Binding Filter, Converter={StaticResource EqualsConverter}, ConverterParameter=large}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- column headers (click to sort) -->
+            <Grid Grid.Row="1" Margin="10,0,22,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="46" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="86" />
+                    <ColumnDefinition Width="92" />
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="1" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="name">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{h:L Apps_Name}" />
+                        <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
+                                       Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=name}" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="publisher">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{h:L Apps_SortPublisher}" />
+                        <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
+                                       Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=publisher}" />
+                    </StackPanel>
+                </Button>
+                <TextBlock Grid.Column="2" Text="{h:L Apps_Version}" Style="{StaticResource OB.Caption}" FontWeight="SemiBold" Margin="6,4" />
+                <Button Grid.Column="3" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="size">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{h:L Apps_Size}" />
+                        <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
+                                       Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=size}" />
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="4" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="date">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="{h:L Apps_InstallDate}" />
+                        <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
+                                       Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=date}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+
+            <ListBox x:Name="ProgramList" Grid.Row="2" Style="{StaticResource OB.List}" ItemsSource="{Binding Programs}"
+                     SelectedItem="{Binding SelectedProgram}" MouseDoubleClick="ProgramList_DoubleClick">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="{h:L Act_Uninstall}" Command="{Binding UninstallCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="Delete24" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{h:L Act_ForceUninstall}" Command="{Binding ForceUninstallCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="Flash24" /></MenuItem.Icon>
+                        </MenuItem>
+                        <Separator />
+                        <MenuItem Header="{h:L Cmd_OpenInstallFolder}" Command="{Binding OpenInstallFolderCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="FolderOpen24" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{h:L Cmd_OpenRegistry}" Command="{Binding OpenRegistryCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="Key24" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{h:L Cmd_SearchWeb}" Command="{Binding SearchWebCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="Search24" /></MenuItem.Icon>
+                        </MenuItem>
+                        <MenuItem Header="{h:L Cmd_CopyDetails}" Command="{Binding CopyDetailsCommand}">
+                            <MenuItem.Icon><ui:SymbolIcon Symbol="Copy24" /></MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Height="40" c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="46" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="86" />
+                                <ColumnDefinition Width="92" />
+                            </Grid.ColumnDefinitions>
+                            <Grid Width="34" Height="34" HorizontalAlignment="Left">
+                                <Border CornerRadius="10" Background="{DynamicResource OB.CardStrong}">
+                                    <TextBlock Text="{Binding Initials}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource OB.Subtext}"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                                <Image c:IconLoader.Path="{Binding IconPath}" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality" />
+                            </Grid>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <TextBlock Text="{Binding DisplayName}" Style="{StaticResource OB.BodyStrong}" />
+                                <TextBlock Style="{StaticResource OB.FaintText}">
+                                    <Run Text="{Binding PublisherOrUnknown, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding Architecture, Mode=OneWay}" />
+                                </TextBlock>
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding VersionText}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center" Margin="6,0" />
+                            <TextBlock Grid.Column="3" Text="{Binding DisplaySize}" Style="{StaticResource OB.Body}" FontSize="12.5" VerticalAlignment="Center" Margin="6,0" />
+                            <TextBlock Grid.Column="4" Text="{Binding InstallDateText}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center" Margin="6,0" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- loading / empty -->
+            <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+                <c:Spinner Width="34" Height="34" Thickness="3.5" />
+                <TextBlock Text="{h:L Apps_Loading}" Style="{StaticResource OB.Caption}" Margin="0,10,0,0" HorizontalAlignment="Center" />
+            </StackPanel>
+            <c:EmptyState Grid.Row="2" Symbol="Search24" Title="{h:L Apps_NoMatch}" Text="{h:L Apps_NoMatchText}"
+                          Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
         </Grid>
 
-        <!-- FOOTER -->
-        <Border Grid.Row="2" Margin="0,14,0,0" Padding="16,12" CornerRadius="12"
-                Background="{DynamicResource ControlFillColorDefaultBrush}">
-            <Grid>
-                <!-- Description panel (browsing) -->
-                <Grid Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
-                    <Grid DataContext="{Binding SelectedProgram}"
-                          Visibility="{Binding Converter={StaticResource NullToVisibility}}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Width="44" Height="44" Margin="0,0,16,0" VerticalAlignment="Center"
-                               Source="{Binding DisplayIcon, Converter={StaticResource DisplayIconToImage}}" />
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" FontSize="14" />
-                            <TextBlock Opacity="0.6" FontSize="12" TextTrimming="CharacterEllipsis"
-                                       Text="{Binding InstallLocation}" />
-                            <StackPanel Orientation="Horizontal" Opacity="0.75" Margin="0,2,0,0">
-                                <TextBlock Text="{Binding PublisherOrUnknown}" />
-                                <TextBlock Text="  ·  " />
-                                <TextBlock Text="{Binding DisplayVersion}" />
-                                <TextBlock Text="  ·  " />
-                                <TextBlock Text="{Binding DisplaySize}" />
-                                <TextBlock Text="  ·  " />
-                                <TextBlock Text="{Binding Architecture}" />
-                            </StackPanel>
-                        </StackPanel>
+        <!-- =============================== WORKING =============================== -->
+        <Border Grid.Row="1" Style="{StaticResource OB.Card}" CornerRadius="22" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+                Width="520" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Grid Width="54" Height="54">
+                        <c:Spinner Width="54" Height="54" Thickness="4" />
+                        <ui:SymbolIcon Symbol="Delete24" FontSize="20" Foreground="{StaticResource OB.Accent}" />
                     </Grid>
-                    <TextBlock VerticalAlignment="Center" Opacity="0.5"
-                               Text="{Binding [Desc_Empty], Source={x:Static h:Loc.I}}"
-                               Visibility="{Binding SelectedProgram, Converter={StaticResource NullToVisibility}, ConverterParameter=invert}" />
-                </Grid>
+                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="390">
+                        <TextBlock Text="{Binding WorkTitle}" Style="{StaticResource OB.Section}" FontSize="17" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding WorkStatus}" Style="{StaticResource OB.Caption}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                    </StackPanel>
+                </StackPanel>
+                <c:GradientBar Value="-1" Margin="0,20,0,18" />
 
-                <!-- Review actions -->
-                <Grid Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock VerticalAlignment="Center" Opacity="0.75" Text="{Binding StatusMessage}" />
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <CheckBox VerticalAlignment="Center" Margin="0,0,16,0"
-                                  Content="{Binding [Opt_RecycleBin], Source={x:Static h:Loc.I}}"
-                                  IsChecked="{Binding UseRecycleBin}" />
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Act_SelectAll], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding SelectAllLeftoversCommand}" />
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Act_SelectNone], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding SelectNoneLeftoversCommand}" />
-                        <ui:Button Margin="0,0,8,0" Appearance="Secondary"
-                                   Content="{Binding [Act_Skip], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding BackToListCommand}" />
-                        <ui:Button Appearance="Danger"
-                                   Content="{Binding [Act_DeleteSelected], Source={x:Static h:Loc.I}}"
-                                   Command="{Binding DeleteLeftoversCommand}" />
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10" Visibility="{Binding RestoreStepEnabled, Converter={StaticResource BoolToVisibility}}">
+                        <c:StepDot Step="0" Current="{Binding WorkStep}" />
+                        <TextBlock Text="{h:L Step_RestorePoint}" Style="{StaticResource OB.Body}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <c:StepDot Step="1" Current="{Binding WorkStep}" />
+                        <TextBlock Text="{h:L Step_Uninstaller}" Style="{StaticResource OB.Body}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <c:StepDot Step="2" Current="{Binding WorkStep}" />
+                        <TextBlock Text="{h:L Step_Scan}" Style="{StaticResource OB.Body}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <c:StepDot Step="3" Current="{Binding WorkStep}" />
+                        <TextBlock Text="{h:L Step_Review}" Style="{StaticResource OB.Body}" Margin="12,0,0,0" VerticalAlignment="Center" />
+                    </StackPanel>
+                </StackPanel>
+
+                <Button Style="{StaticResource OB.Btn}" HorizontalAlignment="Right" Margin="0,18,0,0" Content="{h:L Act_Cancel}"
+                        Command="{Binding CancelCommand}" Visibility="{Binding CanCancel, Converter={StaticResource BoolToVisibility}}" />
+            </StackPanel>
+        </Border>
+
+        <!-- =============================== REVIEW =============================== -->
+        <Grid Grid.Row="1" Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Border Style="{StaticResource OB.Card}" Padding="16,12" CornerRadius="16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <c:GradientBadge Symbol="Sparkle24" Size="40" />
+                    <StackPanel Grid.Column="1" Margin="14,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Style="{StaticResource OB.Section}">
+                            <Run Text="{h:L Left_FoundFor}" /><Run Text=" " /><Run Text="{Binding Target.DisplayName, Mode=OneWay}" />
+                        </TextBlock>
+                        <TextBlock Text="{Binding LeftoverSummary}" Style="{StaticResource OB.Caption}" Margin="0,2,0,0" />
                     </StackPanel>
                 </Grid>
+            </Border>
+
+            <!-- safety notes -->
+            <Border Grid.Row="1" Margin="0,10,0,0" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.WarningSoft}"
+                    Visibility="{Binding StillInstalledWarning, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Warning24" FontSize="16" Foreground="{StaticResource OB.Warning}" Margin="0,0,10,0" />
+                    <TextBlock Text="{h:L Left_StillInstalled}" Style="{StaticResource OB.Body}" TextWrapping="Wrap" TextTrimming="None" MaxWidth="640" />
+                </StackPanel>
+            </Border>
+            <Border Grid.Row="2" Margin="0,10,0,8" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.AccentSoft}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,10,0" VerticalAlignment="Top" />
+                    <TextBlock Grid.Column="1" Text="{h:L Left_Explain}" Style="{StaticResource OB.Body}" FontSize="12.5" TextWrapping="Wrap" TextTrimming="None" />
+                </Grid>
+            </Border>
+
+            <!-- list toolbar + list -->
+            <Grid Grid.Row="3">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="0,0,0,8">
+                    <Border Style="{StaticResource OB.SegmentHost}">
+                        <StackPanel Orientation="Horizontal">
+                            <RadioButton Style="{StaticResource OB.Segment}" GroupName="leftFilter"
+                                         IsChecked="{Binding LeftoverFilter, Converter={StaticResource EqualsConverter}, ConverterParameter=all}">
+                                <TextBlock><Run Text="{h:L Left_All}" /><Run Text=" (" /><Run Text="{Binding Leftovers.Count, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                            </RadioButton>
+                            <RadioButton Style="{StaticResource OB.Segment}" GroupName="leftFilter"
+                                         IsChecked="{Binding LeftoverFilter, Converter={StaticResource EqualsConverter}, ConverterParameter=files}">
+                                <TextBlock><Run Text="{h:L Left_Files}" /><Run Text=" (" /><Run Text="{Binding FileLeftoverCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                            </RadioButton>
+                            <RadioButton Style="{StaticResource OB.Segment}" GroupName="leftFilter"
+                                         IsChecked="{Binding LeftoverFilter, Converter={StaticResource EqualsConverter}, ConverterParameter=registry}">
+                                <TextBlock><Run Text="{h:L Left_Registry}" /><Run Text=" (" /><Run Text="{Binding RegistryLeftoverCount, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                            </RadioButton>
+                        </StackPanel>
+                    </Border>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource OB.Btn}" Padding="10,6" FontSize="12" Margin="0,0,6,0" Command="{Binding SelectSafeLeftoversCommand}"
+                                ToolTip="{h:L Left_SelectSafeTip}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="14" Foreground="{StaticResource OB.Success}" Margin="0,0,6,0" />
+                                <TextBlock Text="{h:L Left_SelectSafe}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource OB.Btn}" Padding="10,6" FontSize="12" Margin="0,0,6,0" Content="{h:L Act_SelectAll}"
+                                Command="{Binding SelectAllLeftoversCommand}" />
+                        <Button Style="{StaticResource OB.Btn}" Padding="10,6" FontSize="12" Content="{h:L Act_SelectNone}"
+                                Command="{Binding SelectNoneLeftoversCommand}" />
+                    </StackPanel>
+                </Grid>
+
+                <ListBox Grid.Row="1" Style="{StaticResource OB.List}" ItemsSource="{Binding LeftoverView}" SelectionMode="Multiple">
+                    <ListBox.ItemContainerStyle>
+                        <Style TargetType="ListBoxItem" BasedOn="{StaticResource OB.ListItem}">
+                            <Setter Property="Padding" Value="8,6" />
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                        </Style>
+                    </ListBox.ItemContainerStyle>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="80" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox IsChecked="{Binding IsSelected}" VerticalAlignment="Center" Margin="0,0,4,0" MinWidth="0" />
+                                <Border Grid.Column="1" Width="30" Height="30" CornerRadius="9" Background="{DynamicResource OB.CardStrong}" Margin="0,0,10,0">
+                                    <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{DynamicResource OB.Subtext}" />
+                                </Border>
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <TextBlock Text="{Binding Name}" Style="{StaticResource OB.BodyStrong}" />
+                                    <TextBlock Text="{Binding Location}" Style="{StaticResource OB.FaintText}" ToolTip="{Binding Location}" />
+                                    <TextBlock Text="{Binding Reason}" Style="{StaticResource OB.FaintText}" Foreground="{StaticResource OB.Accent}" />
+                                </StackPanel>
+                                <c:Chip Grid.Column="3" Text="{Binding ConfidenceText}" Tint="{Binding ConfidenceColor}" Margin="0,0,10,0" />
+                                <TextBlock Grid.Column="4" Text="{Binding DisplaySize}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center"
+                                           HorizontalAlignment="Right" />
+                                <Button Grid.Column="5" Style="{StaticResource OB.BtnGhost}" Padding="6" Margin="6,0,0,0" ToolTip="{h:L Act_ShowLocation}"
+                                        Command="{Binding DataContext.RevealLeftoverCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}">
+                                    <ui:SymbolIcon Symbol="Open24" FontSize="14" />
+                                </Button>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
+
+            <!-- footer -->
+            <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+                <Grid>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <ui:SymbolIcon Symbol="CheckboxChecked24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                        <TextBlock Text="{Binding SelectedLeftoverText}" Style="{StaticResource OB.BodyStrong}" VerticalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Content="{h:L Left_Finish}" Command="{Binding SkipLeftoversCommand}" />
+                        <Button Style="{StaticResource OB.BtnDanger}" Command="{Binding DeleteLeftoversCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Delete24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
+                                <TextBlock Text="{h:L Act_DeleteSelected}" />
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- =============================== DONE =============================== -->
+        <Border Grid.Row="1" Style="{StaticResource OB.Card}" CornerRadius="22" Padding="30" Width="500" HorizontalAlignment="Center"
+                VerticalAlignment="Center" Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}">
+            <StackPanel HorizontalAlignment="Center">
+                <c:GradientBadge Symbol="Checkmark24" Size="72" From="#22C55E" To="#18C29C" HorizontalAlignment="Center" c:PopIn.Enabled="True" />
+                <TextBlock Text="{Binding DoneTitle}" Style="{StaticResource OB.Title}" FontSize="22" Margin="0,18,0,0" HorizontalAlignment="Center"
+                           TextWrapping="Wrap" TextAlignment="Center" />
+                <TextBlock Text="{Binding DoneText}" Style="{StaticResource OB.Subtitle}" HorizontalAlignment="Center" TextAlignment="Center" />
+                <UniformGrid Columns="2" Margin="0,20,0,0">
+                    <StackPanel HorizontalAlignment="Center">
+                        <c:CountUpText Value="{Binding DoneRemoved}" Style="{StaticResource OB.BigNumber}" HorizontalAlignment="Center" />
+                        <TextBlock Text="{h:L Done_ItemsRemoved}" Style="{StaticResource OB.Caption}" HorizontalAlignment="Center" />
+                    </StackPanel>
+                    <StackPanel HorizontalAlignment="Center">
+                        <c:CountUpText Value="{Binding DoneFreed}" Mode="Bytes" Style="{StaticResource OB.BigNumber}" HorizontalAlignment="Center" />
+                        <TextBlock Text="{h:L Done_SpaceFreed}" Style="{StaticResource OB.Caption}" HorizontalAlignment="Center" />
+                    </StackPanel>
+                </UniformGrid>
+                <TextBlock Text="{Binding DoneFailText}" Style="{StaticResource OB.Caption}" Foreground="{StaticResource OB.Warning}" Margin="0,14,0,0"
+                           HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"
+                           Visibility="{Binding DoneHasFailures, Converter={StaticResource BoolToVisibility}}" />
+                <Button Style="{StaticResource OB.BtnPrimary}" Margin="0,22,0,0" HorizontalAlignment="Center" MinWidth="170"
+                        Command="{Binding BackToListCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="ArrowLeft24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Done_BackToList}" />
+                    </StackPanel>
+                </Button>
+            </StackPanel>
         </Border>
     </Grid>
 </UserControl>
