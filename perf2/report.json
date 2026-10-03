@@ -1,0 +1,30 @@
+﻿{
+  "firstRenderMs": 797,
+  "renderTier": 2,
+  "mode": "perf",
+  "navigationMs": {
+    "Dashboard": 0,
+    "Uninstaller": 199,
+    "Monitored": 72,
+    "WindowsApps": 104,
+    "BrowserExt": 52,
+    "SystemMonitor": 78,
+    "Logs": 112,
+    "Hunter": 43,
+    "Tools": 72,
+    "Junk": 159,
+    "Startup": 88,
+    "LargeFiles": 81,
+    "Shredder": 59,
+    "History": 84,
+    "Evidence": 30,
+    "Backups": 29,
+    "Settings": 48
+  },
+  "navigationMaxMs": 199,
+  "transitionFps": 37.9,
+  "logEntries": 2000,
+  "workingSetMb": 203,
+  "bindingErrors": [],
+  "errors": []
+}

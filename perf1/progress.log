@@ -1,0 +1,24 @@
+﻿23:41:25.163  startup: begin
+23:41:26.861  startup: theme applied
+23:41:27.037  startup: window created
+23:41:28.903  startup: window shown
+23:41:28.903  selftest: started
+23:41:30.765  selftest: mode perf, first render 2772 ms
+23:41:33.273  perf: Dashboard
+23:41:33.624  perf: Uninstaller
+23:41:34.139  perf: Monitored
+23:41:34.537  perf: WindowsApps
+23:41:34.913  perf: BrowserExt
+23:41:35.337  perf: SystemMonitor
+23:41:35.750  perf: Logs
+23:41:36.134  perf: Hunter
+23:41:36.594  perf: Tools
+23:41:37.007  perf: Junk
+23:41:37.499  perf: Startup
+23:41:37.934  perf: LargeFiles
+23:41:38.367  perf: Shredder
+23:41:38.755  perf: History
+23:41:39.206  perf: Evidence
+23:41:39.579  perf: Backups
+23:41:39.962  perf: Settings
+23:41:42.877  selftest: finished with 0 error(s)

@@ -1,0 +1,96 @@
+﻿{
+  "firstRenderMs": 827,
+  "renderTier": 2,
+  "mode": "full",
+  "junkSelectedAfterScan": 0,
+  "fixtureFound": [
+    {
+      "Path": "C:\\Program Files\\Oblivion CI Fixture",
+      "ValueName": null,
+      "Kind": "Folder",
+      "Confidence": "High",
+      "IsSelected": false
+    },
+    {
+      "Path": "C:\\ProgramData\\Oblivion CI Fixture",
+      "ValueName": null,
+      "Kind": "Folder",
+      "Confidence": "High",
+      "IsSelected": false
+    },
+    {
+      "Path": "C:\\Users\\runneradmin\\AppData\\Local\\Oblivion CI Fixture",
+      "ValueName": null,
+      "Kind": "Folder",
+      "Confidence": "High",
+      "IsSelected": false
+    },
+    {
+      "Path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Oblivion CI Fixture",
+      "ValueName": null,
+      "Kind": "Folder",
+      "Confidence": "High",
+      "IsSelected": false
+    },
+    {
+      "Path": "HKCU\\SOFTWARE\\Oblivion CI Fixture",
+      "ValueName": null,
+      "Kind": "RegistryKey",
+      "Confidence": "High",
+      "IsSelected": false
+    },
+    {
+      "Path": "HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OblivionCIFixture",
+      "ValueName": null,
+      "Kind": "RegistryKey",
+      "Confidence": "High",
+      "IsSelected": false
+    }
+  ],
+  "screenshots": [
+    "dark-tr-Dashboard.png",
+    "dark-tr-Uninstaller.png",
+    "dark-tr-Monitored.png",
+    "dark-tr-WindowsApps.png",
+    "dark-tr-BrowserExt.png",
+    "dark-tr-SystemMonitor.png",
+    "dark-tr-Logs.png",
+    "dark-tr-Hunter.png",
+    "dark-tr-Tools.png",
+    "dark-tr-Junk.png",
+    "dark-tr-Startup.png",
+    "dark-tr-LargeFiles.png",
+    "dark-tr-Shredder.png",
+    "dark-tr-History.png",
+    "dark-tr-Evidence.png",
+    "dark-tr-Backups.png",
+    "dark-tr-Settings.png",
+    "dark-en-Dashboard.png",
+    "dark-en-Uninstaller.png",
+    "dark-en-SystemMonitor.png",
+    "dark-en-Tools.png",
+    "dark-en-Junk.png",
+    "light-tr-Dashboard.png",
+    "light-tr-Uninstaller.png",
+    "light-tr-Monitored.png",
+    "light-tr-WindowsApps.png",
+    "light-tr-BrowserExt.png",
+    "light-tr-SystemMonitor.png",
+    "light-tr-Logs.png",
+    "light-tr-Hunter.png",
+    "light-tr-Tools.png",
+    "light-tr-Junk.png",
+    "light-tr-Startup.png",
+    "light-tr-LargeFiles.png",
+    "light-tr-Shredder.png",
+    "light-tr-History.png",
+    "light-tr-Evidence.png",
+    "light-tr-Backups.png",
+    "light-tr-Settings.png",
+    "dark-tr-Junk-expanded.png",
+    "dark-tr-About.png",
+    "dark-tr-Leftovers.png"
+  ],
+  "bindingErrors": [],
+  "errors": []
+}

@@ -1,0 +1,46 @@
+﻿23:42:00.248  startup: begin
+23:42:00.338  startup: theme applied
+23:42:00.506  startup: window created
+23:42:00.839  startup: window shown
+23:42:00.840  selftest: started
+23:42:02.493  selftest: mode full, first render 827 ms
+23:42:03.101  full: dark/tr/Dashboard
+23:42:05.779  full: dark/tr/Uninstaller
+23:42:06.909  full: dark/tr/Monitored
+23:42:07.930  full: dark/tr/WindowsApps
+23:42:08.979  full: dark/tr/BrowserExt
+23:42:09.966  full: dark/tr/SystemMonitor
+23:42:12.677  full: dark/tr/Logs
+23:42:13.672  full: dark/tr/Hunter
+23:42:14.648  full: dark/tr/Tools
+23:42:15.658  full: dark/tr/Junk
+23:42:18.394  full: dark/tr/Startup
+23:42:19.389  full: dark/tr/LargeFiles
+23:42:20.410  full: dark/tr/Shredder
+23:42:21.376  full: dark/tr/History
+23:42:22.391  full: dark/tr/Evidence
+23:42:23.360  full: dark/tr/Backups
+23:42:24.333  full: dark/tr/Settings
+23:42:25.380  full: dark/en/Dashboard
+23:42:28.073  full: dark/en/Uninstaller
+23:42:29.068  full: dark/en/SystemMonitor
+23:42:31.807  full: dark/en/Tools
+23:42:32.788  full: dark/en/Junk
+23:42:35.536  full: light/tr/Dashboard
+23:42:38.237  full: light/tr/Uninstaller
+23:42:39.241  full: light/tr/Monitored
+23:42:40.217  full: light/tr/WindowsApps
+23:42:41.219  full: light/tr/BrowserExt
+23:42:42.193  full: light/tr/SystemMonitor
+23:42:44.914  full: light/tr/Logs
+23:42:45.904  full: light/tr/Hunter
+23:42:46.873  full: light/tr/Tools
+23:42:47.852  full: light/tr/Junk
+23:42:50.536  full: light/tr/Startup
+23:42:51.516  full: light/tr/LargeFiles
+23:42:52.483  full: light/tr/Shredder
+23:42:53.449  full: light/tr/History
+23:42:54.422  full: light/tr/Evidence
+23:42:55.404  full: light/tr/Backups
+23:42:56.361  full: light/tr/Settings
+23:43:00.371  selftest: finished with 0 error(s)
