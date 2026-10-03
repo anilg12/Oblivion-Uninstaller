@@ -60,19 +60,33 @@ jobs:
         run: |
           @'
           param([string]$Exe, [string]$Dir, [string]$Mode, [int]$TimeoutSec = 240)
+          function Show-Diagnostics {
+            foreach ($f in @("$Dir\progress.log", "$env:LOCALAPPDATA\Oblivion\crash.log")) {
+              if (Test-Path $f) { Write-Host "----- $f -----"; Get-Content $f -Raw | Write-Host }
+            }
+          }
           New-Item -ItemType Directory -Force -Path $Dir | Out-Null
           $env:OBLIVION_SNAPSHOT_DIR = $Dir
           $env:OBLIVION_SELFTEST_MODE = $Mode
           $p = Start-Process -FilePath $Exe -PassThru
           if (-not $p.WaitForExit($TimeoutSec * 1000)) {
+            try {
+              Add-Type -AssemblyName System.Windows.Forms, System.Drawing
+              $b = [System.Windows.Forms.SystemInformation]::VirtualScreen
+              $bmp = New-Object System.Drawing.Bitmap $b.Width, $b.Height
+              $g = [System.Drawing.Graphics]::FromImage($bmp)
+              $g.CopyFromScreen($b.Left, $b.Top, 0, 0, $bmp.Size)
+              $bmp.Save("$Dir\timeout-screen.png")
+            } catch { Write-Host "screenshot failed: $_" }
             Stop-Process -Id $p.Id -Force
+            Show-Diagnostics
             throw "Oblivion did not finish the $Mode self-test within $TimeoutSec s"
           }
           $report = Join-Path $Dir "report.json"
-          if (-not (Test-Path $report)) { throw "No report written ($Mode), exit code $($p.ExitCode)" }
+          if (-not (Test-Path $report)) { Show-Diagnostics; throw "No report written ($Mode), exit code $($p.ExitCode)" }
           Get-Content $report -Raw | Write-Host
           $json = Get-Content $report -Raw | ConvertFrom-Json
-          if ($json.errors.Count -gt 0) { throw "Self-test ($Mode) reported errors" }
+          if ($json.errors.Count -gt 0) { Show-Diagnostics; throw "Self-test ($Mode) reported errors" }
           return $json
           '@ | Set-Content -Path selftest.ps1 -Encoding utf8
 
@@ -80,7 +94,7 @@ jobs:
         shell: pwsh
         run: |
           Remove-Item -Recurse -Force "$env:LOCALAPPDATA\Oblivion" -ErrorAction SilentlyContinue
-          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf1" -Mode perf
+          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf1" -Mode perf -TimeoutSec 150
           "FIRST_RENDER_1=$($r.firstRenderMs)" | Out-File -Append $env:GITHUB_ENV
 
       - name: Self-test 2 - later launch (settings + a full activity log)
@@ -91,7 +105,7 @@ jobs:
           New-Item -ItemType Directory -Force -Path (Split-Path $log) | Out-Null
           $lines = 1..2000 | ForEach-Object { '{"Timestamp":"2026-09-01T10:00:00","ActionKey":"Log_Junk","Action":"","Detail":"' + $_ + ' MB freed"}' }
           [IO.File]::WriteAllLines($log, $lines)
-          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf2" -Mode perf
+          $r = ./selftest.ps1 -Exe "$pwd\dist\app\Oblivion.exe" -Dir "$pwd\snap\perf2" -Mode perf -TimeoutSec 150
           Write-Host "First launch: $env:FIRST_RENDER_1 ms   Later launch: $($r.firstRenderMs) ms   Slowest page switch: $($r.navigationMaxMs) ms   Transition fps: $($r.transitionFps)"
           if ($r.navigationMaxMs -gt 3000) { throw "A page switch took longer than 3 s" }
           if ([int]$r.firstRenderMs -gt ([int]$env:FIRST_RENDER_1 * 2 + 2000)) { throw "Later launch is much slower than the first one" }
@@ -169,6 +183,7 @@ jobs:
         if: always() && (inputs.snapshots || github.ref == 'refs/heads/claude/v3')
         shell: pwsh
         run: |
+          if (-not (Get-ChildItem -Recurse -File snap -ErrorAction SilentlyContinue)) { Write-Host "No snapshots."; exit 0 }
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
           $tmp = "$env:RUNNER_TEMP\snaps"
