@@ -4,61 +4,125 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Browser_Title], Source={x:Static h:Loc.I}}" />
-                <TextBlock Opacity="0.6" Text="{Binding [Browser_Subtitle], Source={x:Static h:Loc.I}}" />
+        <c:PageHeader Title="{h:L Nav_BrowserExt}" Subtitle="{h:L Ext_Subtitle}" Symbol="PuzzlePiece24" From="#2E8BFF" To="#6E5BFF">
+            <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
+                <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
+            </Button>
+        </c:PageHeader>
+
+        <Border Grid.Row="1" Margin="0,0,0,10" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.WarningSoft}"
+                Visibility="{Binding RunningWarning, Converter={StaticResource NullToVisibility}}">
+            <StackPanel Orientation="Horizontal">
+                <ui:SymbolIcon Symbol="Warning24" FontSize="16" Foreground="{StaticResource OB.Warning}" Margin="0,0,10,0" />
+                <TextBlock Text="{Binding RunningWarning}" Style="{StaticResource OB.Body}" FontSize="12.5" TextWrapping="Wrap" TextTrimming="None" />
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
-                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
-                <ui:Button Appearance="Secondary" Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
-                           Command="{Binding LoadCommand}" />
-            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="260" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <ui:TextBox PlaceholderText="{h:L Ext_Search}" Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}" ClearButtonEnabled="True">
+                <ui:TextBox.Icon>
+                    <ui:SymbolIcon Symbol="Search24" />
+                </ui:TextBox.Icon>
+            </ui:TextBox>
+            <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Margin="12,0,0,0">
+                <ItemsControl ItemsSource="{Binding Browsers}" HorizontalAlignment="Right">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <RadioButton Style="{StaticResource OB.Segment}" GroupName="browserFilter" Margin="2,0" Tag="{Binding Key}"
+                                         Checked="Browser_Checked" Loaded="Browser_Loaded">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image c:IconLoader.Path="{Binding Icon}" Width="16" Height="16" Margin="0,0,6,0" />
+                                    <TextBlock><Run Text="{Binding Title, Mode=OneWay}" /><Run Text=" " /><Run Text="{Binding Count, Mode=OneWay}" FontWeight="Normal" /></TextBlock>
+                                </StackPanel>
+                            </RadioButton>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </Grid>
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Extensions}" BorderThickness="0" Background="Transparent"
-                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="360" Header="{Binding [Col_Extension], Source={x:Static h:Loc.I}}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:BrowserExtension}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:FontIcon Glyph="&#xEA86;" FontFamily="Segoe Fluent Icons" Margin="0,0,10,0" Opacity="0.7" />
-                                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" VerticalAlignment="Center"
-                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Width="180" Header="{Binding [Col_Browser], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Browser}" />
-                    <GridViewColumn Width="120" Header="{Binding [Col_Version], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding Version}" />
-                    <GridViewColumn Width="110">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:BrowserExtension}">
-                                <ui:Button Padding="10,4" Appearance="Danger"
-                                           Content="{Binding [Act_Remove], Source={x:Static h:Loc.I}}"
-                                           Command="{Binding DataContext.RemoveCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                           CommandParameter="{Binding}" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
+        <ListBox Grid.Row="3" Style="{StaticResource OB.List}" ItemsSource="{Binding Extensions}" SelectionMode="Multiple">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem" BasedOn="{StaticResource OB.ListItem}">
+                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox IsChecked="{Binding IsSelected}" MinWidth="0" VerticalAlignment="Center" Margin="0,0,4,0" />
+                        <Border Grid.Column="1" Width="34" Height="34" CornerRadius="10" Background="{DynamicResource OB.CardStrong}" Margin="0,0,12,0">
+                            <Grid>
+                                <ui:SymbolIcon Symbol="PuzzlePiece24" FontSize="15" Foreground="{DynamicResource OB.Faint}" />
+                                <Image c:IconLoader.Path="{Binding BrowserIcon}" Width="22" Height="22" />
+                            </Grid>
+                        </Border>
+                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="{Binding Name}" Style="{StaticResource OB.BodyStrong}" />
+                            <TextBlock Style="{StaticResource OB.FaintText}">
+                                <Run Text="{Binding Browser, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding Subtitle, Mode=OneWay}" />
+                            </TextBlock>
+                        </StackPanel>
+                        <Button Grid.Column="3" Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_ShowLocation}" CommandParameter="{Binding}"
+                                Command="{Binding DataContext.RevealCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ui:SymbolIcon Symbol="FolderOpen24" FontSize="14" />
+                        </Button>
+                        <Button Grid.Column="4" Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_Remove}" CommandParameter="{Binding}"
+                                Command="{Binding DataContext.RemoveOneCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                            <ui:SymbolIcon Symbol="Delete24" FontSize="14" Foreground="{StaticResource OB.Danger}" />
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+            <c:Spinner Width="34" Height="34" Thickness="3.5" />
+        </StackPanel>
+        <c:EmptyState Grid.Row="3" Symbol="PuzzlePiece24" Title="{h:L Ext_None}" Text="{h:L Ext_NoneText}"
+                      Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
 
-        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+        <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.Card}" Padding="14,10" CornerRadius="16">
+            <Grid>
+                <TextBlock Style="{StaticResource OB.Caption}" VerticalAlignment="Center">
+                    <Run Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="Bold" /><Run Text=" " /><Run Text="{h:L Ext_SelectedWord}" />
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Content="{h:L Act_SelectNone}" Command="{Binding SelectNoneCommand}" />
+                    <Button Style="{StaticResource OB.BtnDanger}" Command="{Binding RemoveSelectedCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Delete24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
+                            <TextBlock Text="{h:L Ext_RemoveSelected}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

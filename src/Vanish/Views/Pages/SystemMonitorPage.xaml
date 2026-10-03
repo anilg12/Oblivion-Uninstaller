@@ -1,0 +1,261 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.SystemMonitorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:c="clr-namespace:Vanish.Controls">
+
+    <UserControl.Resources>
+        <Style x:Key="InfoLabel" TargetType="TextBlock" BasedOn="{StaticResource OB.Caption}">
+            <Setter Property="Margin" Value="0,0,12,0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <Style x:Key="InfoValue" TargetType="TextBlock" BasedOn="{StaticResource OB.Body}">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="TextTrimming" Value="None" />
+            <Setter Property="Margin" Value="0,0,0,9" />
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
+        <StackPanel Margin="26,22,26,24">
+            <c:PageHeader Title="{h:L Nav_SystemMonitor}" Subtitle="{h:L SysMon_Subtitle}" Symbol="Pulse24" From="#18C29C" To="#2E8BFF">
+                <StackPanel Orientation="Horizontal">
+                    <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{StaticResource OB.SuccessSoft}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:PulseDot Width="12" Height="12" Margin="0,0,6,0" />
+                            <TextBlock Text="{h:L SysMon_Live}" FontSize="11.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Border>
+                    <Button Style="{StaticResource OB.Btn}" Command="{Binding OpenTaskManagerCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Open24" FontSize="15" Margin="0,0,7,0" />
+                            <TextBlock Text="{h:L SysMon_TaskManager}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </c:PageHeader>
+
+            <!-- ============ gauges ============ -->
+            <UniformGrid Columns="4" Margin="-6,0,-6,0">
+                <!-- CPU -->
+                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                            <TextBlock Text="{h:L Live_Cpu}" Style="{StaticResource OB.BodyStrong}" />
+                        </StackPanel>
+                        <Grid Width="96" Height="96" Margin="0,14,0,10">
+                            <c:RingGauge Value="{Binding Cpu}" Thickness="9" />
+                            <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="21" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                                           Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <c:Sparkline Values="{Binding CpuHistory}" Maximum="100" Height="34" Color="#8B7BFF" />
+                        <TextBlock Text="{Binding CpuName}" Style="{StaticResource OB.Caption}" Margin="0,8,0,0" ToolTip="{Binding CpuName}" />
+                        <TextBlock Text="{Binding CpuDetail}" Style="{StaticResource OB.FaintText}" />
+                    </StackPanel>
+                </Border>
+                <!-- RAM -->
+                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="50">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Board24" FontSize="16" Foreground="#18C29C" Margin="0,0,8,0" />
+                            <TextBlock Text="{h:L Live_Ram}" Style="{StaticResource OB.BodyStrong}" />
+                        </StackPanel>
+                        <Grid Width="96" Height="96" Margin="0,14,0,10">
+                            <c:RingGauge Value="{Binding Ram}" Thickness="9" From="#18C29C" To="#2E8BFF" />
+                            <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="21" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                                           Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <c:Sparkline Values="{Binding RamHistory}" Maximum="100" Height="34" Color="#18C29C" />
+                        <TextBlock Text="{Binding RamUsedText}" Style="{StaticResource OB.Caption}" Margin="0,8,0,0" />
+                        <TextBlock Style="{StaticResource OB.FaintText}"><Run Text="{h:L SysMon_Total}" /><Run Text=": " /><Run Text="{Binding TotalRamText, Mode=OneWay}" /></TextBlock>
+                    </StackPanel>
+                </Border>
+                <!-- Temperature -->
+                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Foreground="#FF7A45" Margin="0,0,8,0" />
+                            <TextBlock Text="{h:L SysMon_Temp}" Style="{StaticResource OB.BodyStrong}" />
+                        </StackPanel>
+                        <Grid Width="96" Height="96" Margin="0,14,0,10">
+                            <c:RingGauge Value="{Binding Temp}" Thickness="9" From="#F5A524" To="#E5484D" />
+                            <TextBlock Text="{Binding TempText}" FontSize="19" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                                       Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Grid>
+                        <TextBlock Text="{Binding TempState}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" Margin="0,4,0,0" />
+                        <TextBlock Text="{h:L SysMon_TempNote}" Style="{StaticResource OB.FaintText}" TextWrapping="Wrap" TextTrimming="None" Margin="0,4,0,0" />
+                    </StackPanel>
+                </Border>
+                <!-- Network -->
+                <Border Style="{StaticResource OB.Card}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="16" Foreground="{StaticResource OB.Info}" Margin="0,0,8,0" />
+                            <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.BodyStrong}" />
+                        </StackPanel>
+                        <StackPanel Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowDown24" FontSize="15" Foreground="{StaticResource OB.Success}" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding NetDownText}" Style="{StaticResource OB.BigNumber}" FontSize="18" />
+                            </StackPanel>
+                            <TextBlock Text="{h:L SysMon_Download}" Style="{StaticResource OB.FaintText}" Margin="21,0,0,0" />
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <ui:SymbolIcon Symbol="ArrowUp24" FontSize="15" Foreground="{StaticResource OB.Info}" Margin="0,0,6,0" />
+                                <TextBlock Text="{Binding NetUpText}" Style="{StaticResource OB.BigNumber}" FontSize="18" />
+                            </StackPanel>
+                            <TextBlock Text="{h:L SysMon_Upload}" Style="{StaticResource OB.FaintText}" Margin="21,0,0,0" />
+                        </StackPanel>
+                        <Grid Height="40" Margin="0,12,0,0">
+                            <c:Sparkline Values="{Binding NetDownHistory}" Color="#22C55E" />
+                            <c:Sparkline Values="{Binding NetUpHistory}" Color="#3A8DFF" />
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <!-- ============ processes + system ============ -->
+            <Grid Margin="0,6,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="12" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+
+                <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <TextBlock Text="{h:L SysMon_TopProcesses}" Style="{StaticResource OB.Section}" />
+                            </StackPanel>
+                            <Border Style="{StaticResource OB.SegmentHost}" HorizontalAlignment="Right">
+                                <StackPanel Orientation="Horizontal">
+                                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="procMode" Content="{h:L Live_Cpu}" Padding="12,5"
+                                                 IsChecked="{Binding ProcessMode, Converter={StaticResource EqualsConverter}, ConverterParameter=cpu}" />
+                                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="procMode" Content="{h:L SysMon_Memory}" Padding="12,5"
+                                                 IsChecked="{Binding ProcessMode, Converter={StaticResource EqualsConverter}, ConverterParameter=mem}" />
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <Grid Margin="44,0,40,4">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="64" />
+                                <ColumnDefinition Width="80" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{h:L SysMon_Process}" Style="{StaticResource OB.FaintText}" />
+                            <TextBlock Grid.Column="1" Text="{h:L Live_Cpu}" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Right" />
+                            <TextBlock Grid.Column="2" Text="{h:L SysMon_Memory}" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Right" />
+                        </Grid>
+                        <TextBlock Text="{h:L SysMon_Collecting}" Style="{StaticResource OB.Caption}" Margin="0,8"
+                                   Visibility="{Binding Processes.Count, Converter={StaticResource ZeroToVisibility}}" />
+                        <ItemsControl ItemsSource="{Binding Processes}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid Margin="0,3">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="44" />
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="64" />
+                                            <ColumnDefinition Width="80" />
+                                            <ColumnDefinition Width="40" />
+                                        </Grid.ColumnDefinitions>
+                                        <Grid Width="32" Height="32" HorizontalAlignment="Left">
+                                            <Border CornerRadius="9" Background="{DynamicResource OB.CardStrong}">
+                                                <ui:SymbolIcon Symbol="Apps24" FontSize="14" Foreground="{DynamicResource OB.Subtext}" />
+                                            </Border>
+                                            <Image c:IconLoader.Path="{Binding Path}" Width="26" Height="26" RenderOptions.BitmapScalingMode="HighQuality" />
+                                        </Grid>
+                                        <TextBlock Grid.Column="1" Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" VerticalAlignment="Center"
+                                                   ToolTip="{Binding Path}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding CpuText}" Style="{StaticResource OB.Body}" FontSize="12.5" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Right" />
+                                        <TextBlock Grid.Column="3" Text="{Binding MemoryText}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center"
+                                                   HorizontalAlignment="Right" />
+                                        <Button Grid.Column="4" Style="{StaticResource OB.BtnGhost}" Padding="6" HorizontalAlignment="Right" ToolTip="{h:L Act_EndTask}"
+                                                CommandParameter="{Binding}"
+                                                Command="{Binding DataContext.EndProcessCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <ui:SymbolIcon Symbol="Dismiss24" FontSize="13" Foreground="{StaticResource OB.Danger}" />
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                <ui:SymbolIcon Symbol="Desktop24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <TextBlock Text="{h:L SysMon_ThisPc}" Style="{StaticResource OB.Section}" />
+                            </StackPanel>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <TextBlock Text="{h:L SysMon_Os}" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Column="1" Text="{Binding OsName}" Style="{StaticResource InfoValue}" />
+                                <TextBlock Grid.Row="1" Text="{h:L SysMon_Device}" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Machine}" Style="{StaticResource InfoValue}" />
+                                <TextBlock Grid.Row="2" Text="{h:L SysMon_Gpu}" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Gpu}" Style="{StaticResource InfoValue}" />
+                                <TextBlock Grid.Row="3" Text="{h:L SysMon_Memory}" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding TotalRamText}" Style="{StaticResource InfoValue}" />
+                                <TextBlock Grid.Row="4" Text="{h:L SysMon_Uptime}" Style="{StaticResource InfoLabel}" />
+                                <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding UptimeText}" Style="{StaticResource InfoValue}" Margin="0" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <ui:SymbolIcon Symbol="HardDrive24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <TextBlock Text="{h:L SysMon_Drives}" Style="{StaticResource OB.Section}" />
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding Drives}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Margin="0,0,0,12">
+                                            <Grid>
+                                                <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" />
+                                                <TextBlock Text="{Binding Text}" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Right" />
+                                            </Grid>
+                                            <c:GradientBar Value="{Binding UsedFraction}" Margin="0,6,0,0" />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
+                            Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <ui:SymbolIcon Symbol="Battery1024" FontSize="16" Foreground="{StaticResource OB.Success}" Margin="0,0,8,0" />
+                                <TextBlock Text="{Binding BatteryText}" Style="{StaticResource OB.Section}" />
+                            </StackPanel>
+                            <c:GradientBar Value="{Binding Battery}" />
+                            <TextBlock Text="{Binding BatteryDetail}" Style="{StaticResource OB.Caption}" Margin="0,8,0,0" TextWrapping="Wrap" TextTrimming="None" />
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

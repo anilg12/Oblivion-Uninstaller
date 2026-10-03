@@ -1,76 +1,107 @@
-using System.IO;
+using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vanish.Helpers;
 using Vanish.Models;
 using Vanish.Services;
 using Vanish.ViewModels.Pages;
+using Vanish.Views;
 
 namespace Vanish.ViewModels;
+
+/// <summary>Implemented by view models whose computed texts must be re-read after a language switch.</summary>
+public interface ILocalizable
+{
+    void RefreshTexts();
+}
 
 public sealed partial class MainWindowViewModel : ObservableObject
 {
     private readonly OperationLogService _log;
+    private readonly SettingsService _settings;
+    private readonly ThemeService _theme;
+    private readonly DialogService _dialogs;
+    private readonly NavigationService _navigation;
 
-    public MainWindowViewModel(UninstallerViewModel uninstaller, SettingsViewModel settings, OperationLogService log)
+    public MainWindowViewModel(UninstallerViewModel uninstaller, LiveStatsViewModel live, OperationLogService log,
+        SettingsService settings, ThemeService theme, DialogService dialogs, NavigationService navigation)
     {
         Uninstaller = uninstaller;
-        Settings = settings;
+        Live = live;
         _log = log;
+        _settings = settings;
+        _theme = theme;
+        _dialogs = dialogs;
+        _navigation = navigation;
 
-        WindowsVersion = GetWindowsVersion();
-        FreeSpace = GetFreeSpace();
-        RefreshActivity();
+        _log.Changed += () => Application.Current?.Dispatcher.InvokeAsync(RefreshActivity);
+        _theme.Changed += () => OnPropertyChanged(nameof(IsDark));
+        _ = LoadActivityAsync();
     }
 
-    /// <summary>Shared singleton so the sidebar action buttons act on the All-apps selection.</summary>
+    /// <summary>Shared with the All-applications page so the sidebar buttons act on its selection.</summary>
     public UninstallerViewModel Uninstaller { get; }
 
-    public SettingsViewModel Settings { get; }
+    public LiveStatsViewModel Live { get; }
 
-    public Loc Loc => Loc.I;
+    public AppSettings Settings => _settings.Current;
 
-    // ---- right info panel ---------------------------------------------------
+    public string VersionText => "v" + AppInfo.Version;
 
-    [ObservableProperty] private string _windowsVersion = "Windows 11";
-    [ObservableProperty] private string _freeSpace = "—";
+    public bool IsDark => _theme.IsDark;
 
     public ObservableCollectionEx<LogEntry> RecentActivity { get; } = new();
 
-    /// <summary>Reloads the recent-activity list shown in the right panel.</summary>
-    public void RefreshActivity() => RecentActivity.Reset(_log.GetAll().Take(6));
-
-    [RelayCommand]
-    private void ToggleTheme() => Settings.ToggleThemeCommand.Execute(null);
-
-    [RelayCommand]
-    private void ToggleLanguage() => Settings.ToggleLanguageCommand.Execute(null);
-
-    private static string GetFreeSpace()
+    private async Task LoadActivityAsync()
     {
-        try
+        await _log.WarmUpAsync();
+        RefreshActivity();
+    }
+
+    private void RefreshActivity() => RecentActivity.Reset(_log.GetRecent(5));
+
+    [RelayCommand]
+    private void ToggleTheme() => _settings.Current.Theme = _theme.IsDark ? "light" : "dark";
+
+    [RelayCommand]
+    private void ToggleLanguage()
+    {
+        Loc.I.Toggle();
+        _settings.Current.Language = Loc.I.Language;
+        RefreshAllTexts();
+    }
+
+    /// <summary>Re-reads localized texts that are computed in code (lists, chips, counts).</summary>
+    public void RefreshAllTexts()
+    {
+        RefreshActivity();
+        foreach (var vm in new object[]
+                 {
+                     Ioc.Resolve<DashboardViewModel>(), Uninstaller, Ioc.Resolve<JunkCleanerViewModel>(), Ioc.Resolve<StartupViewModel>(),
+                     Ioc.Resolve<HistoryViewModel>(), Ioc.Resolve<MonitoredViewModel>(), Ioc.Resolve<LogsViewModel>(),
+                     Ioc.Resolve<SystemMonitorViewModel>(), Ioc.Resolve<WindowsAppsViewModel>(), Ioc.Resolve<BrowserExtensionsViewModel>(),
+                     Ioc.Resolve<LargeFilesViewModel>(), Ioc.Resolve<ShredderViewModel>(), Ioc.Resolve<EvidenceViewModel>(),
+                     Ioc.Resolve<BackupsViewModel>(), Ioc.Resolve<HunterViewModel>()
+                 })
         {
-            var sys = Path.GetPathRoot(Environment.GetFolderPath(Environment.SpecialFolder.Windows)) ?? "C:\\";
-            var drive = new DriveInfo(sys);
-            return $"{ByteSize.Humanize(drive.AvailableFreeSpace)} / {ByteSize.Humanize(drive.TotalSize)}";
-        }
-        catch
-        {
-            return "—";
+            if (vm is ILocalizable l) l.RefreshTexts();
         }
     }
 
-    private static string GetWindowsVersion()
-    {
-        try
-        {
-            var v = Environment.OSVersion.Version;
-            var name = v.Build >= 22000 ? "Windows 11" : "Windows 10";
-            return $"{name} · {v.Build}";
-        }
-        catch
-        {
-            return "Windows 11";
-        }
-    }
+    [RelayCommand]
+    private Task ShowAboutAsync() => _dialogs.ShowAsync(new AboutView());
+
+    [RelayCommand]
+    private void Navigate(string tag) => _navigation.Navigate(tag);
+}
+
+/// <summary>Version and links shown in the About dialog and the sidebar.</summary>
+public static class AppInfo
+{
+    public static string Version =>
+        typeof(AppInfo).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "3.0.0";
+
+    public const string GitHub = "https://github.com/anilg12";
+    public const string Repository = "https://github.com/anilg12/Oblivion-Uninstaller";
+    public const string Releases = "https://github.com/anilg12/Oblivion-Uninstaller/releases";
 }

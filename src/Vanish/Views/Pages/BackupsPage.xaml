@@ -1,0 +1,133 @@
+<UserControl
+    x:Class="Vanish.Views.Pages.BackupsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+    xmlns:h="clr-namespace:Vanish.Helpers"
+    xmlns:c="clr-namespace:Vanish.Controls">
+
+    <Grid Margin="26,22,26,18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <c:PageHeader Title="{h:L Tool_Backups}" Subtitle="{h:L Backup_Subtitle}" Symbol="ArchiveArrowBack24" From="#8B5CF6" To="#3A8DFF">
+            <Button Style="{StaticResource OB.IconBtn}" Command="{Binding LoadCommand}" ToolTip="{h:L Act_Refresh}">
+                <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
+            </Button>
+        </c:PageHeader>
+
+        <Grid Grid.Row="1" Margin="0,0,0,10">
+            <Border Style="{StaticResource OB.SegmentHost}">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="backupTab"
+                                 IsChecked="{Binding Tab, Converter={StaticResource EqualsConverter}, ConverterParameter=registry}">
+                        <TextBlock><Run Text="{h:L Backup_TabRegistry}" /><Run Text=" (" /><Run Text="{Binding RegistryBackups.Count, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                    <RadioButton Style="{StaticResource OB.Segment}" GroupName="backupTab"
+                                 IsChecked="{Binding Tab, Converter={StaticResource EqualsConverter}, ConverterParameter=restore}">
+                        <TextBlock><Run Text="{h:L Backup_TabRestore}" /><Run Text=" (" /><Run Text="{Binding RestorePoints.Count, Mode=OneWay}" /><Run Text=")" /></TextBlock>
+                    </RadioButton>
+                </StackPanel>
+            </Border>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{StaticResource OB.Btn}" Command="{Binding OpenBackupFolderCommand}"
+                        Visibility="{Binding Tab, Converter={StaticResource EqualsToVisibility}, ConverterParameter=registry}">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="FolderOpen24" FontSize="15" Margin="0,0,7,0" />
+                        <TextBlock Text="{h:L Backup_OpenFolder}" />
+                    </StackPanel>
+                </Button>
+                <StackPanel Orientation="Horizontal" Visibility="{Binding Tab, Converter={StaticResource EqualsToVisibility}, ConverterParameter=restore}">
+                    <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Command="{Binding OpenSystemRestoreCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowUndo24" FontSize="15" Margin="0,0,7,0" />
+                            <TextBlock Text="{h:L Backup_OpenRestore}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource OB.BtnPrimary}" Command="{Binding CreateRestorePointCommand}"
+                            IsEnabled="{Binding IsCreating, Converter={StaticResource InverseBool}}">
+                        <StackPanel Orientation="Horizontal">
+                            <c:Spinner Width="14" Height="14" Thickness="2" Margin="0,0,7,0" Visibility="{Binding IsCreating, Converter={StaticResource BoolToVisibility}}" />
+                            <ui:SymbolIcon Symbol="Add24" FontSize="15" Foreground="White" Margin="0,0,7,0"
+                                           Visibility="{Binding IsCreating, Converter={StaticResource BoolToVisibility}, ConverterParameter=invert}" />
+                            <TextBlock Text="{h:L Backup_CreatePoint}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+
+        <!-- registry backups -->
+        <Grid Grid.Row="2" Visibility="{Binding Tab, Converter={StaticResource EqualsToVisibility}, ConverterParameter=registry}">
+            <ListBox Style="{StaticResource OB.List}" ItemsSource="{Binding RegistryBackups}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource OB.AccentSoft}" Margin="0,0,12,0">
+                                <ui:SymbolIcon Symbol="Key24" FontSize="15" Foreground="{StaticResource OB.Accent}" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <TextBlock Text="{Binding KeyPath}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" ToolTip="{Binding KeyPath}" />
+                                <TextBlock Style="{StaticResource OB.FaintText}"><Run Text="{Binding CreatedText, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding SizeText, Mode=OneWay}" /></TextBlock>
+                            </StackPanel>
+                            <Button Grid.Column="2" Style="{StaticResource OB.Btn}" Padding="10,5" FontSize="12" Margin="0,0,6,0" Content="{h:L Act_Restore}"
+                                    CommandParameter="{Binding}" Command="{Binding DataContext.RestoreBackupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" />
+                            <StackPanel Grid.Column="3" Orientation="Horizontal">
+                                <Button Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_ShowLocation}" CommandParameter="{Binding}"
+                                        Command="{Binding DataContext.RevealBackupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                    <ui:SymbolIcon Symbol="Open24" FontSize="14" />
+                                </Button>
+                                <Button Style="{StaticResource OB.BtnGhost}" Padding="6" ToolTip="{h:L Act_Delete}" CommandParameter="{Binding}"
+                                        Command="{Binding DataContext.DeleteBackupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                    <ui:SymbolIcon Symbol="Delete24" FontSize="14" Foreground="{StaticResource OB.Danger}" />
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <c:EmptyState Symbol="ArchiveArrowBack24" Title="{h:L Backup_NoneTitle}" Text="{h:L Backup_NoneText}"
+                          Visibility="{Binding RegistryBackups.Count, Converter={StaticResource ZeroToVisibility}}" />
+        </Grid>
+
+        <!-- restore points -->
+        <Grid Grid.Row="2" Visibility="{Binding Tab, Converter={StaticResource EqualsToVisibility}, ConverterParameter=restore}">
+            <ListBox Style="{StaticResource OB.List}" ItemsSource="{Binding RestorePoints}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource OB.SuccessSoft}" Margin="0,0,12,0">
+                                <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="15" Foreground="{StaticResource OB.Success}" />
+                            </Border>
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Description}" Style="{StaticResource OB.BodyStrong}" />
+                                <TextBlock Text="{Binding TypeText}" Style="{StaticResource OB.FaintText}" />
+                            </StackPanel>
+                            <TextBlock Grid.Column="2" Text="{Binding CreatedText}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <c:EmptyState Symbol="ShieldCheckmark24" Title="{h:L Backup_NoPointsTitle}" Text="{h:L Backup_NoPointsText}"
+                          Visibility="{Binding RestorePoints.Count, Converter={StaticResource ZeroToVisibility}}" />
+        </Grid>
+
+        <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+            <c:Spinner Width="34" Height="34" Thickness="3.5" />
+        </StackPanel>
+    </Grid>
+</UserControl>

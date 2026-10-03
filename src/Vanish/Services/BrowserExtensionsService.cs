@@ -6,33 +6,50 @@ using Vanish.Models;
 namespace Vanish.Services;
 
 /// <summary>
-/// Discovers and removes browser extensions. Chromium browsers (Edge, Chrome,
-/// Brave) keep each extension under
-/// <c>User Data\&lt;Profile&gt;\Extensions\&lt;id&gt;\&lt;version&gt;\manifest.json</c>;
-/// Firefox stores <c>.xpi</c> files per profile.
+/// Discovers and removes browser extensions. Chromium browsers (Edge, Chrome, Brave,
+/// Vivaldi, Opera, Opera GX) keep each extension under
+/// <c>&lt;Profile&gt;\Extensions\&lt;id&gt;\&lt;version&gt;\manifest.json</c>;
+/// Firefox lists its add-ons (with real names) in each profile's extensions.json.
 /// </summary>
 public sealed class BrowserExtensionsService
 {
     private static string Local => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
     private static string Roaming => Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    private static string Pf => Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles);
+    private static string Pf86 => Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
 
     public Task<IReadOnlyList<BrowserExtension>> GetExtensionsAsync(CancellationToken ct = default)
         => Task.Run<IReadOnlyList<BrowserExtension>>(() =>
         {
             var list = new List<BrowserExtension>();
-
-            var chromium = new (string Browser, string UserData)[]
+            var chromium = new (string Browser, string UserData, bool SingleProfile, string? Exe)[]
             {
-                ("Microsoft Edge", Path.Combine(Local, @"Microsoft\Edge\User Data")),
-                ("Google Chrome",  Path.Combine(Local, @"Google\Chrome\User Data")),
-                ("Brave",          Path.Combine(Local, @"BraveSoftware\Brave-Browser\User Data")),
+                ("Microsoft Edge", Path.Combine(Local, @"Microsoft\Edge\User Data"), false,
+                    FirstExisting(Path.Combine(Pf86, @"Microsoft\Edge\Application\msedge.exe"), Path.Combine(Pf, @"Microsoft\Edge\Application\msedge.exe"))),
+                ("Google Chrome", Path.Combine(Local, @"Google\Chrome\User Data"), false,
+                    FirstExisting(Path.Combine(Pf, @"Google\Chrome\Application\chrome.exe"), Path.Combine(Pf86, @"Google\Chrome\Application\chrome.exe"), Path.Combine(Local, @"Google\Chrome\Application\chrome.exe"))),
+                ("Brave", Path.Combine(Local, @"BraveSoftware\Brave-Browser\User Data"), false,
+                    FirstExisting(Path.Combine(Pf, @"BraveSoftware\Brave-Browser\Application\brave.exe"), Path.Combine(Local, @"BraveSoftware\Brave-Browser\Application\brave.exe"))),
+                ("Vivaldi", Path.Combine(Local, @"Vivaldi\User Data"), false,
+                    FirstExisting(Path.Combine(Local, @"Vivaldi\Application\vivaldi.exe"), Path.Combine(Pf, @"Vivaldi\Application\vivaldi.exe"))),
+                ("Opera", Path.Combine(Roaming, @"Opera Software\Opera Stable"), true,
+                    FirstExisting(Path.Combine(Local, @"Programs\Opera\opera.exe"))),
+                ("Opera GX", Path.Combine(Roaming, @"Opera Software\Opera GX Stable"), true,
+                    FirstExisting(Path.Combine(Local, @"Programs\Opera GX\opera.exe"))),
             };
 
-            foreach (var (browser, userData) in chromium)
+            foreach (var (browser, userData, single, exe) in chromium)
             {
                 ct.ThrowIfCancellationRequested();
                 if (!Directory.Exists(userData)) continue;
-                ScanChromium(browser, userData, list, ct);
+                if (single) ScanChromiumProfile(browser, userData, null, exe, list);
+                else
+                    foreach (var profile in SafeDirs(userData))
+                    {
+                        var name = Path.GetFileName(profile);
+                        if (name == "Default" || name.StartsWith("Profile ", StringComparison.Ordinal))
+                            ScanChromiumProfile(browser, profile, name, exe, list);
+                    }
             }
 
             ScanFirefox(list, ct);
@@ -43,42 +60,34 @@ public sealed class BrowserExtensionsService
                 .ToList();
         }, ct);
 
-    private static void ScanChromium(string browser, string userData, List<BrowserExtension> sink, CancellationToken ct)
+    private static string? FirstExisting(params string[] paths) => paths.FirstOrDefault(File.Exists);
+
+    private static void ScanChromiumProfile(string browser, string profileDir, string? profileName, string? exe, List<BrowserExtension> sink)
     {
-        // Profiles: "Default", "Profile 1", "Profile 2", ...
-        IEnumerable<string> profiles;
-        try { profiles = Directory.EnumerateDirectories(userData); }
-        catch { return; }
+        var extRoot = Path.Combine(profileDir, "Extensions");
+        if (!Directory.Exists(extRoot)) return;
 
-        foreach (var profile in profiles)
+        foreach (var extDir in SafeDirs(extRoot))
         {
-            ct.ThrowIfCancellationRequested();
-            var extRoot = Path.Combine(profile, "Extensions");
-            if (!Directory.Exists(extRoot)) continue;
+            var id = Path.GetFileName(extDir);
+            if (id.Length < 20 || id.Equals("Temp", StringComparison.OrdinalIgnoreCase)) continue;
 
-            foreach (var extDir in SafeDirs(extRoot))
+            var versionDir = SafeDirs(extDir).OrderByDescending(d => d, StringComparer.Ordinal).FirstOrDefault();
+            if (versionDir is null) continue;
+            var manifest = Path.Combine(versionDir, "manifest.json");
+            if (!File.Exists(manifest)) continue;
+
+            var (name, version) = ReadChromiumManifest(manifest, versionDir, id);
+            sink.Add(new BrowserExtension
             {
-                var id = Path.GetFileName(extDir);
-                // skip the Chromium temp folder
-                if (id.Equals("Temp", StringComparison.OrdinalIgnoreCase)) continue;
-
-                // pick the newest version sub-folder
-                var versionDir = SafeDirs(extDir).OrderByDescending(d => d).FirstOrDefault();
-                if (versionDir is null) continue;
-
-                var manifest = Path.Combine(versionDir, "manifest.json");
-                if (!File.Exists(manifest)) continue;
-
-                var (name, version) = ReadChromiumManifest(manifest, versionDir, id);
-                sink.Add(new BrowserExtension
-                {
-                    Name = name,
-                    Browser = browser,
-                    Id = id,
-                    Version = version,
-                    Path = extDir
-                });
-            }
+                Name = name,
+                Browser = browser,
+                Id = id,
+                Version = version,
+                Profile = profileName,
+                BrowserIcon = exe,
+                Path = extDir
+            });
         }
     }
 
@@ -90,11 +99,8 @@ public sealed class BrowserExtensionsService
             var root = doc.RootElement;
             string? version = root.TryGetProperty("version", out var v) ? v.GetString() : null;
             string name = root.TryGetProperty("name", out var n) ? n.GetString() ?? id : id;
-
-            // Localized names look like "__MSG_appName__" -> resolve from _locales.
             if (name.StartsWith("__MSG_", StringComparison.Ordinal))
                 name = ResolveLocalizedName(root, versionDir, name) ?? id;
-
             return (name, version);
         }
         catch
@@ -105,10 +111,9 @@ public sealed class BrowserExtensionsService
 
     private static string? ResolveLocalizedName(JsonElement manifestRoot, string versionDir, string token)
     {
-        var key = token.Trim('_').Replace("MSG_", "", StringComparison.Ordinal);
+        var key = token.Replace("__MSG_", "", StringComparison.Ordinal).TrimEnd('_');
         var defaultLocale = manifestRoot.TryGetProperty("default_locale", out var dl) ? dl.GetString() : "en";
-
-        foreach (var locale in new[] { defaultLocale, "en", "en_US" })
+        foreach (var locale in new[] { "tr", defaultLocale, "en", "en_US" })
         {
             if (string.IsNullOrWhiteSpace(locale)) continue;
             var messages = Path.Combine(versionDir, "_locales", locale, "messages.json");
@@ -116,9 +121,11 @@ public sealed class BrowserExtensionsService
             try
             {
                 using var doc = JsonDocument.Parse(File.ReadAllText(messages));
-                if (doc.RootElement.TryGetProperty(key, out var entry) &&
-                    entry.TryGetProperty("message", out var msg))
-                    return msg.GetString();
+                foreach (var prop in doc.RootElement.EnumerateObject())
+                {
+                    if (!prop.Name.Equals(key, StringComparison.OrdinalIgnoreCase)) continue;
+                    if (prop.Value.TryGetProperty("message", out var msg)) return msg.GetString();
+                }
             }
             catch { /* try next */ }
         }
@@ -129,21 +136,52 @@ public sealed class BrowserExtensionsService
     {
         var profiles = Path.Combine(Roaming, @"Mozilla\Firefox\Profiles");
         if (!Directory.Exists(profiles)) return;
+        var exe = FirstExisting(Path.Combine(Pf, @"Mozilla Firefox\firefox.exe"), Path.Combine(Pf86, @"Mozilla Firefox\firefox.exe"));
 
         foreach (var profile in SafeDirs(profiles))
         {
             ct.ThrowIfCancellationRequested();
+            var json = Path.Combine(profile, "extensions.json");
+            var names = new Dictionary<string, (string Name, string? Version)>(StringComparer.OrdinalIgnoreCase);
+            if (File.Exists(json))
+            {
+                try
+                {
+                    using var doc = JsonDocument.Parse(File.ReadAllText(json));
+                    if (doc.RootElement.TryGetProperty("addons", out var addons))
+                    {
+                        foreach (var a in addons.EnumerateArray())
+                        {
+                            var id = a.TryGetProperty("id", out var i) ? i.GetString() : null;
+                            if (id is null) continue;
+                            var type = a.TryGetProperty("type", out var t) ? t.GetString() : null;
+                            var location = a.TryGetProperty("location", out var l) ? l.GetString() : null;
+                            if (type != "extension" || location != "app-profile") continue;
+                            string name = id;
+                            if (a.TryGetProperty("defaultLocale", out var dl) && dl.TryGetProperty("name", out var nm))
+                                name = nm.GetString() ?? id;
+                            var ver = a.TryGetProperty("version", out var v) ? v.GetString() : null;
+                            names[id] = (name, ver);
+                        }
+                    }
+                }
+                catch { /* unreadable */ }
+            }
+
             var extDir = Path.Combine(profile, "extensions");
             if (!Directory.Exists(extDir)) continue;
-
             foreach (var xpi in SafeFiles(extDir, "*.xpi"))
             {
+                var id = Path.GetFileNameWithoutExtension(xpi);
+                var meta = names.TryGetValue(id, out var m) ? m : (Name: id, Version: (string?)null);
                 sink.Add(new BrowserExtension
                 {
-                    Name = Path.GetFileNameWithoutExtension(xpi),
+                    Name = meta.Name,
                     Browser = "Firefox",
-                    Id = Path.GetFileNameWithoutExtension(xpi),
-                    Version = null,
+                    Id = id,
+                    Version = meta.Version,
+                    Profile = Path.GetFileName(profile).Split('.').LastOrDefault(),
+                    BrowserIcon = exe,
                     Path = xpi
                 });
             }
@@ -159,13 +197,13 @@ public sealed class BrowserExtensionsService
 
     private static IEnumerable<string> SafeDirs(string path)
     {
-        try { return Directory.EnumerateDirectories(path); }
+        try { return Directory.GetDirectories(path); }
         catch { return Array.Empty<string>(); }
     }
 
     private static IEnumerable<string> SafeFiles(string path, string pattern)
     {
-        try { return Directory.EnumerateFiles(path, pattern); }
+        try { return Directory.GetFiles(path, pattern); }
         catch { return Array.Empty<string>(); }
     }
 }

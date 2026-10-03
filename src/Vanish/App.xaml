@@ -3,37 +3,27 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-    xmlns:conv="clr-namespace:Vanish.Helpers.Converters">
+    xmlns:conv="clr-namespace:Vanish.Helpers.Converters"
+    ShutdownMode="OnMainWindowClose">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
+                <!-- Swapped at runtime by ThemeService (Palette.Dark / Palette.Light). -->
+                <ResourceDictionary Source="pack://application:,,,/Oblivion;component/Themes/Palette.Dark.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Oblivion;component/Themes/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <conv:DisplayIconToImageConverter x:Key="DisplayIconToImage" />
             <conv:BoolToVisibilityConverter x:Key="BoolToVisibility" />
             <conv:InverseBoolConverter x:Key="InverseBool" />
-            <conv:ConfidenceToBrushConverter x:Key="ConfidenceToBrush" />
             <conv:NullToVisibilityConverter x:Key="NullToVisibility" />
+            <conv:ZeroCountToVisibilityConverter x:Key="ZeroToVisibility" />
+            <conv:PositiveToVisibilityConverter x:Key="PositiveToVisibility" />
             <conv:LangCodeUpperConverter x:Key="LangCodeUpper" />
-            <conv:ZeroCountToVisibilityConverter x:Key="ZeroCountToVisibility" />
-
-            <!-- Daccord-inspired palette -->
-            <LinearGradientBrush x:Key="OblivionWindowBrush" StartPoint="0,0" EndPoint="0.35,1">
-                <GradientStop Color="#2C2F66" Offset="0" />
-                <GradientStop Color="#222549" Offset="0.55" />
-                <GradientStop Color="#191B36" Offset="1" />
-            </LinearGradientBrush>
-            <SolidColorBrush x:Key="OblivionPanelBrush" Color="#2B3164" />
-            <SolidColorBrush x:Key="OblivionRightBrush" Color="#2C2F48" />
-            <SolidColorBrush x:Key="OblivionRailBrush" Color="#1C1F3D" />
-            <SolidColorBrush x:Key="OblivionNavSelectedBrush" Color="#13152B" />
-            <SolidColorBrush x:Key="OblivionAccentBrush" Color="#7C6CF6" />
-            <LinearGradientBrush x:Key="OblivionLogoBrush" StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#6E5BFF" Offset="0" />
-                <GradientStop Color="#B45BFF" Offset="1" />
-            </LinearGradientBrush>
+            <conv:ColorToBrushConverter x:Key="ColorToBrush" />
+            <conv:EqualsConverter x:Key="EqualsConverter" />
+            <conv:EqualsToVisibilityConverter x:Key="EqualsToVisibility" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

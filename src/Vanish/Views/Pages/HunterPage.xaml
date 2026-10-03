@@ -4,65 +4,113 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:h="clr-namespace:Vanish.Helpers"
-    xmlns:models="clr-namespace:Vanish.Models">
+    xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="24,18">
+    <Grid Margin="26,22,26,18">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="320" />
+            <ColumnDefinition Width="14" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <Grid Grid.Row="0" Margin="0,0,0,14">
-            <StackPanel>
-                <TextBlock FontSize="26" FontWeight="Bold" Text="{Binding [Hunter_Title], Source={x:Static h:Loc.I}}" />
-                <TextBlock Opacity="0.6" Text="{Binding [Hunter_Subtitle], Source={x:Static h:Loc.I}}" />
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <ui:ProgressRing IsIndeterminate="True" Width="22" Height="22" Margin="0,0,12,0"
-                                 Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}" />
-                <ui:Button Appearance="Secondary" Content="{Binding [Act_Refresh], Source={x:Static h:Loc.I}}"
-                           Command="{Binding LoadCommand}" />
-            </StackPanel>
-        </Grid>
+        <c:PageHeader Grid.ColumnSpan="3" Title="{h:L Nav_Hunter}" Subtitle="{h:L Hunter_Subtitle}" Symbol="Target24" From="#FF9F45" To="#FF6B6B" />
 
-        <ListView Grid.Row="1" ItemsSource="{Binding Apps}" BorderThickness="0" Background="Transparent"
-                  Foreground="{DynamicResource TextFillColorPrimaryBrush}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="330" Header="{Binding [Col_Window], Source={x:Static h:Loc.I}}">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:RunningApp}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:FontIcon Glyph="&#xE7C4;" FontFamily="Segoe Fluent Icons" Margin="0,0,10,0" Opacity="0.7" />
-                                    <TextBlock Text="{Binding WindowTitle}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"
-                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+        <StackPanel Grid.Row="1">
+            <!-- crosshair -->
+            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="18" c:Reveal.Enabled="True">
+                <StackPanel HorizontalAlignment="Center">
+                    <Grid x:Name="TargetArea" Width="150" Height="150" Cursor="Cross" Background="Transparent"
+                          MouseLeftButtonDown="Target_MouseDown" MouseMove="Target_MouseMove" MouseLeftButtonUp="Target_MouseUp"
+                          LostMouseCapture="Target_LostCapture" ToolTip="{h:L Hunter_DragTip}">
+                        <Ellipse StrokeThickness="2" StrokeDashArray="3 3" Stroke="{StaticResource OB.Accent}" Opacity="0.6" />
+                        <Ellipse Margin="16" Fill="{StaticResource OB.AccentSoft}" />
+                        <Ellipse x:Name="Core" Margin="38" Fill="{StaticResource OB.Brand}" />
+                        <ui:SymbolIcon x:Name="CrossIcon" Symbol="Target24" FontSize="38" Foreground="White" />
+                    </Grid>
+                    <TextBlock Text="{h:L Hunter_DragHere}" Style="{StaticResource OB.BodyStrong}" HorizontalAlignment="Center" Margin="0,14,0,0" />
+                    <TextBlock x:Name="PreviewText" Style="{StaticResource OB.Caption}" HorizontalAlignment="Center" TextAlignment="Center" Margin="0,4,0,0"
+                               TextWrapping="Wrap" MaxWidth="260" Text="{h:L Hunter_DragHint}" />
+                </StackPanel>
+            </Border>
+
+            <!-- target -->
+            <Border Style="{StaticResource OB.Card}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
+                    Visibility="{Binding HasTarget, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Grid Width="44" Height="44">
+                            <Border CornerRadius="12" Background="{DynamicResource OB.CardStrong}">
+                                <ui:SymbolIcon Symbol="Apps24" FontSize="18" Foreground="{DynamicResource OB.Faint}" />
+                            </Border>
+                            <Image c:IconLoader.Path="{Binding Target.FilePath}" Width="36" Height="36" />
+                        </Grid>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center" MaxWidth="220">
+                            <TextBlock Text="{Binding Target.ProcessName}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
+                            <TextBlock Text="{Binding Target.WindowTitle}" Style="{StaticResource OB.Caption}" />
+                        </StackPanel>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Target.FilePath}" Style="{StaticResource OB.FaintText}" Margin="0,10,0,0" TextWrapping="Wrap" TextTrimming="None" />
+                    <TextBlock Text="{Binding TargetProgramText}" Style="{StaticResource OB.Caption}" Foreground="{StaticResource OB.Accent}" FontWeight="SemiBold"
+                               Margin="0,6,0,0" TextWrapping="Wrap" />
+                    <WrapPanel Margin="0,12,0,0">
+                        <Button Style="{StaticResource OB.BtnDanger}" Margin="0,0,6,6" Command="{Binding UninstallTargetCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Delete24" FontSize="14" Foreground="White" Margin="0,0,6,0" />
+                                <TextBlock Text="{h:L Act_Uninstall}" />
+                            </StackPanel>
+                        </Button>
+                        <Button Style="{StaticResource OB.Btn}" Margin="0,0,6,6" Content="{h:L Act_EndTask}" Command="{Binding EndTargetCommand}" />
+                        <Button Style="{StaticResource OB.Btn}" Margin="0,0,6,6" Content="{h:L Act_ShowLocation}" Command="{Binding RevealTargetCommand}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+
+        <!-- running apps -->
+        <Border Grid.Row="1" Grid.Column="2" Style="{StaticResource OB.Card}" CornerRadius="20" Padding="14" c:Reveal.Enabled="True" c:Reveal.Delay="80">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Margin="4,0,0,8">
+                    <TextBlock Text="{h:L Hunter_Running}" Style="{StaticResource OB.Section}" VerticalAlignment="Center" />
+                    <Button HorizontalAlignment="Right" Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
+                        <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="15" />
+                    </Button>
+                </Grid>
+                <ListBox Grid.Row="1" Style="{StaticResource OB.List}" ItemsSource="{Binding RunningApps}" SelectionChanged="Running_SelectionChanged">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <Grid c:Reveal.Enabled="True" c:Reveal.Stagger="True">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Grid Width="32" Height="32" Margin="0,0,12,0">
+                                    <Border CornerRadius="9" Background="{DynamicResource OB.CardStrong}">
+                                        <ui:SymbolIcon Symbol="Apps24" FontSize="14" Foreground="{DynamicResource OB.Faint}" />
+                                    </Border>
+                                    <Image c:IconLoader.Path="{Binding FilePath}" Width="26" Height="26" />
+                                </Grid>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding WindowTitle}" Style="{StaticResource OB.BodyStrong}" />
+                                    <TextBlock Text="{Binding ProcessName}" Style="{StaticResource OB.FaintText}" />
                                 </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Width="160" Header="{Binding [Col_Process], Source={x:Static h:Loc.I}}"
-                                    DisplayMemberBinding="{Binding ProcessName}" />
-                    <GridViewColumn Width="240">
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate DataType="{x:Type models:RunningApp}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:Button Padding="10,4" Margin="0,0,6,0" Appearance="Secondary"
-                                               Content="{Binding [Hunter_OpenLoc], Source={x:Static h:Loc.I}}"
-                                               Command="{Binding DataContext.OpenLocationCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                               CommandParameter="{Binding}" />
-                                    <ui:Button Padding="10,4" Appearance="Danger"
-                                               Content="{Binding [Hunter_End], Source={x:Static h:Loc.I}}"
-                                               Command="{Binding DataContext.EndTaskCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
-                                               CommandParameter="{Binding}" />
-                                </StackPanel>
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                </GridView>
-            </ListView.View>
-        </ListView>
-
-        <TextBlock Grid.Row="2" Margin="0,12,0,0" Opacity="0.7" Text="{Binding StatusMessage}" />
+                                <TextBlock Grid.Column="2" Text="{Binding PidText}" Style="{StaticResource OB.FaintText}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibility}}">
+                    <c:Spinner Width="30" Height="30" />
+                </StackPanel>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

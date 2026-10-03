@@ -1,9 +1,13 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using Vanish.Controls;
+using Vanish.Helpers;
 using Vanish.Services;
 using Vanish.ViewModels;
+using Vanish.ViewModels.Pages;
 using Vanish.Views.Pages;
 using Wpf.Ui.Controls;
 
@@ -11,97 +15,176 @@ namespace Vanish.Views;
 
 public partial class MainWindow : FluentWindow
 {
-    private readonly MainWindowViewModel _viewModel;
+    private const double RightPanelMinWindowWidth = 1240;
 
-    public MainWindow(MainWindowViewModel viewModel, NavigationService navigation)
+    private readonly MainWindowViewModel _vm;
+    private readonly NavigationService _navigation;
+    private readonly SettingsService _settings;
+    private readonly ThemeService _theme;
+    private FrameworkElement? _currentPage;
+
+    public MainWindow(MainWindowViewModel vm, NavigationService navigation, DialogService dialogs, ToastService toast,
+        SettingsService settings, ThemeService theme)
     {
-        _viewModel = viewModel;
-        DataContext = _viewModel;
+        _vm = vm;
+        _navigation = navigation;
+        _settings = settings;
+        _theme = theme;
+        DataContext = vm;
         InitializeComponent();
 
-        navigation.Navigated += SelectAndNavigate;
+        dialogs.Attach(this, DialogLayer, DialogBackdrop, DialogHost);
+        toast.Attach(ToastHost, ToastText, ToastIcon, ToastBadge);
 
+        navigation.Navigated += NavigateTo;
+        theme.Changed += SyncThemeIcon;
+        settings.Current.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName == nameof(AppSettings.ShowLivePanel)) UpdateRightPanel();
+        };
+
+        ContentRendered += (_, _) =>
+        {
+            if (FirstRenderMs == 0) FirstRenderMs = App.Clock.ElapsedMilliseconds;
+        };
+        SizeChanged += (_, _) => UpdateRightPanel();
+        StateChanged += (_, _) => UpdateRightPanel();
         Loaded += (_, _) =>
         {
-            if (NavList.SelectedIndex < 0)
-                NavList.SelectedIndex = 0;
+            SyncThemeIcon();
+            UpdateRightPanel();
+            if (_currentPage is null) NavigateTo("Dashboard");
         };
     }
 
-    private void NavList_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (NavList.SelectedItem is ListBoxItem { Tag: string tag })
-            NavigateTo(tag);
-    }
+    /// <summary>Tag of the page currently shown.</summary>
+    public string CurrentTag { get; private set; } = "";
 
-    /// <summary>Rail / external navigation: also sync the labelled list selection.</summary>
-    private void SelectAndNavigate(string tag)
+    /// <summary>Milliseconds from process start to the first rendered frame (self-test).</summary>
+    public static long FirstRenderMs { get; private set; }
+
+    protected override void OnSourceInitialized(EventArgs e)
     {
-        foreach (var item in NavList.Items)
+        base.OnSourceInitialized(e);
+        try
         {
-            if (item is ListBoxItem { Tag: string t } li && t == tag)
-            {
-                if (!ReferenceEquals(NavList.SelectedItem, li))
-                {
-                    NavList.SelectedItem = li; // triggers NavList_SelectionChanged -> NavigateTo
-                    return;
-                }
-                break;
-            }
+            var hwnd = new WindowInteropHelper(this).Handle;
+            Native.EnableElevatedFileDrop(hwnd);
+            HwndSource.FromHwnd(hwnd)?.AddHook(WndProc);
         }
-        NavigateTo(tag);
+        catch { /* drag & drop is a convenience only */ }
     }
 
-    private void NavigateTo(string tag)
+    /// <summary>Files dropped from Explorer go to the shredder queue (only while that page is open).</summary>
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
-        object? page = tag switch
-        {
-            "Dashboard" => Ioc.Resolve<DashboardPage>(),
-            "Uninstaller" => Ioc.Resolve<UninstallerPage>(),
-            "Monitored" => Ioc.Resolve<MonitoredPage>(),
-            "WindowsApps" => Ioc.Resolve<WindowsAppsPage>(),
-            "BrowserExt" => Ioc.Resolve<BrowserExtensionsPage>(),
-            "Logs" => Ioc.Resolve<LogsPage>(),
-            "Hunter" => Ioc.Resolve<HunterPage>(),
-            "Tools" => Ioc.Resolve<ToolsPage>(),
-            "Settings" => Ioc.Resolve<SettingsPage>(),
-            "Startup" => Ioc.Resolve<StartupPage>(),
-            "Junk" => Ioc.Resolve<JunkCleanerPage>(),
-            _ => null
-        };
+        if (msg != Native.WM_DROPFILES) return IntPtr.Zero;
+        var files = Native.DroppedFiles(wParam);
+        if (CurrentTag == "Shredder" && files.Count > 0) Ioc.Resolve<ShredderViewModel>().Add(files);
+        handled = true;
+        return IntPtr.Zero;
+    }
 
+    /// <summary>The live panel is shown on wide windows only, and sampling stops while it is hidden or minimized.</summary>
+    private void UpdateRightPanel()
+    {
+        bool show = _settings.Current.ShowLivePanel && ActualWidth >= RightPanelMinWindowWidth;
+        RightColumn.Width = new GridLength(show ? 272 : 0);
+        RightPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        if (show && WindowState != WindowState.Minimized) _vm.Live.Start();
+        else _vm.Live.Stop();
+    }
+
+    private void SyncThemeIcon() => ThemeIcon.Symbol = _theme.IsDark ? SymbolRegular.WeatherSunny24 : SymbolRegular.WeatherMoon24;
+
+    private void Nav_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { Tag: string tag }) NavigateTo(tag);
+    }
+
+    private static FrameworkElement? ResolvePage(string tag) => tag switch
+    {
+        "Dashboard" => Ioc.Resolve<DashboardPage>(),
+        "Uninstaller" => Ioc.Resolve<UninstallerPage>(),
+        "WindowsApps" => Ioc.Resolve<WindowsAppsPage>(),
+        "BrowserExt" => Ioc.Resolve<BrowserExtensionsPage>(),
+        "Startup" => Ioc.Resolve<StartupPage>(),
+        "Junk" => Ioc.Resolve<JunkCleanerPage>(),
+        "SystemMonitor" => Ioc.Resolve<SystemMonitorPage>(),
+        "Tools" => Ioc.Resolve<ToolsPage>(),
+        "LargeFiles" => Ioc.Resolve<LargeFilesPage>(),
+        "Shredder" => Ioc.Resolve<ShredderPage>(),
+        "History" => Ioc.Resolve<HistoryPage>(),
+        "Evidence" => Ioc.Resolve<EvidencePage>(),
+        "Backups" => Ioc.Resolve<BackupsPage>(),
+        "Monitored" => Ioc.Resolve<MonitoredPage>(),
+        "Hunter" => Ioc.Resolve<HunterPage>(),
+        "Logs" => Ioc.Resolve<LogsPage>(),
+        "Settings" => Ioc.Resolve<SettingsPage>(),
+        _ => null
+    };
+
+    /// <summary>Which rail icon / sidebar row lights up for a page (tool pages belong to Tools).</summary>
+    private static string RailGroup(string tag) => tag switch
+    {
+        "Monitored" or "Hunter" => "Uninstaller",
+        "Junk" or "Startup" or "LargeFiles" or "Shredder" or "History" or "Evidence" or "Backups" or "BrowserExt" => "Tools",
+        _ => tag
+    };
+
+    private static string NavGroup(string tag) => tag switch
+    {
+        "Junk" or "Startup" or "LargeFiles" or "Shredder" or "History" or "Evidence" or "Backups" => "Tools",
+        _ => tag
+    };
+
+    public void NavigateTo(string tag)
+    {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.InvokeAsync(() => NavigateTo(tag));
+            return;
+        }
+        if (tag == CurrentTag && _currentPage is not null) return;
+        var page = ResolvePage(tag);
         if (page is null) return;
+
+        (_currentPage?.DataContext as IPageAware)?.OnHidden();
+        _currentPage = page;
+        CurrentTag = tag;
+        _navigation.SetCurrent(tag);
         PageHost.Content = page;
-        _viewModel.RefreshActivity();
+        (page.DataContext as IPageAware)?.OnShown();
+
+        SetActive(RailPanel, RailGroup(tag));
+        SetActive(RailBottomPanel, RailGroup(tag));
+        SetActive(NavPanel, NavGroup(tag));
         AnimatePage();
+    }
+
+    private static void SetActive(Panel panel, string tag)
+    {
+        foreach (var child in panel.Children)
+            if (child is FrameworkElement { Tag: string t } fe)
+                Nav.SetIsActive(fe, t == tag);
     }
 
     private void AnimatePage()
     {
-        var transform = new TranslateTransform(0, 16);
+        if (!Reveal.AnimationsEnabled) return;
+        var transform = new TranslateTransform(0, 14);
         PageHost.RenderTransform = transform;
-        PageHost.Opacity = 0;
-
-        PageHost.BeginAnimation(OpacityProperty,
-            new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)));
-        transform.BeginAnimation(TranslateTransform.YProperty,
-            new DoubleAnimation(16, 0, TimeSpan.FromMilliseconds(280))
-            {
-                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
-            });
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
+        var slide = new DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(300)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        slide.Completed += (_, _) =>
+        {
+            PageHost.BeginAnimation(OpacityProperty, null);
+            PageHost.Opacity = 1;
+            PageHost.RenderTransform = Transform.Identity;
+        };
+        PageHost.BeginAnimation(OpacityProperty, fade);
+        transform.BeginAnimation(TranslateTransform.YProperty, slide);
     }
-
-    private void Rail_Click(object sender, RoutedEventArgs e)
-    {
-        if (sender is FrameworkElement { Tag: string tag })
-            SelectAndNavigate(tag);
-    }
-
-    private void ToggleTheme_Click(object sender, RoutedEventArgs e)
-        => _viewModel.ToggleThemeCommand.Execute(null);
-
-    private void ToggleLanguage_Click(object sender, RoutedEventArgs e)
-        => _viewModel.ToggleLanguageCommand.Execute(null);
 
     private void OtherCommands_Click(object sender, RoutedEventArgs e)
     {
@@ -109,6 +192,7 @@ public partial class MainWindow : FluentWindow
         {
             menu.DataContext = DataContext;
             menu.PlacementTarget = element;
+            menu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
             menu.IsOpen = true;
         }
     }

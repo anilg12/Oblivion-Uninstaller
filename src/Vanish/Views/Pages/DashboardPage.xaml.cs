@@ -9,6 +9,5 @@ public partial class DashboardPage : UserControl
     {
         DataContext = viewModel;
         InitializeComponent();
-        Loaded += async (_, _) => await viewModel.LoadCommand.ExecuteAsync(null);
     }
 }

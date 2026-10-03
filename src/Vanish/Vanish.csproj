@@ -9,19 +9,35 @@
     <RootNamespace>Vanish</RootNamespace>
     <AssemblyName>Oblivion</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <Version>1.0.0</Version>
-    <Product>Oblivion Uninstaller</Product>
+    <ApplicationIcon>Assets\Oblivion.ico</ApplicationIcon>
+    <Version>3.0.0</Version>
+    <FileVersion>3.0.0.0</FileVersion>
+    <InformationalVersion>3.0.0</InformationalVersion>
+    <Product>Oblivion</Product>
+    <Description>Oblivion — uninstaller and system cleaner</Description>
     <Company>ANIL GUL</Company>
+    <Copyright>© 2026 ANIL GÜL</Copyright>
     <LangVersion>latest</LangVersion>
-    <!-- System.Drawing is used for extracting application icons from EXE files -->
     <UseWindowsForms>false</UseWindowsForms>
+    <!-- Lets the project build on non-Windows CI/dev machines too. -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <!-- Faster startup and first use of each screen (less JIT work while animating). -->
+    <TieredPGO>true</TieredPGO>
+    <SatelliteResourceLanguages>en;tr</SatelliteResourceLanguages>
+    <InvariantGlobalization>false</InvariantGlobalization>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Oblivion.ico" />
+    <Resource Include="Assets\OblivionLogo.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="WPF-UI" Version="3.0.5" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
 </Project>

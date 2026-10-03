@@ -1,15 +1,23 @@
 using System.Diagnostics;
+using System.IO;
+using Vanish.Helpers;
 using Vanish.Models;
 
 namespace Vanish.Services;
 
 /// <summary>
-/// Launches a program's native uninstaller. Handles both MSI products (msiexec /x)
-/// and EXE uninstallers, parsing the registry UninstallString into an executable
-/// and arguments.
+/// Launches a program's native uninstaller (MSI or EXE) and waits until it has really
+/// finished — many uninstallers copy themselves to %TEMP%, relaunch from there and
+/// exit immediately, so we also wait for those child processes before scanning.
 /// </summary>
 public sealed class UninstallService : IUninstallService
 {
+    private static readonly HashSet<string> IgnoredChildren = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "chrome.exe", "msedge.exe", "firefox.exe", "opera.exe", "brave.exe", "vivaldi.exe", "iexplore.exe",
+        "explorer.exe", "conhost.exe", "werfault.exe", "dllhost.exe", "rundll32.exe", "msedgewebview2.exe"
+    };
+
     public async Task<UninstallResult> RunUninstallerAsync(
         InstalledProgram program,
         bool silent,
@@ -18,16 +26,14 @@ public sealed class UninstallService : IUninstallService
     {
         var command = ResolveCommand(program, silent);
         if (command is null)
-            return new UninstallResult(false, -1, "No uninstall command is registered for this program.");
+            return new UninstallResult(false, -1, Loc.I["Uninst_NoCommand"]);
 
         var (fileName, arguments) = command.Value;
-        progress?.Report($"Running: {fileName} {arguments}".Trim());
-
         var psi = new ProcessStartInfo
         {
             FileName = fileName,
             Arguments = arguments,
-            UseShellExecute = true, // let UAC/installer UI surface normally
+            UseShellExecute = true, // let the installer UI surface normally
             Verb = "runas"
         };
 
@@ -35,23 +41,26 @@ public sealed class UninstallService : IUninstallService
         {
             using var proc = Process.Start(psi);
             if (proc is null)
-                return new UninstallResult(false, -1, "Failed to start the uninstaller process.");
+                return new UninstallResult(false, -1, Loc.I["Uninst_StartFailed"]);
 
+            int rootPid = proc.Id;
             await proc.WaitForExitAsync(ct);
-
             int code = proc.ExitCode;
-            // msiexec returns 0 (success) or 3010 (success, reboot required).
-            bool ok = code is 0 or 3010 or 1605 /* product already removed */;
-            progress?.Report(ok
-                ? "Uninstaller finished."
-                : $"Uninstaller exited with code {code}.");
 
-            return new UninstallResult(ok, code,
-                ok ? null : $"The uninstaller returned exit code {code}.");
+            progress?.Report("Work_WaitUninstaller");
+            await WaitForChildUninstallersAsync(rootPid, program.InstallLocation, ct);
+
+            // msiexec: 0 success, 3010 success+reboot, 1605 already removed.
+            bool ok = code is 0 or 3010 or 1605 or 1641;
+            return new UninstallResult(ok, code, ok ? null : string.Format(Loc.I["Uninst_ExitCodeFmt"], code));
         }
         catch (OperationCanceledException)
         {
             throw;
+        }
+        catch (System.ComponentModel.Win32Exception ex) when (ex.NativeErrorCode == 1223)
+        {
+            return new UninstallResult(false, 1223, Loc.I["Uninst_Declined"]); // UAC "No"
         }
         catch (Exception ex)
         {
@@ -60,12 +69,67 @@ public sealed class UninstallService : IUninstallService
     }
 
     /// <summary>
+    /// Waits while descendants of the uninstaller that look like uninstaller stages
+    /// (copies in %TEMP%, msiexec, files in the install folder, "unins*/Au_/Un_A") are running.
+    /// Browsers opened for "sorry to see you go" pages are ignored.
+    /// </summary>
+    private static async Task WaitForChildUninstallersAsync(int rootPid, string? installLocation, CancellationToken ct)
+    {
+        var tracked = new HashSet<int> { rootPid };
+        var temp = Path.GetTempPath().TrimEnd('\\');
+        var sw = Stopwatch.StartNew();
+        int quietRounds = 0;
+
+        while (sw.Elapsed < TimeSpan.FromMinutes(30))
+        {
+            ct.ThrowIfCancellationRequested();
+            var tree = Native.ProcessTree();
+            bool added;
+            do
+            {
+                added = false;
+                foreach (var (pid, parent, _) in tree)
+                    if (tracked.Contains(parent) && tracked.Add(pid)) added = true;
+            } while (added);
+
+            bool waiting = false;
+            foreach (var (pid, _, exe) in tree)
+            {
+                if (pid == rootPid || !tracked.Contains(pid)) continue;
+                if (IgnoredChildren.Contains(exe)) continue;
+                if (LooksLikeUninstallerStage(pid, exe, temp, installLocation)) { waiting = true; break; }
+            }
+
+            if (!waiting)
+            {
+                // A stage may start a moment after the first process exits; require a few quiet checks.
+                if (++quietRounds >= 3) return;
+            }
+            else quietRounds = 0;
+
+            await Task.Delay(500, ct);
+        }
+    }
+
+    private static bool LooksLikeUninstallerStage(int pid, string exe, string temp, string? installLocation)
+    {
+        var lower = exe.ToLowerInvariant();
+        if (lower is "msiexec.exe" or "au_.exe" or "un_a.exe" or "un_b.exe" ||
+            lower.StartsWith("unins") || lower.StartsWith("_iu") || lower.Contains("uninst") || lower.EndsWith(".tmp"))
+            return true;
+        var path = Native.ProcessPath(pid);
+        if (path is null) return false;
+        if (path.StartsWith(temp, StringComparison.OrdinalIgnoreCase)) return true;
+        return !string.IsNullOrWhiteSpace(installLocation) &&
+               path.StartsWith(installLocation!.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
     /// Produces the (executable, arguments) pair to launch, normalising MSI commands
     /// to a clean uninstall (/x) and appending quiet switches when requested.
     /// </summary>
     private static (string FileName, string Arguments)? ResolveCommand(InstalledProgram program, bool silent)
     {
-        // MSI: build a guaranteed-correct command from the product code.
         if (program.IsMsi && !string.IsNullOrWhiteSpace(program.ProductCode))
         {
             var args = $"/x {program.ProductCode}";
@@ -73,7 +137,6 @@ public sealed class UninstallService : IUninstallService
             return ("msiexec.exe", args);
         }
 
-        // Prefer a registered quiet command when running silently.
         var raw = silent && !string.IsNullOrWhiteSpace(program.QuietUninstallString)
             ? program.QuietUninstallString
             : program.UninstallString;
@@ -90,30 +153,22 @@ public sealed class UninstallService : IUninstallService
     /// </summary>
     private static (string FileName, string Arguments) SplitCommandLine(string commandLine)
     {
-        commandLine = commandLine.Trim();
+        commandLine = Environment.ExpandEnvironmentVariables(commandLine.Trim());
 
         if (commandLine.StartsWith('"'))
         {
             int closing = commandLine.IndexOf('"', 1);
             if (closing > 0)
-            {
-                var exe = commandLine.Substring(1, closing - 1);
-                var args = commandLine[(closing + 1)..].Trim();
-                return (exe, args);
-            }
+                return (commandLine.Substring(1, closing - 1), commandLine[(closing + 1)..].Trim());
         }
 
-        // Unquoted: split on the first space after a ".exe" token when present.
         int exeIdx = commandLine.IndexOf(".exe", StringComparison.OrdinalIgnoreCase);
         if (exeIdx > 0)
         {
             int end = exeIdx + 4;
-            var exe = commandLine[..end];
-            var args = commandLine[end..].Trim();
-            return (exe, args);
+            return (commandLine[..end], commandLine[end..].Trim());
         }
 
-        // Fallback: first whitespace-delimited token is the executable.
         int space = commandLine.IndexOf(' ');
         return space < 0
             ? (commandLine, string.Empty)

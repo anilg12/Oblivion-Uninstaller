@@ -1,4 +1,3 @@
-using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Vanish.Helpers;
@@ -7,30 +6,51 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-public sealed partial class HunterViewModel : ObservableObject
+/// <summary>
+/// Hunter mode: drag the crosshair onto any window (or pick a running app) to see which
+/// program it is, then uninstall it, end it or open its folder.
+/// </summary>
+public sealed partial class HunterViewModel : PageViewModel
 {
-    private readonly HunterService _service;
+    private readonly HunterService _hunter;
+    private readonly UninstallerViewModel _apps;
 
-    public HunterViewModel(HunterService service) => _service = service;
+    public HunterViewModel(HunterService hunter, UninstallerViewModel apps)
+    {
+        _hunter = hunter;
+        _apps = apps;
+    }
 
-    public ObservableCollectionEx<RunningApp> Apps { get; } = new();
+    public ObservableCollectionEx<RunningApp> RunningApps { get; } = new();
 
     [ObservableProperty] private bool _isLoading;
-    [ObservableProperty] private string _statusMessage = "";
+    [ObservableProperty] private bool _isAiming;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(HasTarget))]
+    [NotifyCanExecuteChangedFor(nameof(UninstallTargetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(EndTargetCommand))]
+    [NotifyCanExecuteChangedFor(nameof(RevealTargetCommand))]
+    private RunningApp? _target;
+
+    [ObservableProperty] private string _targetProgramText = "";
+
+    public bool HasTarget => Target is not null;
+
+    public override void OnShown()
+    {
+        base.OnShown();
+        _ = RefreshAsync();
+        _ = _apps.EnsureLoadedAsync(false);
+    }
 
     [RelayCommand]
-    private async Task LoadAsync()
+    private async Task RefreshAsync()
     {
         IsLoading = true;
         try
         {
-            var apps = await _service.GetRunningAppsAsync();
-            Apps.Reset(apps);
-            StatusMessage = $"{apps.Count}";
-        }
-        catch (Exception ex)
-        {
-            StatusMessage = ex.Message;
+            RunningApps.Reset(await _hunter.GetRunningAppsAsync());
         }
         finally
         {
@@ -38,33 +58,65 @@ public sealed partial class HunterViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task EndTaskAsync(RunningApp? app)
-    {
-        if (app is null) return;
-        var confirm = MessageBox.Show(
-            $"{Loc.I.T("Hunter_End")}: \"{app.WindowTitle}\" ({app.ProcessName})?",
-            Loc.I.T("Confirm"), MessageBoxButton.OKCancel, MessageBoxImage.Warning);
-        if (confirm != MessageBoxResult.OK) return;
+    /// <summary>Called by the page while the crosshair is dragged / when it is dropped.</summary>
+    public RunningApp? Peek() => _hunter.AppUnderCursor();
 
+    public void SetTarget(RunningApp? app)
+    {
+        Target = app;
+        if (app is null)
+        {
+            TargetProgramText = "";
+            return;
+        }
+        var program = _apps.FindByExecutable(app.FilePath);
+        TargetProgramText = program is null ? T("Hunter_NotInstalledProgram") : F("Hunter_BelongsToFmt", program.DisplayName);
+    }
+
+    private bool CanAct() => Target is not null;
+
+    [RelayCommand(CanExecute = nameof(CanAct))]
+    private void UninstallTarget()
+    {
+        if (Target is null) return;
+        var program = _apps.FindByExecutable(Target.FilePath);
+        if (program is null)
+        {
+            Toast.Show(T("Hunter_NotInstalledProgram"), ToastKind.Warning);
+            return;
+        }
+        _apps.Reveal(program);
+        if (_apps.UninstallCommand.CanExecute(null)) _apps.UninstallCommand.Execute(null);
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAct))]
+    private async Task EndTargetAsync()
+    {
+        var app = Target;
+        if (app is null) return;
+        bool ok = await Dialogs.ConfirmAsync(F("Mon_EndTitleFmt", app.ProcessName), T("Hunter_EndText"), T("Act_EndTask"), DialogTone.Danger,
+            new[] { app.WindowTitle, app.FilePath ?? app.PidText });
+        if (!ok) return;
         try
         {
-            _service.EndTask(app);
-            Apps.Remove(app);
-            StatusMessage = $"\"{app.ProcessName}\" ended.";
+            _hunter.EndTask(app);
+            Log.Append("Log_EndTask", app.ProcessName);
+            Toast.Show(F("Mon_EndedFmt", app.ProcessName), ToastKind.Success);
+            SetTarget(null);
+            await RefreshAsync();
         }
         catch (Exception ex)
         {
-            StatusMessage = ex.Message;
+            Toast.Show(ex.Message, ToastKind.Error);
         }
-        await Task.CompletedTask;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAct))]
+    private void RevealTarget()
+    {
+        if (Target is not null) _hunter.OpenLocation(Target);
     }
 
     [RelayCommand]
-    private void OpenLocation(RunningApp? app)
-    {
-        if (app is null) return;
-        try { _service.OpenLocation(app); }
-        catch (Exception ex) { StatusMessage = ex.Message; }
-    }
+    private void Pick(RunningApp? app) => SetTarget(app);
 }
