@@ -254,8 +254,9 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <Grid Margin="0,0,0,8">
-                    <Border Style="{StaticResource OB.SegmentHost}">
+                <!-- Wraps the selection buttons onto a second line when the window is narrow. -->
+                <WrapPanel Margin="0,0,0,2">
+                    <Border Style="{StaticResource OB.SegmentHost}" Margin="0,0,12,6">
                         <StackPanel Orientation="Horizontal">
                             <RadioButton Style="{StaticResource OB.Segment}" GroupName="leftFilter"
                                          IsChecked="{Binding LeftoverFilter, Converter={StaticResource EqualsConverter}, ConverterParameter=all}">
@@ -271,7 +272,7 @@
                             </RadioButton>
                         </StackPanel>
                     </Border>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6" VerticalAlignment="Center">
                         <Button Style="{StaticResource OB.Btn}" Padding="10,6" FontSize="12" Margin="0,0,6,0" Command="{Binding SelectSafeLeftoversCommand}"
                                 ToolTip="{h:L Left_SelectSafeTip}">
                             <StackPanel Orientation="Horizontal">
@@ -284,7 +285,7 @@
                         <Button Style="{StaticResource OB.Btn}" Padding="10,6" FontSize="12" Content="{h:L Act_SelectNone}"
                                 Command="{Binding SelectNoneLeftoversCommand}" />
                     </StackPanel>
-                </Grid>
+                </WrapPanel>
 
                 <ListBox Grid.Row="1" Style="{StaticResource OB.List}" ItemsSource="{Binding LeftoverView}" SelectionMode="Multiple">
                     <ListBox.ItemContainerStyle>
