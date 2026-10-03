@@ -104,10 +104,15 @@ struct AboutView: View {
 
     private var header: some View {
         ZStack(alignment: .topLeading) {
+            // The decorative circles live in an overlay so they never change the header's layout.
             Palette.brandGradient
-            Circle().fill(Color.white.opacity(0.12)).frame(width: 260, height: 260).offset(x: 360, y: -130)
-            Circle().fill(Color.white.opacity(0.08)).frame(width: 150, height: 150).offset(x: -50, y: 80)
-            Circle().fill(Color.white.opacity(0.07)).frame(width: 70, height: 70).offset(x: 300, y: 110)
+                .overlay(alignment: .topLeading) {
+                    ZStack(alignment: .topLeading) {
+                        Circle().fill(Color.white.opacity(0.12)).frame(width: 260, height: 260).offset(x: 360, y: -130)
+                        Circle().fill(Color.white.opacity(0.08)).frame(width: 150, height: 150).offset(x: -50, y: 80)
+                        Circle().fill(Color.white.opacity(0.07)).frame(width: 70, height: 70).offset(x: 300, y: 110)
+                    }
+                }
             HStack(spacing: 10) {
                 Image(nsImage: NSApp.applicationIconImage)
                     .resizable()

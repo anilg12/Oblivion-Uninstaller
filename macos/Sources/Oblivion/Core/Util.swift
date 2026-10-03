@@ -60,6 +60,21 @@ enum Fmt {
     }
 }
 
+// MARK: - Graphics
+
+/// GPU-heavy flourishes (symbol bounces, particle bursts) are skipped on Intel virtual machines,
+/// whose virtual graphics adapter has no usable Metal device. Real Macs always keep them.
+enum GraphicsSupport {
+    static let richEffects: Bool = {
+        #if arch(x86_64)
+        var inVM: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        if sysctlbyname("kern.hv_vmm_present", &inVM, &size, nil, 0) == 0, inVM != 0 { return false }
+        #endif
+        return true
+    }()
+}
+
 // MARK: - Paths
 
 enum AppPaths {

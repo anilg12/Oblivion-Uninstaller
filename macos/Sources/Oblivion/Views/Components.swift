@@ -489,41 +489,40 @@ struct MiniGauge: View {
     }
 }
 
-/// A one-off particle burst (about a second) for "done" moments; draws nothing afterwards
-/// and is skipped entirely when motion is reduced.
+/// A one-off particle burst (about a second) for "done" moments, built from ordinary animated
+/// shapes. Skipped when motion is reduced or the graphics hardware can't do effects.
 struct Burst: View {
     var count = 28
     var spread: Double = 90
     @EnvironmentObject private var prefs: Prefs
-    @State private var start = Date()
+    @State private var fired = false
     @State private var finished = false
 
     private static let colors: [Color] = [Color(hex: 0x6E5BFF), Color(hex: 0xB45BFF), Color(hex: 0x22C55E),
                                           Color(hex: 0x3A8DFF), Color(hex: 0xF5A524), Color(hex: 0xFF7AC6)]
 
     var body: some View {
-        if prefs.calmMotion || finished {
+        if prefs.calmMotion || finished || !GraphicsSupport.richEffects {
             Color.clear.allowsHitTesting(false)
         } else {
-            TimelineView(.animation) { context in
-                Canvas { ctx, size in
-                    let t = context.date.timeIntervalSince(start)
-                    let progress = min(1, max(0, t / 1.05))
-                    let eased = 1 - pow(1 - progress, 3)
-                    let center = CGPoint(x: size.width / 2, y: size.height / 2)
-                    ctx.opacity = 1 - progress * progress
-                    for i in 0..<count {
-                        let angle = Double(i) / Double(count) * 2 * Double.pi + Double(i % 3) * 0.21
-                        let distance = eased * spread * (0.65 + Double((i * 37) % 40) / 100)
-                        let x = center.x + CGFloat(cos(angle) * distance)
-                        let y = center.y + CGFloat(sin(angle) * distance + progress * progress * 26)
-                        let r: CGFloat = i % 3 == 0 ? 4 : 2.8
-                        ctx.fill(Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2)),
-                                 with: .color(Self.colors[i % Self.colors.count]))
-                    }
+            ZStack {
+                ForEach(0..<count, id: \.self) { i in
+                    let angle = Double(i) / Double(count) * 2 * Double.pi + Double(i % 3) * 0.21
+                    let distance = spread * (0.65 + Double((i * 37) % 40) / 100)
+                    let size: CGFloat = i % 3 == 0 ? 8 : 5.6
+                    Circle()
+                        .fill(Self.colors[i % Self.colors.count])
+                        .frame(width: size, height: size)
+                        .offset(x: fired ? CGFloat(cos(angle) * distance) : 0,
+                                y: fired ? CGFloat(sin(angle) * distance) + 14 : 0)
+                        .scaleEffect(fired ? 0.5 : 1)
+                        .opacity(fired ? 0 : 1)
                 }
             }
             .allowsHitTesting(false)
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.0)) { fired = true }
+            }
             .task {
                 try? await Task.sleep(nanoseconds: 1_150_000_000)
                 finished = true

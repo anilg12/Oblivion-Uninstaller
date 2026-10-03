@@ -303,8 +303,9 @@ struct NavRow: View {
                 Text(title)
                     .font(.system(size: 13, weight: active ? .semibold : .regular))
                     .lineLimit(1)
+                    .minimumScaleFactor(0.8)
                 Spacer(minLength: 4)
-                if let badge {
+                if let badge, !active {
                     Text(badge)
                         .font(.system(size: 9, weight: .heavy))
                         .foregroundStyle(Palette.success)
