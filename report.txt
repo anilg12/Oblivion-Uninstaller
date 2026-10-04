@@ -1,0 +1,47 @@
+window: (0.0, 0.0, 1440.0, 880.0)  screen: (0.0, 0.0, 1920.0, 1080.0)
+architecture: Intel (x86_64)
+apps found: 35
+full disk access: true
+monitor: cpu 31.4%  memory 25.7%  temperature 38.8 °C  thermal 0  drives 1  battery none
+this Mac: Mac mini Macmini6,2 · Intel(R) Core(TM) i7-8700B CPU @ 3.20GHz · 4 · Intel (x86_64)
+
+== Junk: 18 items · 343.1 MB · selected after scan: 0
+  caches: 12 items · 342.8 MB
+  logs: 6 items · 266 KB
+  dev: 0 items · 0 bayt
+  installers: 0 items · 0 bayt
+  trash: 0 items · 0 bayt
+
+== Startup toggle com.oblivion.testapp.helper: off ok · back on ok
+stage after scan: review
+
+== Uninstall com.oblivion.testapp → stage review, app removed: true
+  [high]   folder  /Users/runner/Library/Application Support/com.oblivion.testapp
+  [high]   folder  /Users/runner/Library/Caches/com.oblivion.testapp
+  [high]   container  /Users/runner/Library/Containers/com.oblivion.testapp
+  [high]   folder  /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+  [high]   launchItem  /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+  [high]   preferences  /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+  [high]   folder  /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+  [medium]   folder  /Users/runner/Library/Application Support/OblivionTestApp
+  [medium]   folder  /Users/runner/Library/Logs/OblivionTestApp
+stage after removal: done
+stage at last capture: done
+  removed: 10  freed: 6.3 MB  error: -
+
+== Uninstall com.acme.browser (vendor folder) → stage review
+  [high]   preferences  /Users/runner/Library/Preferences/com.acme.browser.plist
+  [medium]   folder  /Users/runner/Library/Application Support/Acme/Browser
+  [medium]   folder  /Users/runner/Library/Caches/Acme/Browser
+  removed: 4  error: -
+
+== Dry run Google Chrome (com.google.Chrome): 0 items
+
+== Dry run Firefox (org.mozilla.firefox): 0 items
+
+== Dry run Microsoft Edge (com.microsoft.edgemac): 0 items
+
+== Force uninstall com.oblivion.ghost → stage review
+  [high]   folder  /Users/runner/Library/Application Support/com.oblivion.ghost
+  [high]   preferences  /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+  removed: 2  error: -
