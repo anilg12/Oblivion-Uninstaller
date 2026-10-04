@@ -1,0 +1,55 @@
+== Before ==
+present  /Users/runner/Applications/OblivionTestApp.app
+present  /Users/runner/Library/Application Support/OblivionTestApp
+present  /Users/runner/Library/Application Support/com.oblivion.testapp
+present  /Users/runner/Library/Caches/com.oblivion.testapp
+present  /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+present  /Users/runner/Library/Logs/OblivionTestApp
+present  /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+present  /Users/runner/Library/Containers/com.oblivion.testapp
+present  /Users/runner/Library/Application Support/com.oblivion.ghost
+present  /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+present  /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+present  /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+present  /Users/runner/Applications/Acme Browser.app
+present  /Users/runner/Library/Application Support/Acme/Browser
+present  /Users/runner/Library/Caches/Acme/Browser
+present  /Users/runner/Library/Preferences/com.acme.browser.plist
+
+== After ==
+removed      /Users/runner/Applications/OblivionTestApp.app
+removed      /Users/runner/Library/Application Support/OblivionTestApp
+removed      /Users/runner/Library/Application Support/com.oblivion.testapp
+removed      /Users/runner/Library/Caches/com.oblivion.testapp
+removed      /Users/runner/Library/Saved Application State/com.oblivion.testapp.savedState
+removed      /Users/runner/Library/Logs/OblivionTestApp
+removed      /Users/runner/Library/HTTPStorages/com.oblivion.testapp
+removed      /Users/runner/Library/Containers/com.oblivion.testapp
+removed      /Users/runner/Library/Application Support/com.oblivion.ghost
+removed      /Users/runner/Library/Preferences/com.oblivion.testapp.plist
+removed      /Users/runner/Library/Preferences/com.oblivion.ghost.plist
+removed      /Users/runner/Library/LaunchAgents/com.oblivion.testapp.helper.plist
+removed      /Users/runner/Applications/Acme Browser.app
+removed      /Users/runner/Library/Application Support/Acme/Browser
+removed      /Users/runner/Library/Caches/Acme/Browser
+removed      /Users/runner/Library/Preferences/com.acme.browser.plist
+decoy kept   (good)
+sibling Acme/Notes kept (good)
+
+== Trash ==
+Acme Browser.app
+Browser
+Browser 00-03-17-791
+com.acme.browser.plist
+com.oblivion.ghost
+com.oblivion.ghost.plist
+com.oblivion.testapp
+com.oblivion.testapp 00-03-09-601.testapp
+com.oblivion.testapp 00-03-09-703.testapp
+com.oblivion.testapp.helper.plist
+com.oblivion.testapp.plist
+com.oblivion.testapp.savedState
+OblivionTestApp
+OblivionTestApp 00-03-09-662.testapp
+OblivionTestApp 00-03-09-710
+OblivionTestApp.app
