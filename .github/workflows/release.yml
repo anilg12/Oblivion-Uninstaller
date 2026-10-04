@@ -189,7 +189,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          for b in ci-snapshots ci-snapshots-win ci-snapshots-mac ci-snapshots-mac-intel claude/macos-port; do
+          for b in ci-snapshots ci-snapshots-win ci-snapshots-mac ci-snapshots-mac-intel; do
             git push origin --delete "$b" 2>/dev/null && echo "deleted $b" || true
           done
 

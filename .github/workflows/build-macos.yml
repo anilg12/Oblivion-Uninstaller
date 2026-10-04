@@ -10,6 +10,11 @@ on:
     paths:
       - "macos/**"
   workflow_dispatch:
+    inputs:
+      snapshots:
+        description: "Push the self-test screenshots to the ci-snapshots-mac branches"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -121,7 +126,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Push screenshots to the ci-snapshots-mac branch
-        if: always() && github.ref == 'refs/heads/claude/v3'
+        if: always() && inputs.snapshots
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -167,7 +172,7 @@ jobs:
           OBLIVION_APP="$PWD/build/x86_64/Oblivion.app" ./ci-smoke-test.sh
 
       - name: Push screenshots to the ci-snapshots-mac-intel branch
-        if: always() && github.ref == 'refs/heads/claude/v3'
+        if: always() && inputs.snapshots
         env:
           GH_TOKEN: ${{ github.token }}
         run: |

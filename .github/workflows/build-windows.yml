@@ -216,8 +216,8 @@ jobs:
           path: dist/OblivionSetup.exe
 
       - name: Push screenshots to the ci-snapshots-win branch
-        # Development branch only (the release workflow removes this branch again).
-        if: always() && (inputs.snapshots || github.ref == 'refs/heads/claude/v3')
+        # Only when asked for on a manual run (the release workflow removes this branch again).
+        if: always() && inputs.snapshots
         shell: pwsh
         run: |
           if (-not (Get-ChildItem -Recurse -File snap -ErrorAction SilentlyContinue)) { Write-Host "No snapshots."; exit 0 }
