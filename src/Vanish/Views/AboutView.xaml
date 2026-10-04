@@ -108,7 +108,7 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Width="18" Height="18" CornerRadius="9" Background="{StaticResource OB.SuccessSoft}" Margin="0,0,10,0"
+                                <Border Width="18" Height="18" CornerRadius="9" Background="{DynamicResource OB.SuccessSoft}" Margin="0,0,10,0"
                                         VerticalAlignment="Top">
                                     <ui:SymbolIcon Symbol="Checkmark24" FontSize="11" Foreground="{StaticResource OB.Success}" />
                                 </Border>

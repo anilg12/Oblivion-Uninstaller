@@ -36,7 +36,7 @@
                                                 <StackPanel Grid.Column="1" Margin="14,0,8,0" VerticalAlignment="Center">
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
-                                                        <Border CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="{StaticResource OB.SuccessSoft}" VerticalAlignment="Center"
+                                                        <Border CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="{DynamicResource OB.SuccessSoft}" VerticalAlignment="Center"
                                                                 Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}">
                                                             <TextBlock Text="{h:L Badge_New}" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" />
                                                         </Border>

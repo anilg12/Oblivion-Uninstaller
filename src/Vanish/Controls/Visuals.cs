@@ -29,6 +29,20 @@ internal static class Arcs
     }
 }
 
+/// <summary>The single accent colour used by the hand-drawn controls.</summary>
+internal static class Accent
+{
+    public static readonly Color Color = Color.FromRgb(0x4F, 0x6B, 0xED);
+    public static readonly Brush Brush = Frozen(new SolidColorBrush(Color));
+    public static readonly Brush Faded = Frozen(new SolidColorBrush(Color.FromArgb(0x33, 0x4F, 0x6B, 0xED)));
+
+    /// <summary>A caller-chosen colour, except the legacy violets which map to the accent.</summary>
+    public static Brush For(Color c) =>
+        c == Color || (c.R == 0x6E && c.G == 0x5B) || (c.R == 0x7C && c.G == 0x6C) ? Brush : Frozen(new SolidColorBrush(c));
+
+    private static T Frozen<T>(T f) where T : Freezable { f.Freeze(); return f; }
+}
+
 /// <summary>Attached "active" flag used by the rail and navigation button styles.</summary>
 public static class Nav
 {
@@ -44,8 +58,8 @@ public sealed class Chip : Border
 {
     private readonly System.Windows.Controls.TextBlock _text = new()
     {
-        FontSize = 10.5,
-        FontWeight = FontWeights.Bold,
+        FontSize = 11,
+        FontWeight = FontWeights.SemiBold,
         VerticalAlignment = VerticalAlignment.Center,
         TextTrimming = TextTrimming.CharacterEllipsis
     };
@@ -61,8 +75,8 @@ public sealed class Chip : Border
 
     public Chip()
     {
-        CornerRadius = new CornerRadius(8);
-        Padding = new Thickness(8, 2.5, 8, 3);
+        CornerRadius = new CornerRadius(6);
+        Padding = new Thickness(7, 2, 7, 2.5);
         HorizontalAlignment = HorizontalAlignment.Left;
         VerticalAlignment = VerticalAlignment.Center;
         Child = _text;
@@ -72,32 +86,30 @@ public sealed class Chip : Border
     private void Apply()
     {
         var c = Tint;
-        Background = Freeze(new SolidColorBrush(Color.FromArgb(0x2B, c.R, c.G, c.B)));
-        _text.Foreground = Freeze(new SolidColorBrush(Lighten(c)));
+        Background = Freeze(new SolidColorBrush(Color.FromArgb(0x1F, c.R, c.G, c.B)));
+        _text.Foreground = Freeze(new SolidColorBrush(c));
     }
-
-    private static Color Lighten(Color c) => Color.FromRgb(
-        (byte)Math.Min(255, c.R + (255 - c.R) * 0.18),
-        (byte)Math.Min(255, c.G + (255 - c.G) * 0.18),
-        (byte)Math.Min(255, c.B + (255 - c.B) * 0.18));
 
     private static T Freeze<T>(T f) where T : Freezable { f.Freeze(); return f; }
 }
 
-/// <summary>Colourful rounded-square icon (tools, stats, quick actions).</summary>
+/// <summary>
+/// Quiet rounded-square icon tile (tools, stats, quick actions): a neutral surface with a
+/// monochrome icon. <see cref="From"/>/<see cref="To"/> are kept for compatibility; a red
+/// <see cref="From"/> marks a destructive tool and tints the icon.
+/// </summary>
 public sealed class GradientBadge : Border
 {
-    private readonly SymbolIcon _icon = new() { Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
-    private readonly Border _shine = new() { IsHitTestVisible = false };
+    private readonly SymbolIcon _icon = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
 
     public static readonly DependencyProperty SymbolProperty = DependencyProperty.Register(
         nameof(Symbol), typeof(SymbolRegular), typeof(GradientBadge), new PropertyMetadata(SymbolRegular.Apps24, (d, e) => ((GradientBadge)d)._icon.Symbol = (SymbolRegular)e.NewValue));
 
     public static readonly DependencyProperty FromProperty = DependencyProperty.Register(
-        nameof(From), typeof(Color), typeof(GradientBadge), new PropertyMetadata(Color.FromRgb(0x6E, 0x5B, 0xFF), (d, _) => ((GradientBadge)d).ApplyColors()));
+        nameof(From), typeof(Color), typeof(GradientBadge), new PropertyMetadata(Color.FromRgb(0x4F, 0x6B, 0xED), (d, _) => ((GradientBadge)d).ApplyColors()));
 
     public static readonly DependencyProperty ToProperty = DependencyProperty.Register(
-        nameof(To), typeof(Color), typeof(GradientBadge), new PropertyMetadata(Color.FromRgb(0xB4, 0x5B, 0xFF), (d, _) => ((GradientBadge)d).ApplyColors()));
+        nameof(To), typeof(Color), typeof(GradientBadge), new PropertyMetadata(Color.FromRgb(0x4F, 0x6B, 0xED)));
 
     public static readonly DependencyProperty SizeProperty = DependencyProperty.Register(
         nameof(Size), typeof(double), typeof(GradientBadge), new PropertyMetadata(48.0, (d, _) => ((GradientBadge)d).ApplySize()));
@@ -109,15 +121,13 @@ public sealed class GradientBadge : Border
 
     public GradientBadge()
     {
-        var grid = new Grid();
-        grid.Children.Add(_shine);
-        grid.Children.Add(_icon);
-        Child = grid;
+        Child = _icon;
         HorizontalAlignment = HorizontalAlignment.Left;
         VerticalAlignment = VerticalAlignment.Center;
         SnapsToDevicePixels = true;
-        _shine.Background = Frozen(new LinearGradientBrush(
-            Color.FromArgb(0x38, 255, 255, 255), Color.FromArgb(0, 255, 255, 255), new Point(0.5, 0), new Point(0.5, 0.6)));
+        BorderThickness = new Thickness(1);
+        SetResourceReference(BackgroundProperty, "OB.CardStrong");
+        SetResourceReference(BorderBrushProperty, "OB.Stroke");
         ApplySize();
         ApplyColors();
     }
@@ -127,15 +137,17 @@ public sealed class GradientBadge : Border
         var s = Size;
         Width = s;
         Height = s;
-        CornerRadius = new CornerRadius(s * 0.28);
-        _shine.CornerRadius = CornerRadius;
-        _icon.FontSize = Math.Round(s * 0.46);
+        CornerRadius = new CornerRadius(Math.Round(s * 0.26));
+        _icon.FontSize = Math.Round(s * 0.44);
     }
 
-    private void ApplyColors() =>
-        Background = Frozen(new LinearGradientBrush(From, To, new Point(0, 0), new Point(1, 1)));
-
-    private static T Frozen<T>(T f) where T : Freezable { f.Freeze(); return f; }
+    private void ApplyColors()
+    {
+        var c = From;
+        bool destructive = c.R > 0xD0 && c.G < 0x80 && c.B < 0x80;
+        if (destructive) _icon.SetResourceReference(SymbolIcon.ForegroundProperty, "OB.Danger");
+        else _icon.SetResourceReference(SymbolIcon.ForegroundProperty, "OB.Text");
+    }
 }
 
 /// <summary>
@@ -186,14 +198,7 @@ public sealed class Spinner : FrameworkElement
         _rotate.BeginAnimation(RotateTransform.AngleProperty, null);
     }
 
-    private static readonly Brush Arc = MakeArcBrush();
-
-    private static Brush MakeArcBrush()
-    {
-        var b = new LinearGradientBrush(Color.FromRgb(0x6E, 0x5B, 0xFF), Color.FromRgb(0xB4, 0x5B, 0xFF), 0);
-        b.Freeze();
-        return b;
-    }
+    private static readonly Brush Arc = Accent.Brush;
 
     protected override void OnRender(DrawingContext dc)
     {
@@ -202,14 +207,17 @@ public sealed class Spinner : FrameworkElement
         double t = Thickness;
         double r = (size - t) / 2;
         var center = new Point(ActualWidth / 2, ActualHeight / 2);
-        var track = new Pen(new SolidColorBrush(Color.FromArgb(0x30, 0x7C, 0x6C, 0xF6)), t);
+        var track = new Pen(Accent.Faded, t);
         dc.DrawEllipse(null, track, center, r, r);
         var pen = new Pen(Arc, t) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
         dc.DrawGeometry(null, pen, Arcs.Make(center, r, -90, 110));
     }
 }
 
-/// <summary>Circular gauge (0..1) with a gradient arc; value changes animate smoothly.</summary>
+/// <summary>
+/// Circular gauge (0..1). The first value eases in; live updates after that are drawn directly,
+/// so a once-a-second sample costs one frame instead of a continuous animation.
+/// </summary>
 public sealed class RingGauge : FrameworkElement
 {
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
@@ -222,10 +230,10 @@ public sealed class RingGauge : FrameworkElement
         nameof(Thickness), typeof(double), typeof(RingGauge), new FrameworkPropertyMetadata(8.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty FromProperty = DependencyProperty.Register(
-        nameof(From), typeof(Color), typeof(RingGauge), new FrameworkPropertyMetadata(Color.FromRgb(0x6E, 0x5B, 0xFF), FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(From), typeof(Color), typeof(RingGauge), new FrameworkPropertyMetadata(Color.FromRgb(0x4F, 0x6B, 0xED), FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty ToProperty = DependencyProperty.Register(
-        nameof(To), typeof(Color), typeof(RingGauge), new FrameworkPropertyMetadata(Color.FromRgb(0xB4, 0x5B, 0xFF), FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(To), typeof(Color), typeof(RingGauge), new FrameworkPropertyMetadata(Color.FromRgb(0x4F, 0x6B, 0xED), FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty TrackProperty = DependencyProperty.Register(
         nameof(Track), typeof(Brush), typeof(RingGauge), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
@@ -236,12 +244,23 @@ public sealed class RingGauge : FrameworkElement
     public Color To { get => (Color)GetValue(ToProperty); set => SetValue(ToProperty, value); }
     public Brush? Track { get => (Brush?)GetValue(TrackProperty); set => SetValue(TrackProperty, value); }
 
+    private bool _revealed;
+
+    public RingGauge() => SetResourceReference(TrackProperty, "OB.Track");
+
     private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
         var g = (RingGauge)d;
-        double target = Math.Clamp((double)e.NewValue, 0, 1);
-        if (double.IsNaN(target)) target = 0;
-        var anim = new DoubleAnimation(target, TimeSpan.FromMilliseconds(650))
+        double target = (double)e.NewValue;
+        target = double.IsNaN(target) ? 0 : Math.Clamp(target, 0, 1);
+        if (g._revealed || !Reveal.AnimationsEnabled)
+        {
+            g.BeginAnimation(ShownProperty, null);
+            g.SetValue(ShownProperty, target);
+            return;
+        }
+        g._revealed = true;
+        var anim = new DoubleAnimation(target, TimeSpan.FromMilliseconds(500))
         {
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
@@ -260,8 +279,7 @@ public sealed class RingGauge : FrameworkElement
 
         double v = Math.Clamp((double)GetValue(ShownProperty), 0, 1);
         if (v <= 0.002) return;
-        var brush = new LinearGradientBrush(From, To, new Point(0, 0), new Point(1, 1));
-        var pen = new Pen(brush, t) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
+        var pen = new Pen(Accent.For(From), t) { StartLineCap = PenLineCap.Round, EndLineCap = PenLineCap.Round };
         if (v >= 0.999)
             dc.DrawEllipse(null, pen, center, r, r);
         else
@@ -279,7 +297,7 @@ public sealed class Sparkline : FrameworkElement
         nameof(Maximum), typeof(double), typeof(Sparkline), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
 
     public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
-        nameof(Color), typeof(Color), typeof(Sparkline), new FrameworkPropertyMetadata(Color.FromRgb(0x8B, 0x7B, 0xFF), FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(Color), typeof(Color), typeof(Sparkline), new FrameworkPropertyMetadata(Color.FromRgb(0x4F, 0x6B, 0xED), FrameworkPropertyMetadataOptions.AffectsRender));
 
     public IReadOnlyList<double>? Values { get => (IReadOnlyList<double>?)GetValue(ValuesProperty); set => SetValue(ValuesProperty, value); }
 
@@ -321,14 +339,14 @@ public sealed class Sparkline : FrameworkElement
         line.Freeze();
         area.Freeze();
         var c = Color;
-        var fill = new LinearGradientBrush(Color.FromArgb(0x55, c.R, c.G, c.B), Color.FromArgb(0x00, c.R, c.G, c.B), 90);
+        var fill = new LinearGradientBrush(Color.FromArgb(0x30, c.R, c.G, c.B), Color.FromArgb(0x00, c.R, c.G, c.B), 90);
         dc.DrawGeometry(fill, null, area);
-        dc.DrawGeometry(null, new Pen(new SolidColorBrush(c), 1.6) { LineJoin = PenLineJoin.Round }, line);
+        dc.DrawGeometry(null, new Pen(new SolidColorBrush(c), 1.5) { LineJoin = PenLineJoin.Round }, line);
     }
 }
 
 /// <summary>
-/// Gradient progress bar. Value in 0..1; a negative value shows an indeterminate sweep
+/// Progress bar (solid accent on a quiet track). Value in 0..1; a negative value shows an indeterminate sweep
 /// that only animates while the bar is visible.
 /// </summary>
 public sealed class GradientBar : FrameworkElement
@@ -347,18 +365,12 @@ public sealed class GradientBar : FrameworkElement
 
     private bool _running;
 
-    private static readonly Brush Fill = MakeFill();
-
-    private static Brush MakeFill()
-    {
-        var b = new LinearGradientBrush(Color.FromRgb(0x6E, 0x5B, 0xFF), Color.FromRgb(0xB4, 0x5B, 0xFF), 0);
-        b.Freeze();
-        return b;
-    }
+    private static readonly Brush Fill = Accent.Brush;
 
     public GradientBar()
     {
         Height = 6;
+        SetResourceReference(TrackProperty, "OB.Track");
         Loaded += (_, _) => Sync();
         Unloaded += (_, _) => Stop();
         IsVisibleChanged += (_, _) => Sync();
@@ -413,7 +425,10 @@ public sealed class GradientBar : FrameworkElement
 /// <summary>Display modes for <see cref="CountUpText"/>.</summary>
 public enum CountMode { Number, Bytes, Percent }
 
-/// <summary>TextBlock whose numeric value rolls up to the new value when it changes.</summary>
+/// <summary>
+/// TextBlock whose number rolls up the first time it gets a value; later updates (live data)
+/// are written directly so they cost a single frame.
+/// </summary>
 public sealed class CountUpText : System.Windows.Controls.TextBlock
 {
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
@@ -432,6 +447,8 @@ public sealed class CountUpText : System.Windows.Controls.TextBlock
     public CountMode Mode { get => (CountMode)GetValue(ModeProperty); set => SetValue(ModeProperty, value); }
     public string Placeholder { get => (string)GetValue(PlaceholderProperty); set => SetValue(PlaceholderProperty, value); }
 
+    private bool _revealed;
+
     public CountUpText() => Render();
 
     private static void OnValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -439,7 +456,15 @@ public sealed class CountUpText : System.Windows.Controls.TextBlock
         var t = (CountUpText)d;
         var v = (double)e.NewValue;
         if (double.IsNaN(v)) { t.BeginAnimation(ShownProperty, null); t.Render(); return; }
-        var anim = new DoubleAnimation(v, TimeSpan.FromMilliseconds(700)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        if (t._revealed || !Reveal.AnimationsEnabled)
+        {
+            t.BeginAnimation(ShownProperty, null);
+            t.SetValue(ShownProperty, v);
+            t.Render();
+            return;
+        }
+        t._revealed = true;
+        var anim = new DoubleAnimation(v, TimeSpan.FromMilliseconds(600)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
         t.BeginAnimation(ShownProperty, anim, HandoffBehavior.SnapshotAndReplace);
     }
 
@@ -458,11 +483,11 @@ public sealed class CountUpText : System.Windows.Controls.TextBlock
     }
 }
 
-/// <summary>Page title row: gradient badge, title and subtitle, with optional actions on the right.</summary>
+/// <summary>Page title row: title and subtitle, with optional actions on the right. (Symbol/From/To are kept for compatibility.)</summary>
 [System.Windows.Markup.ContentProperty(nameof(Actions))]
 public sealed class PageHeader : Grid
 {
-    private readonly GradientBadge _badge = new() { Size = 46, Margin = new Thickness(0, 0, 14, 0) };
+    private readonly GradientBadge _badge = new() { Size = 46, Margin = new Thickness(0, 0, 14, 0), Visibility = Visibility.Collapsed };
     private readonly System.Windows.Controls.TextBlock _title = new();
     private readonly System.Windows.Controls.TextBlock _subtitle = new();
     private readonly ContentPresenter _actions = new() { VerticalAlignment = VerticalAlignment.Center };
@@ -502,7 +527,7 @@ public sealed class PageHeader : Grid
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        Margin = new Thickness(0, 0, 0, 18);
+        Margin = new Thickness(0, 4, 0, 24);
 
         _title.SetResourceReference(StyleProperty, "OB.Title");
         _subtitle.SetResourceReference(StyleProperty, "OB.Subtitle");
@@ -525,7 +550,7 @@ public sealed class PageHeader : Grid
 /// <summary>Centered "nothing here" placeholder with an icon and a message.</summary>
 public sealed class EmptyState : StackPanel
 {
-    private readonly SymbolIcon _icon = new() { FontSize = 30, HorizontalAlignment = HorizontalAlignment.Center };
+    private readonly SymbolIcon _icon = new() { FontSize = 24, HorizontalAlignment = HorizontalAlignment.Center };
     private readonly System.Windows.Controls.TextBlock _title = new() { HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, Margin = new Thickness(0, 12, 0, 0) };
     private readonly System.Windows.Controls.TextBlock _text = new() { HorizontalAlignment = HorizontalAlignment.Center, TextAlignment = TextAlignment.Center, MaxWidth = 380 };
 
@@ -549,14 +574,14 @@ public sealed class EmptyState : StackPanel
         Margin = new Thickness(24);
         var circle = new Border
         {
-            Width = 64,
-            Height = 64,
-            CornerRadius = new CornerRadius(32),
+            Width = 56,
+            Height = 56,
+            CornerRadius = new CornerRadius(28),
             HorizontalAlignment = HorizontalAlignment.Center,
             Child = _icon
         };
-        circle.SetResourceReference(Border.BackgroundProperty, "OB.AccentSoft");
-        _icon.SetResourceReference(SymbolIcon.ForegroundProperty, "OB.Accent");
+        circle.SetResourceReference(Border.BackgroundProperty, "OB.CardStrong");
+        _icon.SetResourceReference(SymbolIcon.ForegroundProperty, "OB.Subtext");
         _title.SetResourceReference(StyleProperty, "OB.Section");
         _text.SetResourceReference(StyleProperty, "OB.Subtitle");
         _text.TextWrapping = TextWrapping.Wrap;
@@ -588,7 +613,7 @@ public sealed class StepDot : Grid
         Width = 24;
         Height = 24;
         _ring.SetResourceReference(Shape.StrokeProperty, "OB.Stroke");
-        _done.Background = new SolidColorBrush(Color.FromRgb(0x22, 0xC5, 0x5E));
+        _done.SetResourceReference(Border.BackgroundProperty, "OB.Success");
         _done.Child = new SymbolIcon { Symbol = SymbolRegular.Checkmark24, FontSize = 13, Foreground = Brushes.White, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
         Children.Add(_ring);
         Children.Add(_spinner);

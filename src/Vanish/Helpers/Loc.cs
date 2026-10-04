@@ -411,6 +411,8 @@ public sealed class Loc : INotifyPropertyChanged
         ["Nav_Settings"] = "Ayarlar",
         ["Nav_SystemMonitor"] = "Sistem izleyici",
         ["Nav_Tools"] = "Araçlar",
+        ["Nav_GroupMain"] = "GENEL",
+        ["Nav_GroupMore"] = "TEMİZLİK VE İZLEME",
         ["Nav_WindowsApps"] = "Windows uygulamaları",
 
         ["Priv_Clean"] = "Temiz",
@@ -1005,6 +1007,8 @@ public sealed class Loc : INotifyPropertyChanged
         ["Nav_Settings"] = "Settings",
         ["Nav_SystemMonitor"] = "System monitor",
         ["Nav_Tools"] = "Tools",
+        ["Nav_GroupMain"] = "GENERAL",
+        ["Nav_GroupMore"] = "CLEANING & TRACKING",
         ["Nav_WindowsApps"] = "Windows apps",
 
         ["Priv_Clean"] = "Clean",

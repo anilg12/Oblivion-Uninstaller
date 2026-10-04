@@ -27,7 +27,7 @@
                           MouseLeftButtonDown="Target_MouseDown" MouseMove="Target_MouseMove" MouseLeftButtonUp="Target_MouseUp"
                           LostMouseCapture="Target_LostCapture" ToolTip="{h:L Hunter_DragTip}">
                         <Ellipse StrokeThickness="2" StrokeDashArray="3 3" Stroke="{StaticResource OB.Accent}" Opacity="0.6" />
-                        <Ellipse Margin="16" Fill="{StaticResource OB.AccentSoft}" />
+                        <Ellipse Margin="16" Fill="{DynamicResource OB.AccentSoft}" />
                         <Ellipse x:Name="Core" Margin="38" Fill="{StaticResource OB.Brand}" />
                         <ui:SymbolIcon x:Name="CrossIcon" Symbol="Target24" FontSize="38" Foreground="White" />
                     </Grid>

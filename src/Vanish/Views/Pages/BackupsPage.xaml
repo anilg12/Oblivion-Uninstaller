@@ -72,7 +72,7 @@
                                 <ColumnDefinition Width="Auto" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource OB.AccentSoft}" Margin="0,0,12,0">
+                            <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource OB.AccentSoft}" Margin="0,0,12,0">
                                 <ui:SymbolIcon Symbol="Key24" FontSize="15" Foreground="{StaticResource OB.Accent}" />
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
@@ -110,7 +110,7 @@
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
-                            <Border Width="32" Height="32" CornerRadius="9" Background="{StaticResource OB.SuccessSoft}" Margin="0,0,12,0">
+                            <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource OB.SuccessSoft}" Margin="0,0,12,0">
                                 <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="15" Foreground="{StaticResource OB.Success}" />
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center">

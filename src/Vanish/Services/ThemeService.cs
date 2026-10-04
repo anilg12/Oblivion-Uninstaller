@@ -53,7 +53,7 @@ public sealed class ThemeService
 
         var theme = dark ? ApplicationTheme.Dark : ApplicationTheme.Light;
         ApplicationThemeManager.Apply(theme, WindowBackdropType.None, updateAccent: false);
-        ApplicationAccentColorManager.Apply(Color.FromRgb(0x7C, 0x6C, 0xF6), theme);
+        ApplicationAccentColorManager.Apply(Color.FromRgb(0x4F, 0x6B, 0xED), theme);
         Changed?.Invoke();
     }
 }

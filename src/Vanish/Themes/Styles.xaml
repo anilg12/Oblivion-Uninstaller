@@ -4,55 +4,47 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:c="clr-namespace:Vanish.Controls">
 
+    <!--
+        Oblivion "Graphite" design system.
+        Neutral surfaces, hairline borders, one indigo accent, semantic colours only where they mean something.
+        Theme-dependent tones (surfaces, text, soft tints) live in Palette.Dark / Palette.Light.
+    -->
+
     <!-- ===================== Shared colours (same in both themes) ===================== -->
-    <Color x:Key="OB.AccentColor">#7C6CF6</Color>
-    <Color x:Key="OB.Accent2Color">#B45BFF</Color>
-    <SolidColorBrush x:Key="OB.Accent" Color="#7C6CF6" />
-    <SolidColorBrush x:Key="OB.Accent2" Color="#B45BFF" />
-    <SolidColorBrush x:Key="OB.AccentSoft" Color="#2E7C6CF6" />
+    <Color x:Key="OB.AccentColor">#4F6BED</Color>
+    <Color x:Key="OB.Accent2Color">#4F6BED</Color>
+    <SolidColorBrush x:Key="OB.Accent" Color="#4F6BED" />
+    <SolidColorBrush x:Key="OB.Accent2" Color="#4F6BED" />
     <SolidColorBrush x:Key="OB.Danger" Color="#E5484D" />
-    <SolidColorBrush x:Key="OB.DangerSoft" Color="#24E5484D" />
-    <SolidColorBrush x:Key="OB.Success" Color="#22C55E" />
-    <SolidColorBrush x:Key="OB.SuccessSoft" Color="#2422C55E" />
-    <SolidColorBrush x:Key="OB.Warning" Color="#F5A524" />
-    <SolidColorBrush x:Key="OB.WarningSoft" Color="#22F5A524" />
-    <SolidColorBrush x:Key="OB.Info" Color="#3A8DFF" />
+    <SolidColorBrush x:Key="OB.Success" Color="#30A46C" />
+    <SolidColorBrush x:Key="OB.Warning" Color="#F2A33A" />
+    <SolidColorBrush x:Key="OB.Info" Color="#4F6BED" />
     <SolidColorBrush x:Key="OB.White" Color="#FFFFFF" />
 
-    <LinearGradientBrush x:Key="OB.Brand" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#6E5BFF" Offset="0" />
-        <GradientStop Color="#B45BFF" Offset="1" />
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="OB.BrandH" StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Color="#6E5BFF" Offset="0" />
-        <GradientStop Color="#B45BFF" Offset="1" />
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="OB.DangerGradient" StartPoint="0,0" EndPoint="1,1">
-        <GradientStop Color="#F0595E" Offset="0" />
-        <GradientStop Color="#D93A40" Offset="1" />
-    </LinearGradientBrush>
-    <LinearGradientBrush x:Key="OB.Signature" StartPoint="0,0.5" EndPoint="1,0.5">
-        <GradientStop Color="#8FC0FF" Offset="0" />
-        <GradientStop Color="#D7ABFF" Offset="1" />
-    </LinearGradientBrush>
+    <!-- Kept for existing references: solid now, no gradients. -->
+    <SolidColorBrush x:Key="OB.Brand" Color="#4F6BED" />
+    <SolidColorBrush x:Key="OB.BrandH" Color="#4F6BED" />
+    <SolidColorBrush x:Key="OB.DangerGradient" Color="#E5484D" />
+    <SolidColorBrush x:Key="OB.Signature" Color="#4F6BED" />
 
     <FontFamily x:Key="OB.Font">Segoe UI Variable Text, Segoe UI</FontFamily>
     <FontFamily x:Key="OB.DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
-    <FontFamily x:Key="OB.ScriptFont">Ink Free, Segoe Script, Gabriola</FontFamily>
+    <FontFamily x:Key="OB.ScriptFont">Segoe UI Variable Display, Segoe UI</FontFamily>
 
     <!-- ===================== Text ===================== -->
     <Style x:Key="OB.Title" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource OB.DisplayFont}" />
         <Setter Property="FontSize" Value="26" />
-        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style x:Key="OB.Subtitle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="13" />
+        <Setter Property="FontSize" Value="13.5" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />
         <Setter Property="TextWrapping" Value="Wrap" />
-        <Setter Property="Margin" Value="0,3,0,0" />
+        <Setter Property="LineHeight" Value="20" />
+        <Setter Property="Margin" Value="0,4,0,0" />
     </Style>
     <Style x:Key="OB.Section" TargetType="TextBlock">
         <Setter Property="FontSize" Value="14" />
@@ -68,21 +60,28 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
     <Style x:Key="OB.Caption" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11.5" />
+        <Setter Property="FontSize" Value="12" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style x:Key="OB.FaintText" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontSize" Value="11.5" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Faint}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
     <Style x:Key="OB.BigNumber" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource OB.DisplayFont}" />
-        <Setter Property="FontSize" Value="24" />
-        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="FontSize" Value="26" />
+        <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+    <!-- Small upper-case group label (sidebar sections, card eyebrows). -->
+    <Style x:Key="OB.Eyebrow" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource OB.Faint}" />
+        <Setter Property="Margin" Value="12,18,0,6" />
     </Style>
 
     <!-- ===================== Surfaces ===================== -->
@@ -90,34 +89,43 @@
         <Setter Property="Background" Value="{DynamicResource OB.Card}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="16" />
-        <Setter Property="Padding" Value="16" />
+        <Setter Property="CornerRadius" Value="12" />
+        <Setter Property="Padding" Value="18" />
     </Style>
     <Style x:Key="OB.Row" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource OB.Card}" />
-        <Setter Property="CornerRadius" Value="12" />
-        <Setter Property="Padding" Value="12,9" />
+        <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="Padding" Value="14,10" />
         <Setter Property="Margin" Value="0,0,0,6" />
     </Style>
     <Style x:Key="OB.Dialog" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource OB.DialogBg}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="CornerRadius" Value="20" />
-        <Setter Property="Padding" Value="24" />
+        <Setter Property="CornerRadius" Value="16" />
+        <Setter Property="Padding" Value="28" />
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="40" ShadowDepth="12" Direction="270" Opacity="0.22" Color="#000000" RenderingBias="Performance" />
+            </Setter.Value>
+        </Setter>
     </Style>
     <Style x:Key="OB.Divider" TargetType="Border">
         <Setter Property="Height" Value="1" />
         <Setter Property="Background" Value="{DynamicResource OB.Stroke}" />
-        <Setter Property="Margin" Value="0,14" />
+        <Setter Property="Margin" Value="0,16" />
     </Style>
 
     <!-- ===================== Buttons ===================== -->
+    <!-- Flat buttons: colour change on hover, slight dim on press. No scaling, no glow. -->
     <Style x:Key="OB.BtnBase" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource OB.Font}" />
         <Setter Property="FontSize" Value="13" />
         <Setter Property="FontWeight" Value="SemiBold" />
-        <Setter Property="Padding" Value="13,7" />
+        <Setter Property="Padding" Value="14,8" />
+        <Setter Property="MinHeight" Value="34" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
@@ -127,15 +135,13 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid x:Name="root" Background="Transparent" RenderTransformOrigin="0.5,0.5">
-                        <Grid.RenderTransform>
-                            <ScaleTransform ScaleX="1" ScaleY="1" />
-                        </Grid.RenderTransform>
+                    <Grid x:Name="root" Background="Transparent">
                         <Border x:Name="bg" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10" />
-                        <Border x:Name="hover" Background="{DynamicResource OB.HoverOverlay}" Opacity="0" CornerRadius="10" />
+                                CornerRadius="8" />
+                        <Border x:Name="hover" Background="{DynamicResource OB.HoverOverlay}" Opacity="0" CornerRadius="8" />
+                        <Border x:Name="focus" CornerRadius="10" Margin="-3" BorderThickness="2" BorderBrush="{StaticResource OB.Accent}" Opacity="0" />
                         <ContentPresenter Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -144,41 +150,16 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="hover" Storyboard.TargetProperty="Opacity" To="0.09" Duration="0:0:0.12" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="hover" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.18" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="hover" Property="Opacity" Value="0.06" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="0.97" Duration="0:0:0.08" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="0.97" Duration="0:0:0.08" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.16" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.16" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="hover" Property="Opacity" Value="0.12" />
+                        </Trigger>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="focus" Property="Opacity" Value="0.55" />
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="root" Property="Opacity" Value="0.42" />
+                            <Setter TargetName="root" Property="Opacity" Value="0.4" />
                             <Setter Property="Cursor" Value="Arrow" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -188,30 +169,31 @@
     </Style>
 
     <Style x:Key="OB.Btn" TargetType="Button" BasedOn="{StaticResource OB.BtnBase}">
-        <Setter Property="Background" Value="{DynamicResource OB.CardStrong}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
+        <Setter Property="Background" Value="{DynamicResource OB.Card}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource OB.StrokeStrong}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
     </Style>
     <Style x:Key="OB.BtnPrimary" TargetType="Button" BasedOn="{StaticResource OB.BtnBase}">
-        <Setter Property="Background" Value="{StaticResource OB.Brand}" />
+        <Setter Property="Background" Value="{StaticResource OB.Accent}" />
         <Setter Property="Foreground" Value="White" />
     </Style>
     <Style x:Key="OB.BtnDanger" TargetType="Button" BasedOn="{StaticResource OB.BtnBase}">
-        <Setter Property="Background" Value="{StaticResource OB.DangerGradient}" />
+        <Setter Property="Background" Value="{StaticResource OB.Danger}" />
         <Setter Property="Foreground" Value="White" />
     </Style>
     <Style x:Key="OB.BtnGhost" TargetType="Button" BasedOn="{StaticResource OB.BtnBase}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
+        <Setter Property="MinHeight" Value="0" />
     </Style>
     <Style x:Key="OB.BtnPrimaryLarge" TargetType="Button" BasedOn="{StaticResource OB.BtnPrimary}">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Padding" Value="18,11" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="20,11" />
     </Style>
     <Style x:Key="OB.BtnDangerLarge" TargetType="Button" BasedOn="{StaticResource OB.BtnDanger}">
-        <Setter Property="FontSize" Value="15" />
-        <Setter Property="Padding" Value="16,11" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="Padding" Value="18,10" />
     </Style>
     <Style x:Key="OB.IconBtn" TargetType="Button" BasedOn="{StaticResource OB.Btn}">
         <Setter Property="Width" Value="34" />
@@ -219,7 +201,7 @@
         <Setter Property="Padding" Value="0" />
     </Style>
 
-    <!-- Card-like clickable tile (tools hub, quick actions) -->
+    <!-- Card-like clickable tile (tools hub, quick actions). Hover: border and surface brighten. -->
     <Style x:Key="OB.Tile" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -229,18 +211,9 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid x:Name="root" Background="Transparent" RenderTransformOrigin="0.5,0.5">
-                        <Grid.RenderTransform>
-                            <TransformGroup>
-                                <ScaleTransform ScaleX="1" ScaleY="1" />
-                                <TranslateTransform Y="0" />
-                            </TransformGroup>
-                        </Grid.RenderTransform>
-                        <Border x:Name="shadow" Margin="6,10,6,-4" CornerRadius="18" Background="{DynamicResource OB.Shadow}" Opacity="0" />
+                    <Grid x:Name="root" Background="Transparent">
                         <Border x:Name="bg" Background="{DynamicResource OB.Card}" BorderBrush="{DynamicResource OB.Stroke}"
-                                BorderThickness="1" CornerRadius="18" />
-                        <Border x:Name="glow" CornerRadius="18" BorderThickness="1.5" Opacity="0"
-                                BorderBrush="{StaticResource OB.Brand}" />
+                                BorderThickness="1" CornerRadius="12" />
                         <ContentPresenter Margin="{TemplateBinding Padding}"
                                           HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
@@ -248,46 +221,13 @@
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.CardHover}" />
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)" To="-3" Duration="0:0:0.18">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="glow" Storyboard.TargetProperty="Opacity" To="0.9" Duration="0:0:0.18" />
-                                        <DoubleAnimation Storyboard.TargetName="shadow" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.18" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)" To="0" Duration="0:0:0.22">
-                                            <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="glow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22" />
-                                        <DoubleAnimation Storyboard.TargetName="shadow" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.22" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="bg" Property="BorderBrush" Value="{DynamicResource OB.StrokeStrong}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" To="0.985" Duration="0:0:0.08" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" To="0.985" Duration="0:0:0.08" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.14" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.14" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="root" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="root" Property="Opacity" Value="0.45" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -295,62 +235,30 @@
         </Setter>
     </Style>
 
-    <!-- Icon rail button: active state comes from c:Nav.IsActive -->
+    <!-- Compact square button (sidebar footer). Active state comes from c:Nav.IsActive. -->
     <Style x:Key="OB.RailBtn" TargetType="Button">
-        <Setter Property="Width" Value="44" />
-        <Setter Property="Height" Value="44" />
-        <Setter Property="Margin" Value="0,4" />
+        <Setter Property="Width" Value="34" />
+        <Setter Property="Height" Value="34" />
+        <Setter Property="Margin" Value="0,0,4,0" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="Foreground" Value="{DynamicResource OB.RailButtonText}" />
+        <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
-                    <Grid x:Name="root" RenderTransformOrigin="0.5,0.5">
-                        <Grid.RenderTransform>
-                            <ScaleTransform ScaleX="1" ScaleY="1" />
-                        </Grid.RenderTransform>
-                        <Border x:Name="bg" CornerRadius="14" Background="{DynamicResource OB.RailButton}" Opacity="0.75" />
-                        <Border x:Name="active" CornerRadius="14" Background="{StaticResource OB.Brand}" Opacity="0" />
+                    <Grid>
+                        <Border x:Name="bg" CornerRadius="8" Background="Transparent" />
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
                                           TextElement.Foreground="{TemplateBinding Foreground}" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bg" Property="Opacity" Value="1" />
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1.07" Duration="0:0:0.14" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1.07" Duration="0:0:0.14" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)" To="1" Duration="0:0:0.18" />
-                                        <DoubleAnimation Storyboard.TargetName="root" Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)" To="1" Duration="0:0:0.18" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavHover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                         <Trigger Property="c:Nav.IsActive" Value="True">
-                            <Setter Property="Foreground" Value="White" />
-                            <Trigger.EnterActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="active" Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.EnterActions>
-                            <Trigger.ExitActions>
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="active" Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.2" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </Trigger.ExitActions>
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavSelected}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -358,31 +266,31 @@
         </Setter>
     </Style>
 
-    <!-- Labelled navigation row -->
+    <!-- Sidebar navigation row -->
     <Style x:Key="OB.NavRow" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
-        <Setter Property="Margin" Value="0,1.5" />
+        <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />
+        <Setter Property="Margin" Value="0,1" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Grid>
-                        <Border x:Name="bg" CornerRadius="10" Background="Transparent" />
-                        <Border x:Name="bar" Width="3" CornerRadius="1.5" HorizontalAlignment="Left" Margin="0,9"
-                                Background="{StaticResource OB.Brand}" Opacity="0" />
-                        <ContentPresenter Margin="12,9" TextElement.Foreground="{TemplateBinding Foreground}"
+                        <Border x:Name="bg" CornerRadius="8" Background="Transparent" BorderThickness="1" BorderBrush="Transparent" />
+                        <ContentPresenter x:Name="content" Margin="11,8" TextElement.Foreground="{TemplateBinding Foreground}"
                                           HorizontalAlignment="Stretch" VerticalAlignment="Center" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavHover}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                         <Trigger Property="c:Nav.IsActive" Value="True">
                             <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavSelected}" />
+                            <Setter TargetName="bg" Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
                             <Setter Property="Foreground" Value="{DynamicResource OB.NavSelectedText}" />
-                            <Setter TargetName="bar" Property="Opacity" Value="1" />
+                            <Setter TargetName="content" Property="TextElement.FontWeight" Value="SemiBold" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -401,7 +309,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="ToggleButton">
                     <Border x:Name="bg" CornerRadius="8" Background="Transparent">
-                        <ui:SymbolIcon x:Name="chev" Symbol="ChevronRight24" FontSize="15" Foreground="{TemplateBinding Foreground}"
+                        <ui:SymbolIcon x:Name="chev" Symbol="ChevronRight24" FontSize="14" Foreground="{TemplateBinding Foreground}"
                                        RenderTransformOrigin="0.5,0.5">
                             <ui:SymbolIcon.RenderTransform>
                                 <RotateTransform Angle="0" />
@@ -410,13 +318,13 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.CardStrong}" />
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavHover}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="chev" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" To="90" Duration="0:0:0.18">
+                                        <DoubleAnimation Storyboard.TargetName="chev" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" To="90" Duration="0:0:0.16">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                     </Storyboard>
@@ -425,7 +333,7 @@
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="chev" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" To="0" Duration="0:0:0.18">
+                                        <DoubleAnimation Storyboard.TargetName="chev" Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" To="0" Duration="0:0:0.16">
                                             <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut" /></DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                     </Storyboard>
@@ -438,7 +346,7 @@
         </Setter>
     </Style>
 
-    <!-- Segmented choice (RadioButton) -->
+    <!-- Segmented choice (RadioButton): the selected segment is a raised surface, like a native segmented control. -->
     <Style x:Key="OB.Segment" TargetType="RadioButton">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -449,17 +357,19 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="RadioButton">
-                    <Border x:Name="bg" CornerRadius="8" Background="Transparent" Padding="{TemplateBinding Padding}">
+                    <Border x:Name="bg" CornerRadius="6" Background="Transparent" BorderThickness="1" BorderBrush="Transparent"
+                            Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
                                           TextElement.Foreground="{TemplateBinding Foreground}" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.Card}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                         <Trigger Property="IsChecked" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{StaticResource OB.Brand}" />
-                            <Setter Property="Foreground" Value="White" />
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.Card}" />
+                            <Setter TargetName="bg" Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
+                            <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -468,8 +378,8 @@
     </Style>
     <Style x:Key="OB.SegmentHost" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource OB.CardStrong}" />
-        <Setter Property="CornerRadius" Value="10" />
-        <Setter Property="Padding" Value="3" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="Padding" Value="2" />
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
 
@@ -477,25 +387,22 @@
     <Style x:Key="OB.ListItem" TargetType="ListBoxItem">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-        <Setter Property="Padding" Value="10,7" />
+        <Setter Property="Padding" Value="12,8" />
         <Setter Property="Margin" Value="0,1" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
                     <Grid>
-                        <Border x:Name="bg" CornerRadius="10" Background="Transparent" />
-                        <Border x:Name="bar" Width="3" CornerRadius="1.5" HorizontalAlignment="Left" Margin="0,8"
-                                Background="{StaticResource OB.Brand}" Opacity="0" />
+                        <Border x:Name="bg" CornerRadius="8" Background="Transparent" />
                         <ContentPresenter Margin="{TemplateBinding Padding}" />
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.Card}" />
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavHover}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{StaticResource OB.AccentSoft}" />
-                            <Setter TargetName="bar" Property="Opacity" Value="1" />
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.AccentSoft}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -538,7 +445,7 @@
     <Style x:Key="OB.ColumnHeader" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
-        <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />
+        <Setter Property="Foreground" Value="{DynamicResource OB.Faint}" />
         <Setter Property="FontSize" Value="11.5" />
         <Setter Property="FontWeight" Value="SemiBold" />
         <Setter Property="HorizontalContentAlignment" Value="Left" />
@@ -551,7 +458,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.Card}" />
+                            <Setter TargetName="bg" Property="Background" Value="{DynamicResource OB.NavHover}" />
                             <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
                         </Trigger>
                     </ControlTemplate.Triggers>

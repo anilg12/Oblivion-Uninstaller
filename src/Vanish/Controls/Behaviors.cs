@@ -59,13 +59,13 @@ public static class Reveal
             delay += index * 32;
         }
 
-        var tt = new TranslateTransform(0, 12);
+        var tt = new TranslateTransform(0, 8);
         fe.RenderTransform = tt;
         fe.Opacity = 0;
 
         var begin = TimeSpan.FromMilliseconds(delay);
-        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300)) { BeginTime = begin };
-        var slide = new DoubleAnimation(12, 0, TimeSpan.FromMilliseconds(380))
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(220)) { BeginTime = begin };
+        var slide = new DoubleAnimation(8, 0, TimeSpan.FromMilliseconds(280))
         {
             BeginTime = begin,
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
@@ -207,65 +207,31 @@ public static class ScrollBubble
 }
 
 /// <summary>
-/// "Live" indicator: a dot with a soft expanding ring. Animates only while visible,
-/// so it never keeps the render thread busy in the background.
+/// "Live" indicator: a small dot with a soft halo. Deliberately static — an endlessly
+/// repeating animation keeps the window repainting, which on variable-refresh displays
+/// can make the whole screen flicker while Oblivion has focus.
 /// </summary>
 public sealed class PulseDot : FrameworkElement
 {
-    private static readonly DependencyProperty PhaseProperty = DependencyProperty.Register(
-        "Phase", typeof(double), typeof(PulseDot), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.AffectsRender));
-
     public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
-        nameof(Color), typeof(Color), typeof(PulseDot), new FrameworkPropertyMetadata(Color.FromRgb(0x22, 0xC5, 0x5E), FrameworkPropertyMetadataOptions.AffectsRender));
+        nameof(Color), typeof(Color), typeof(PulseDot), new FrameworkPropertyMetadata(Color.FromRgb(0x30, 0xA4, 0x6C), FrameworkPropertyMetadataOptions.AffectsRender));
 
     public Color Color { get => (Color)GetValue(ColorProperty); set => SetValue(ColorProperty, value); }
 
-    private bool _running;
-
     public PulseDot()
     {
-        Width = 14;
-        Height = 14;
+        Width = 12;
+        Height = 12;
         IsHitTestVisible = false;
-        Loaded += (_, _) => Sync();
-        Unloaded += (_, _) => Stop();
-        IsVisibleChanged += (_, _) => Sync();
-    }
-
-    private void Sync()
-    {
-        if (IsVisible && IsLoaded && Reveal.AnimationsEnabled) Start(); else Stop();
-    }
-
-    private void Start()
-    {
-        if (_running) return;
-        _running = true;
-        var anim = new DoubleAnimation(0, 1, TimeSpan.FromSeconds(1.8)) { RepeatBehavior = RepeatBehavior.Forever };
-        Timeline.SetDesiredFrameRate(anim, 30);
-        BeginAnimation(PhaseProperty, anim);
-    }
-
-    private void Stop()
-    {
-        if (!_running) return;
-        _running = false;
-        BeginAnimation(PhaseProperty, null);
     }
 
     protected override void OnRender(DrawingContext dc)
     {
         var c = Color;
         var center = new Point(ActualWidth / 2, ActualHeight / 2);
-        double core = Math.Min(ActualWidth, ActualHeight) / 4;
-        double phase = (double)GetValue(PhaseProperty);
-        if (phase > 0)
-        {
-            var ring = new SolidColorBrush(Color.FromArgb((byte)(140 * (1 - phase)), c.R, c.G, c.B));
-            double r = core + (Math.Min(ActualWidth, ActualHeight) / 2 - core) * phase;
-            dc.DrawEllipse(ring, null, center, r, r);
-        }
-        dc.DrawEllipse(new SolidColorBrush(c), null, center, core, core);
+        double outer = Math.Min(ActualWidth, ActualHeight) / 2;
+        dc.DrawEllipse(new SolidColorBrush(Color.FromArgb(0x38, c.R, c.G, c.B)), null, center, outer, outer);
+        dc.DrawEllipse(new SolidColorBrush(c), null, center, outer * 0.5, outer * 0.5);
     }
 }
 

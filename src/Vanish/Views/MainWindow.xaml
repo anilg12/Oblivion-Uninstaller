@@ -6,10 +6,10 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls"
     Title="Oblivion"
-    Width="1320"
-    Height="840"
-    MinWidth="1000"
-    MinHeight="640"
+    Width="1360"
+    Height="860"
+    MinWidth="1040"
+    MinHeight="660"
     WindowBackdropType="None"
     ExtendsContentIntoTitleBar="True"
     WindowStartupLocation="CenterScreen"
@@ -18,98 +18,39 @@
     UseLayoutRounding="True">
 
     <Grid x:Name="RootGrid" Background="{DynamicResource OB.Window}">
-        <!-- Soft, static colour glows (no animation, no blur: free to render). -->
-        <Rectangle Fill="{DynamicResource OB.Glow1}" IsHitTestVisible="False" />
-        <Rectangle Fill="{DynamicResource OB.Glow2}" IsHitTestVisible="False" />
-
         <Grid x:Name="ShellGrid">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="72" />
-                <ColumnDefinition Width="232" />
+                <ColumnDefinition Width="256" />
                 <ColumnDefinition Width="*" />
-                <ColumnDefinition x:Name="RightColumn" Width="272" />
+                <ColumnDefinition x:Name="RightColumn" Width="284" />
             </Grid.ColumnDefinitions>
 
-            <ui:TitleBar Grid.Row="0" Grid.ColumnSpan="4" Title="Oblivion" Padding="16,8,8,8">
-                <ui:TitleBar.Icon>
-                    <ui:ImageIcon Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="18" Height="18" />
-                </ui:TitleBar.Icon>
-            </ui:TitleBar>
-
-            <!-- ======================= ICON RAIL ======================= -->
-            <Border Grid.Row="1" Grid.Column="0" Margin="10,0,0,10" CornerRadius="20,0,0,20" Background="{DynamicResource OB.Rail}">
-                <DockPanel Margin="0,12">
-                    <Button DockPanel.Dock="Top" Style="{StaticResource OB.RailBtn}" Tag="Dashboard" Click="Nav_Click"
-                            Width="46" Height="46" Margin="0,0,0,14" ToolTip="Oblivion">
-                        <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="34" Height="34"
-                               RenderOptions.BitmapScalingMode="HighQuality" />
-                    </Button>
-
-                    <StackPanel x:Name="RailBottomPanel" DockPanel.Dock="Bottom" HorizontalAlignment="Center">
-                        <Button x:Name="ThemeButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleThemeCommand}"
-                                ToolTip="{h:L Rail_Theme}">
-                            <ui:SymbolIcon x:Name="ThemeIcon" Symbol="WeatherMoon24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleLanguageCommand}" ToolTip="{h:L Rail_Language}">
-                            <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}"
-                                       FontSize="12.5" FontWeight="Bold" />
-                        </Button>
-                        <Button x:Name="AboutButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ShowAboutCommand}" ToolTip="{h:L Rail_About}">
-                            <ui:SymbolIcon Symbol="Info24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="Settings" Click="Nav_Click" ToolTip="{h:L Nav_Settings}">
-                            <ui:SymbolIcon Symbol="Settings24" FontSize="20" />
-                        </Button>
-                    </StackPanel>
-
-                    <StackPanel x:Name="RailPanel" HorizontalAlignment="Center">
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="Dashboard" Click="Nav_Click" ToolTip="{h:L Nav_Dashboard}">
-                            <ui:SymbolIcon Symbol="Home24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="Uninstaller" Click="Nav_Click" ToolTip="{h:L Nav_AllApps}">
-                            <ui:SymbolIcon Symbol="AppsList24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="WindowsApps" Click="Nav_Click" ToolTip="{h:L Nav_WindowsApps}">
-                            <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="SystemMonitor" Click="Nav_Click" ToolTip="{h:L Nav_SystemMonitor}">
-                            <ui:SymbolIcon Symbol="Pulse24" FontSize="20" />
-                        </Button>
-                        <Button Style="{StaticResource OB.RailBtn}" Tag="Tools" Click="Nav_Click" ToolTip="{h:L Nav_Tools}">
-                            <ui:SymbolIcon Symbol="Toolbox24" FontSize="20" />
-                        </Button>
-                    </StackPanel>
-                </DockPanel>
-            </Border>
-
-            <!-- ======================= LABELLED NAVIGATION ======================= -->
-            <Border Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Background="{DynamicResource OB.Panel}">
-                <DockPanel Margin="12,14,12,12">
-                    <!-- Wordmark (the developer's name lives in About, not here). -->
-                    <Grid DockPanel.Dock="Top" Margin="6,0,4,16">
-                        <StackPanel>
-                            <TextBlock Text="OBLIVION" FontFamily="{StaticResource OB.DisplayFont}" FontSize="21" FontWeight="Bold"
+            <!-- ======================= SIDEBAR ======================= -->
+            <Border Grid.Column="0" Background="{DynamicResource OB.Sidebar}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="0,0,1,0">
+                <DockPanel Margin="14,16,14,14">
+                    <!-- Brand (the developer's name lives in About, not here). -->
+                    <Grid DockPanel.Dock="Top" Margin="6,2,0,20">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="32" Height="32"
+                               RenderOptions.BitmapScalingMode="HighQuality" VerticalAlignment="Center" />
+                        <StackPanel Grid.Column="1" Margin="11,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Oblivion" FontFamily="{StaticResource OB.DisplayFont}" FontSize="16" FontWeight="SemiBold"
                                        Foreground="{DynamicResource OB.Text}" />
-                            <TextBlock Text="{h:L App_Tagline}" Style="{StaticResource OB.FaintText}" Margin="0,1,0,0" />
+                            <TextBlock Text="{Binding VersionText}" Style="{StaticResource OB.FaintText}" Margin="0,1,0,0" />
                         </StackPanel>
-                        <Border HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,4,0,0" CornerRadius="7" Padding="7,2"
-                                Background="{StaticResource OB.AccentSoft}">
-                            <TextBlock Text="{Binding VersionText}" FontSize="10.5" FontWeight="Bold" Foreground="{StaticResource OB.Accent}" />
-                        </Border>
                     </Grid>
 
-                    <!-- Action card -->
-                    <Border DockPanel.Dock="Top" CornerRadius="16" Padding="8" Margin="0,0,0,12" Background="{DynamicResource OB.Card}"
+                    <!-- Uninstall actions for the selected program -->
+                    <Border DockPanel.Dock="Top" CornerRadius="12" Padding="10" Margin="0,0,0,6" Background="{DynamicResource OB.Card}"
                             BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1">
                         <StackPanel>
-                            <Button Style="{StaticResource OB.BtnDangerLarge}" HorizontalAlignment="Stretch" Height="44"
+                            <Button Style="{StaticResource OB.BtnDanger}" HorizontalAlignment="Stretch" Height="38"
                                     Command="{Binding Uninstaller.UninstallCommand}">
                                 <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Delete24" FontSize="18" Margin="0,0,8,0" Foreground="White" />
+                                    <ui:SymbolIcon Symbol="Delete24" FontSize="16" Margin="0,0,8,0" Foreground="White" />
                                     <TextBlock Text="{h:L Act_Uninstall}" VerticalAlignment="Center" />
                                 </StackPanel>
                             </Button>
@@ -119,11 +60,11 @@
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
                                 <Button Grid.Column="0" Margin="0,0,4,0" Style="{StaticResource OB.Btn}" HorizontalAlignment="Stretch"
-                                        FontSize="12" Padding="6,8" Command="{Binding Uninstaller.ForceUninstallCommand}">
+                                        FontSize="12" FontWeight="Normal" Padding="6,7" Command="{Binding Uninstaller.ForceUninstallCommand}">
                                     <TextBlock Text="{h:L Act_ForceUninstall}" TextTrimming="CharacterEllipsis" />
                                 </Button>
                                 <Button x:Name="OtherCommandsButton" Grid.Column="1" Margin="4,0,0,0" Style="{StaticResource OB.Btn}"
-                                        HorizontalAlignment="Stretch" FontSize="12" Padding="6,8" Click="OtherCommands_Click"
+                                        HorizontalAlignment="Stretch" FontSize="12" FontWeight="Normal" Padding="6,7" Click="OtherCommands_Click"
                                         IsEnabled="{Binding Uninstaller.HasSelection}">
                                     <TextBlock Text="{h:L Act_OtherCommands}" TextTrimming="CharacterEllipsis" />
                                     <Button.ContextMenu>
@@ -151,133 +92,167 @@
                                     </Button.ContextMenu>
                                 </Button>
                             </Grid>
-                            <TextBlock Margin="4,8,4,0" Style="{StaticResource OB.FaintText}" TextWrapping="Wrap" TextTrimming="None"
+                            <TextBlock Margin="2,9,2,0" Style="{StaticResource OB.FaintText}" TextWrapping="Wrap" TextTrimming="None"
                                        Text="{Binding Uninstaller.SelectionHint}" />
                         </StackPanel>
                     </Border>
 
+                    <!-- Footer: settings + theme / language / about -->
+                    <StackPanel x:Name="RailBottomPanel" DockPanel.Dock="Bottom" Margin="0,8,0,0">
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Settings" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Settings24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Settings}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                        <Border Height="1" Background="{DynamicResource OB.Stroke}" Margin="4,8,4,10" />
+                        <StackPanel Orientation="Horizontal" Margin="4,0,0,0">
+                            <Button x:Name="ThemeButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleThemeCommand}"
+                                    ToolTip="{h:L Rail_Theme}">
+                                <ui:SymbolIcon x:Name="ThemeIcon" Symbol="WeatherMoon24" FontSize="17" />
+                            </Button>
+                            <Button Style="{StaticResource OB.RailBtn}" Command="{Binding ToggleLanguageCommand}" ToolTip="{h:L Rail_Language}">
+                                <TextBlock Text="{Binding Language, Source={x:Static h:Loc.I}, Converter={StaticResource LangCodeUpper}}"
+                                           FontSize="11.5" FontWeight="SemiBold" />
+                            </Button>
+                            <Button x:Name="AboutButton" Style="{StaticResource OB.RailBtn}" Command="{Binding ShowAboutCommand}" ToolTip="{h:L Rail_About}">
+                                <ui:SymbolIcon Symbol="Info24" FontSize="17" />
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                         <StackPanel x:Name="NavPanel">
+                            <TextBlock Text="{h:L Nav_GroupMain}" Style="{StaticResource OB.Eyebrow}" Margin="12,14,0,6" />
                             <Button Style="{StaticResource OB.NavRow}" Tag="Dashboard" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Home24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Dashboard}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Home24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Dashboard}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource OB.NavRow}" Tag="Uninstaller" Click="Nav_Click">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="AppsList24" FontSize="17" Margin="0,0,12,0" />
+                                        <ui:SymbolIcon Symbol="AppsList24" FontSize="16" Margin="0,0,11,0" />
                                         <TextBlock Text="{h:L Nav_AllApps}" VerticalAlignment="Center" FontSize="13" />
                                     </StackPanel>
-                                    <Border HorizontalAlignment="Right" CornerRadius="8" Padding="7,1" Background="{DynamicResource OB.CardStrong}"
+                                    <Border HorizontalAlignment="Right" CornerRadius="6" Padding="6,1"
                                             Visibility="{Binding Uninstaller.TotalCount, Converter={StaticResource PositiveToVisibility}}">
-                                        <TextBlock Text="{Binding Uninstaller.TotalCount}" FontSize="11" FontWeight="SemiBold" />
+                                        <TextBlock Text="{Binding Uninstaller.TotalCount}" FontSize="11.5" Foreground="{DynamicResource OB.Faint}" />
                                     </Border>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource OB.NavRow}" Tag="Monitored" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="EyeTracking24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Monitored}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
-                            </Button>
                             <Button Style="{StaticResource OB.NavRow}" Tag="WindowsApps" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_WindowsApps}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource OB.NavRow}" Tag="BrowserExt" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="PuzzlePiece24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_BrowserExt}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="StoreMicrosoft24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_WindowsApps}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource OB.NavRow}" Tag="SystemMonitor" Click="Nav_Click">
                                 <Grid>
                                     <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="Pulse24" FontSize="17" Margin="0,0,12,0" />
+                                        <ui:SymbolIcon Symbol="Pulse24" FontSize="16" Margin="0,0,11,0" />
                                         <TextBlock Text="{h:L Nav_SystemMonitor}" VerticalAlignment="Center" FontSize="13" />
                                     </StackPanel>
-                                    <Border HorizontalAlignment="Right" CornerRadius="7" Padding="6,1" Background="{StaticResource OB.SuccessSoft}">
-                                        <TextBlock Text="{h:L Badge_New}" FontSize="10" FontWeight="Bold" Foreground="{StaticResource OB.Success}" />
+                                    <Border HorizontalAlignment="Right" CornerRadius="6" Padding="6,1" Background="{DynamicResource OB.AccentSoft}">
+                                        <TextBlock Text="{h:L Badge_New}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource OB.AccentText}" />
                                     </Border>
                                 </Grid>
                             </Button>
-                            <Button Style="{StaticResource OB.NavRow}" Tag="Logs" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="History24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Logs}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
+                            <TextBlock Text="{h:L Nav_GroupMore}" Style="{StaticResource OB.Eyebrow}" />
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Tools" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Toolbox24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Tools}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="BrowserExt" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="PuzzlePiece24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_BrowserExt}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
+                            </Button>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Monitored" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="EyeTracking24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Monitored}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
                             </Button>
                             <Button Style="{StaticResource OB.NavRow}" Tag="Hunter" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Target24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Hunter}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="Target24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Hunter}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
                             </Button>
-                            <Button Style="{StaticResource OB.NavRow}" Tag="Tools" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Toolbox24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Tools}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
-                            </Button>
-                            <Button Style="{StaticResource OB.NavRow}" Tag="Settings" Click="Nav_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Settings24" FontSize="17" Margin="0,0,12,0" />
-                                    <TextBlock Text="{h:L Nav_Settings}" VerticalAlignment="Center" FontSize="13" />
-                                </StackPanel>
+                            <Button Style="{StaticResource OB.NavRow}" Tag="Logs" Click="Nav_Click">
+                                <Grid>
+                                    <StackPanel Orientation="Horizontal">
+                                        <ui:SymbolIcon Symbol="History24" FontSize="16" Margin="0,0,11,0" />
+                                        <TextBlock Text="{h:L Nav_Logs}" VerticalAlignment="Center" FontSize="13" />
+                                    </StackPanel>
+                                </Grid>
                             </Button>
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
             </Border>
 
+            <!-- Caption bar over the content (window buttons, drag area). -->
+            <ui:TitleBar Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Top" Height="40" Title="" Padding="0" Panel.ZIndex="5" />
+
             <!-- ======================= PAGE HOST ======================= -->
-            <Border Grid.Row="1" Grid.Column="2" Margin="10,0,10,10" CornerRadius="20" Background="{DynamicResource OB.Content}"
-                    BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1" ClipToBounds="True">
-                <ContentControl x:Name="PageHost" Focusable="False" />
-            </Border>
+            <ContentControl x:Name="PageHost" Grid.Column="1" Margin="0,40,0,0" Focusable="False" ClipToBounds="True" />
 
             <!-- ======================= LIVE SYSTEM PANEL ======================= -->
-            <Border x:Name="RightPanel" Grid.Row="1" Grid.Column="3" Margin="0,0,10,10" CornerRadius="20"
-                    Background="{DynamicResource OB.Right}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1"
-                    DataContext="{Binding Live}">
-                <DockPanel Margin="18,18,18,14">
-                    <Grid DockPanel.Dock="Top" Margin="0,0,0,14">
+            <Border x:Name="RightPanel" Grid.Column="2" Margin="0,40,0,0" Background="Transparent"
+                    BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1,0,0,0" DataContext="{Binding Live}">
+                <DockPanel Margin="22,14,22,18">
+                    <Grid DockPanel.Dock="Top" Margin="0,0,0,18">
                         <StackPanel Orientation="Horizontal">
-                            <c:PulseDot Margin="0,0,8,0" VerticalAlignment="Center" />
                             <TextBlock Text="{h:L Live_Title}" Style="{StaticResource OB.Section}" VerticalAlignment="Center" />
+                            <c:PulseDot Margin="8,1,0,0" VerticalAlignment="Center" />
                         </StackPanel>
-                        <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnGhost}" Padding="6,3" FontSize="11.5"
+                        <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnGhost}" Padding="6,3" FontSize="12" FontWeight="Normal"
                                 Tag="SystemMonitor" Click="Nav_Click" ToolTip="{h:L Nav_SystemMonitor}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{h:L Live_Details}" Foreground="{StaticResource OB.Accent}" />
-                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12" Margin="3,1,0,0" Foreground="{StaticResource OB.Accent}" />
+                                <TextBlock Text="{h:L Live_Details}" Foreground="{DynamicResource OB.AccentText}" />
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="11" Margin="3,1,0,0" Foreground="{DynamicResource OB.AccentText}" />
                             </StackPanel>
                         </Button>
                     </Grid>
 
                     <!-- Bottom: recent activity -->
                     <StackPanel DockPanel.Dock="Bottom" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
-                        <Border Style="{StaticResource OB.Divider}" Margin="0,4,0,12" />
-                        <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" FontSize="13" Margin="0,0,0,8" />
+                        <Border Height="1" Background="{DynamicResource OB.Stroke}" Margin="0,6,0,16" />
+                        <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" FontSize="13" Margin="0,0,0,10" />
                         <TextBlock Text="{h:L Dash_NoActivity}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap"
                                    Visibility="{Binding RecentActivity.Count, Converter={StaticResource ZeroToVisibility}}" />
                         <ItemsControl ItemsSource="{Binding RecentActivity}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Grid Margin="0,4">
+                                    <Grid Margin="0,5">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" />
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
-                                        <Border Width="28" Height="28" CornerRadius="9" Background="{StaticResource OB.AccentSoft}" Margin="0,0,10,0">
-                                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="14" Foreground="{StaticResource OB.Accent}" />
-                                        </Border>
+                                        <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{DynamicResource OB.Subtext}"
+                                                       VerticalAlignment="Top" Margin="0,1,10,0" />
                                         <StackPanel Grid.Column="1">
-                                            <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
+                                            <TextBlock Text="{Binding Title}" Style="{StaticResource OB.Body}" FontSize="12.5" />
                                             <TextBlock Style="{StaticResource OB.FaintText}">
                                                 <Run Text="{Binding Detail, Mode=OneWay}" /><Run Text="  ·  " /><Run Text="{Binding TimeText, Mode=OneWay}" />
                                             </TextBlock>
@@ -289,110 +264,88 @@
                     </StackPanel>
 
                     <StackPanel>
-                        <!-- CPU + RAM rings -->
+                        <!-- CPU + RAM -->
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="10" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
-                            <Border Style="{StaticResource OB.CardBox}" Padding="10,12" CornerRadius="16">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <Grid Width="78" Height="78">
-                                        <c:RingGauge Value="{Binding Cpu}" Thickness="7" />
-                                        <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="17" FontWeight="Bold"
-                                                       FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Grid>
-                                    <TextBlock Text="{h:L Live_Cpu}" Style="{StaticResource OB.BodyStrong}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" />
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
-                                        <ui:SymbolIcon Symbol="Temperature24" FontSize="12" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,3,0" />
-                                        <TextBlock Text="{Binding TempText}" Style="{StaticResource OB.Caption}" FontSize="11" />
-                                    </StackPanel>
+                            <StackPanel HorizontalAlignment="Center">
+                                <Grid Width="84" Height="84">
+                                    <c:RingGauge Value="{Binding Cpu}" Thickness="6" />
+                                    <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="18" FontWeight="SemiBold"
+                                                   FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                                <TextBlock Text="{h:L Live_Cpu}" Style="{StaticResource OB.Caption}" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,2,0,0">
+                                    <ui:SymbolIcon Symbol="Temperature24" FontSize="11" Foreground="{DynamicResource OB.Faint}" Margin="0,0,3,0" />
+                                    <TextBlock Text="{Binding TempText}" Style="{StaticResource OB.FaintText}" />
                                 </StackPanel>
-                            </Border>
-                            <Border Grid.Column="2" Style="{StaticResource OB.CardBox}" Padding="10,12" CornerRadius="16">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <Grid Width="78" Height="78">
-                                        <c:RingGauge Value="{Binding Ram}" Thickness="7" From="#18C29C" To="#2E8BFF" />
-                                        <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="17" FontWeight="Bold"
-                                                       FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
-                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                    </Grid>
-                                    <TextBlock Text="{h:L Live_Ram}" Style="{StaticResource OB.BodyStrong}" FontSize="12" HorizontalAlignment="Center" Margin="0,8,0,0" />
-                                    <TextBlock Text="{Binding RamText}" Style="{StaticResource OB.Caption}" FontSize="11" HorizontalAlignment="Center" Margin="0,2,0,0" />
-                                </StackPanel>
-                            </Border>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <Grid Width="84" Height="84">
+                                    <c:RingGauge Value="{Binding Ram}" Thickness="6" />
+                                    <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="18" FontWeight="SemiBold"
+                                                   FontFamily="{StaticResource OB.DisplayFont}" Foreground="{DynamicResource OB.Text}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Grid>
+                                <TextBlock Text="{h:L Live_Ram}" Style="{StaticResource OB.Caption}" HorizontalAlignment="Center" Margin="0,8,0,0" />
+                                <TextBlock Text="{Binding RamText}" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Center" Margin="0,2,0,0" />
+                            </StackPanel>
                         </Grid>
 
+                        <Border Height="1" Background="{DynamicResource OB.Stroke}" Margin="0,18,0,16" />
+
                         <!-- Disk -->
-                        <Border Style="{StaticResource OB.CardBox}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0">
-                            <StackPanel>
-                                <Grid>
-                                    <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="HardDrive20" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
-                                        <TextBlock Style="{StaticResource OB.BodyStrong}" FontSize="12">
-                                            <Run Text="{h:L Live_Disk}" /><Run Text=" " /><Run Text="{Binding DiskTitle, Mode=OneWay}" />
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Grid>
-                                <c:GradientBar Value="{Binding Disk}" Margin="0,9,0,6" />
-                                <TextBlock Text="{Binding DiskText}" Style="{StaticResource OB.Caption}" FontSize="11" />
-                            </StackPanel>
-                        </Border>
+                        <Grid>
+                            <TextBlock Style="{StaticResource OB.Body}" FontSize="12.5">
+                                <Run Text="{h:L Live_Disk}" /><Run Text=" " /><Run Text="{Binding DiskTitle, Mode=OneWay}" />
+                            </TextBlock>
+                        </Grid>
+                        <c:GradientBar Value="{Binding Disk}" Height="5" Margin="0,8,0,6" />
+                        <TextBlock Text="{Binding DiskText}" Style="{StaticResource OB.FaintText}" />
 
                         <!-- Network -->
-                        <Border Style="{StaticResource OB.CardBox}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0">
-                            <StackPanel>
-                                <Grid>
-                                    <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="15" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
-                                        <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
-                                    </StackPanel>
-                                </Grid>
-                                <c:Sparkline Values="{Binding NetHistory}" Height="34" Margin="0,8,0,6" Color="#8B7BFF" />
-                                <Grid>
-                                    <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="ArrowDown24" FontSize="12" Foreground="{StaticResource OB.Success}" Margin="0,0,3,0" />
-                                        <TextBlock Text="{Binding NetDownText}" Style="{StaticResource OB.Caption}" FontSize="11" />
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                        <ui:SymbolIcon Symbol="ArrowUp24" FontSize="12" Foreground="{StaticResource OB.Info}" Margin="0,0,3,0" />
-                                        <TextBlock Text="{Binding NetUpText}" Style="{StaticResource OB.Caption}" FontSize="11" />
-                                    </StackPanel>
-                                </Grid>
+                        <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.Body}" FontSize="12.5" Margin="0,18,0,0" />
+                        <c:Sparkline Values="{Binding NetHistory}" Height="30" Margin="0,8,0,6" />
+                        <Grid>
+                            <StackPanel Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="ArrowDown24" FontSize="11" Foreground="{DynamicResource OB.Faint}" Margin="0,0,3,0" />
+                                <TextBlock Text="{Binding NetDownText}" Style="{StaticResource OB.FaintText}" />
                             </StackPanel>
-                        </Border>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <ui:SymbolIcon Symbol="ArrowUp24" FontSize="11" Foreground="{DynamicResource OB.Faint}" Margin="0,0,3,0" />
+                                <TextBlock Text="{Binding NetUpText}" Style="{StaticResource OB.FaintText}" />
+                            </StackPanel>
+                        </Grid>
 
                         <!-- Battery (laptops) -->
-                        <Border Style="{StaticResource OB.CardBox}" Padding="14,12" CornerRadius="16" Margin="0,10,0,0"
-                                Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
-                            <StackPanel>
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Battery1024" FontSize="15" Foreground="{StaticResource OB.Success}" Margin="0,0,8,0" />
-                                    <TextBlock Text="{Binding BatteryText}" Style="{StaticResource OB.BodyStrong}" FontSize="12" />
-                                </StackPanel>
-                                <c:GradientBar Value="{Binding Battery}" Margin="0,9,0,0" />
-                            </StackPanel>
-                        </Border>
+                        <StackPanel Margin="0,18,0,0" Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
+                            <TextBlock Text="{Binding BatteryText}" Style="{StaticResource OB.Body}" FontSize="12.5" />
+                            <c:GradientBar Value="{Binding Battery}" Height="5" Margin="0,8,0,0" />
+                        </StackPanel>
                     </StackPanel>
                 </DockPanel>
             </Border>
 
             <!-- ======================= DIALOG LAYER ======================= -->
-            <Grid x:Name="DialogLayer" Grid.Row="1" Grid.ColumnSpan="4" Visibility="Collapsed" Panel.ZIndex="10">
-                <Border x:Name="DialogBackdrop" Background="{DynamicResource OB.Backdrop}" Margin="10,0,10,10" CornerRadius="20" />
+            <Grid x:Name="DialogLayer" Grid.ColumnSpan="3" Visibility="Collapsed" Panel.ZIndex="10">
+                <Border x:Name="DialogBackdrop" Background="{DynamicResource OB.Backdrop}" />
                 <ContentControl x:Name="DialogHost" HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False" />
             </Grid>
 
             <!-- ======================= TOAST ======================= -->
-            <Border x:Name="ToastHost" Grid.Row="1" Grid.ColumnSpan="4" Panel.ZIndex="20" Visibility="Collapsed"
+            <Border x:Name="ToastHost" Grid.Column="1" Panel.ZIndex="20" Visibility="Collapsed"
                     HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,28" MaxWidth="560"
-                    CornerRadius="14" Padding="12,10,18,10" Background="{DynamicResource OB.DialogBg}"
-                    BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1" Cursor="Hand">
+                    CornerRadius="12" Padding="12,10,18,10" Background="{DynamicResource OB.DialogBg}"
+                    BorderBrush="{DynamicResource OB.StrokeStrong}" BorderThickness="1" Cursor="Hand">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Opacity="0.18" Color="#000000" RenderingBias="Performance" />
+                </Border.Effect>
                 <StackPanel Orientation="Horizontal">
-                    <Border x:Name="ToastBadge" Width="26" Height="26" CornerRadius="13" Margin="0,0,11,0" Background="{StaticResource OB.Accent}">
-                        <ui:SymbolIcon x:Name="ToastIcon" Symbol="Info24" FontSize="15" Foreground="White" />
+                    <Border x:Name="ToastBadge" Width="24" Height="24" CornerRadius="12" Margin="0,0,11,0" Background="{StaticResource OB.Accent}">
+                        <ui:SymbolIcon x:Name="ToastIcon" Symbol="Info24" FontSize="14" Foreground="White" />
                     </Border>
                     <TextBlock x:Name="ToastText" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
                                Foreground="{DynamicResource OB.Text}" TextWrapping="Wrap" MaxWidth="480" />

@@ -23,7 +23,7 @@
         <StackPanel Margin="26,22,26,24">
             <c:PageHeader Title="{h:L Nav_SystemMonitor}" Subtitle="{h:L SysMon_Subtitle}" Symbol="Pulse24" From="#18C29C" To="#2E8BFF">
                 <StackPanel Orientation="Horizontal">
-                    <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{StaticResource OB.SuccessSoft}">
+                    <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{DynamicResource OB.SuccessSoft}">
                         <StackPanel Orientation="Horizontal">
                             <c:PulseDot Width="12" Height="12" Margin="0,0,6,0" />
                             <TextBlock Text="{h:L SysMon_Live}" FontSize="11.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" VerticalAlignment="Center" />

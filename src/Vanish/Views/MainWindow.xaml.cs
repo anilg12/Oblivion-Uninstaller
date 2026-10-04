@@ -15,7 +15,7 @@ namespace Vanish.Views;
 
 public partial class MainWindow : FluentWindow
 {
-    private const double RightPanelMinWindowWidth = 1240;
+    private const double RightPanelMinWindowWidth = 1300;
 
     private readonly MainWindowViewModel _vm;
     private readonly NavigationService _navigation;
@@ -101,7 +101,7 @@ public partial class MainWindow : FluentWindow
     private void UpdateRightPanel()
     {
         bool show = _settings.Current.ShowLivePanel && ActualWidth >= RightPanelMinWindowWidth;
-        RightColumn.Width = new GridLength(show ? 272 : 0);
+        RightColumn.Width = new GridLength(show ? 284 : 0);
         RightPanel.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
         if (show && WindowState != WindowState.Minimized) _vm.Live.Start();
         else _vm.Live.Stop();
@@ -168,8 +168,7 @@ public partial class MainWindow : FluentWindow
         PageHost.Content = page;
         (page.DataContext as IPageAware)?.OnShown();
 
-        SetActive(RailPanel, RailGroup(tag));
-        SetActive(RailBottomPanel, RailGroup(tag));
+        SetActive(RailBottomPanel, NavGroup(tag));
         SetActive(NavPanel, NavGroup(tag));
         AnimatePage();
     }
@@ -184,10 +183,10 @@ public partial class MainWindow : FluentWindow
     private void AnimatePage()
     {
         if (!Reveal.AnimationsEnabled) return;
-        var transform = new TranslateTransform(0, 14);
+        var transform = new TranslateTransform(0, 6);
         PageHost.RenderTransform = transform;
-        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(200));
-        var slide = new DoubleAnimation(14, 0, TimeSpan.FromMilliseconds(300)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
+        var fade = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(140));
+        var slide = new DoubleAnimation(6, 0, TimeSpan.FromMilliseconds(200)) { EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut } };
         slide.Completed += (_, _) =>
         {
             PageHost.BeginAnimation(OpacityProperty, null);

@@ -72,7 +72,7 @@
                 </StackPanel>
 
                 <!-- result -->
-                <Border Margin="0,14,0,0" CornerRadius="12" Padding="12,10" Background="{StaticResource OB.SuccessSoft}"
+                <Border Margin="0,14,0,0" CornerRadius="12" Padding="12,10" Background="{DynamicResource OB.SuccessSoft}"
                         Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" Foreground="{StaticResource OB.Success}" Margin="0,0,10,0" />

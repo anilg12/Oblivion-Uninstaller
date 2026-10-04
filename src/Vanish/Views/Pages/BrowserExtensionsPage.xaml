@@ -21,7 +21,7 @@
             </Button>
         </c:PageHeader>
 
-        <Border Grid.Row="1" Margin="0,0,0,10" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.WarningSoft}"
+        <Border Grid.Row="1" Margin="0,0,0,10" CornerRadius="12" Padding="12,9" Background="{DynamicResource OB.WarningSoft}"
                 Visibility="{Binding RunningWarning, Converter={StaticResource NullToVisibility}}">
             <StackPanel Orientation="Horizontal">
                 <ui:SymbolIcon Symbol="Warning24" FontSize="16" Foreground="{StaticResource OB.Warning}" Margin="0,0,10,0" />

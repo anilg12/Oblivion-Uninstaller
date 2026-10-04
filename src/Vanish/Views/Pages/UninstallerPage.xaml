@@ -230,14 +230,14 @@
             </Border>
 
             <!-- safety notes -->
-            <Border Grid.Row="1" Margin="0,10,0,0" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.WarningSoft}"
+            <Border Grid.Row="1" Margin="0,10,0,0" CornerRadius="12" Padding="12,9" Background="{DynamicResource OB.WarningSoft}"
                     Visibility="{Binding StillInstalledWarning, Converter={StaticResource BoolToVisibility}}">
                 <StackPanel Orientation="Horizontal">
                     <ui:SymbolIcon Symbol="Warning24" FontSize="16" Foreground="{StaticResource OB.Warning}" Margin="0,0,10,0" />
                     <TextBlock Text="{h:L Left_StillInstalled}" Style="{StaticResource OB.Body}" TextWrapping="Wrap" TextTrimming="None" MaxWidth="640" />
                 </StackPanel>
             </Border>
-            <Border Grid.Row="2" Margin="0,10,0,8" CornerRadius="12" Padding="12,9" Background="{StaticResource OB.AccentSoft}">
+            <Border Grid.Row="2" Margin="0,10,0,8" CornerRadius="12" Padding="12,9" Background="{DynamicResource OB.AccentSoft}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
