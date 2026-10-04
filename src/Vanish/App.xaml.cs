@@ -48,6 +48,10 @@ public partial class App : Application
             // render work. Without GPU acceleration (or when the user asks), entrance
             // animations are skipped entirely.
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
+            // Draw on the CPU instead of through a Direct3D surface. The UI is mostly static, so this
+            // costs next to nothing, and it stops the GPU overlay / variable-refresh switching that made
+            // the desktop and other windows flash while Oblivion had focus on some displays.
+            RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 
             _services = ConfigureServices();
             Ioc.Configure(_services);

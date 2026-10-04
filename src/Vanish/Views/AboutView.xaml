@@ -7,60 +7,41 @@
     Width="540"
     Focusable="True">
 
-    <Border CornerRadius="22" Background="{DynamicResource OB.DialogBg}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1"
+    <Border CornerRadius="16" Background="{DynamicResource OB.DialogBg}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1"
             ClipToBounds="True">
         <StackPanel>
-            <!-- ===== Header band ===== -->
-            <Grid Height="148" ClipToBounds="True">
-                <Border Background="{StaticResource OB.Brand}" CornerRadius="21,21,0,0" />
-                <Ellipse Width="260" Height="260" Fill="#1FFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-120,-70,0" />
-                <Ellipse Width="150" Height="150" Fill="#14FFFFFF" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="-40,0,0,-80" />
-                <Ellipse Width="70" Height="70" Fill="#12FFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,150,-30" />
-
-                <StackPanel Orientation="Horizontal" Margin="26,22,0,0" VerticalAlignment="Top">
-                    <Border Width="34" Height="34" CornerRadius="10" Background="#33FFFFFF">
-                        <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="26" Height="26"
-                               RenderOptions.BitmapScalingMode="HighQuality" />
-                    </Border>
-                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Oblivion" Foreground="White" FontSize="15" FontWeight="Bold" />
-                        <TextBlock x:Name="VersionLine" Foreground="#CCFFFFFF" FontSize="11" />
+            <!-- ===== Header ===== -->
+            <Grid Margin="28,24,16,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="44" Height="44"
+                           RenderOptions.BitmapScalingMode="HighQuality" />
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="Oblivion" Foreground="{DynamicResource OB.Text}" FontSize="17" FontWeight="SemiBold"
+                                   FontFamily="{StaticResource OB.DisplayFont}" />
+                        <TextBlock x:Name="VersionLine" Foreground="{DynamicResource OB.Faint}" FontSize="11.5" />
                     </StackPanel>
                 </StackPanel>
-
-                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,14,14,0" Width="32" Height="32" Padding="0"
-                        Style="{StaticResource OB.BtnGhost}" Foreground="White" Click="Close_Click" ToolTip="{h:L Act_Close}">
-                    <ui:SymbolIcon Symbol="Dismiss24" FontSize="15" Foreground="White" />
+                <Button HorizontalAlignment="Right" VerticalAlignment="Top" Width="32" Height="32" MinHeight="32" Padding="0"
+                        Style="{StaticResource OB.BtnGhost}" Click="Close_Click" ToolTip="{h:L Act_Close}">
+                    <ui:SymbolIcon Symbol="Dismiss24" FontSize="14" Foreground="{DynamicResource OB.Subtext}" />
                 </Button>
             </Grid>
 
-            <!-- ===== Avatar, overlapping the band ===== -->
-            <Grid Margin="26,-52,26,0" HorizontalAlignment="Left">
-                <Grid Width="104" Height="104">
-                    <!-- slowly turning gradient ring (stops as soon as the dialog closes) -->
-                    <Ellipse x:Name="AvatarRing" StrokeThickness="4" RenderTransformOrigin="0.5,0.5">
-                        <Ellipse.Stroke>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#8FC0FF" Offset="0" />
-                                <GradientStop Color="#B45BFF" Offset="0.5" />
-                                <GradientStop Color="#FF7AC6" Offset="1" />
-                            </LinearGradientBrush>
-                        </Ellipse.Stroke>
-                        <Ellipse.RenderTransform>
-                            <RotateTransform x:Name="AvatarRotate" />
-                        </Ellipse.RenderTransform>
-                    </Ellipse>
-                    <Ellipse Margin="7" Fill="{DynamicResource OB.DialogBg}" />
-                    <Ellipse Margin="10" Fill="{StaticResource OB.Brand}" />
-                    <TextBlock Text="AG" FontSize="34" FontWeight="Bold" Foreground="White" FontFamily="{StaticResource OB.DisplayFont}"
-                               HorizontalAlignment="Center" VerticalAlignment="Center" />
-                </Grid>
+            <Border Style="{StaticResource OB.Divider}" Margin="28,20,28,22" />
+
+            <!-- ===== Developer ===== -->
+            <Grid Margin="28,0,28,0" HorizontalAlignment="Left">
+                <Border Width="56" Height="56" CornerRadius="28" Background="{DynamicResource OB.CardStrong}"
+                        BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1">
+                    <TextBlock Text="AG" FontSize="19" FontWeight="SemiBold" Foreground="{DynamicResource OB.Text}"
+                               FontFamily="{StaticResource OB.DisplayFont}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                </Border>
             </Grid>
 
             <!-- ===== Signature + role ===== -->
-            <StackPanel Margin="28,8,28,0">
-                <TextBlock x:Name="Signature" Text="ANIL GÜL" FontFamily="{StaticResource OB.ScriptFont}" FontSize="40" FontStyle="Italic"
-                           Foreground="{StaticResource OB.Signature}">
+            <StackPanel Margin="28,14,28,0">
+                <TextBlock x:Name="Signature" Text="Anıl Gül" FontFamily="{StaticResource OB.DisplayFont}" FontSize="24" FontWeight="SemiBold"
+                           Foreground="{DynamicResource OB.Text}">
                     <TextBlock.OpacityMask>
                         <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                             <GradientStop x:Name="InkStop1" Color="Black" Offset="1" />
@@ -68,9 +49,9 @@
                         </LinearGradientBrush>
                     </TextBlock.OpacityMask>
                 </TextBlock>
-                <TextBlock Text="{h:L About_Role}" Style="{StaticResource OB.Subtitle}" FontSize="13.5" Margin="2,2,0,0" />
+                <TextBlock Text="{h:L About_Role}" Style="{StaticResource OB.Subtitle}" FontSize="13.5" Margin="0,2,0,0" />
 
-                <WrapPanel Margin="0,14,0,0">
+                <WrapPanel Margin="0,16,0,0">
                     <Button Style="{StaticResource OB.BtnPrimary}" Click="GitHub_Click" Margin="0,0,8,8">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Code24" FontSize="15" Foreground="White" Margin="0,0,7,0" />
@@ -92,12 +73,12 @@
                 </WrapPanel>
             </StackPanel>
 
-            <Border Style="{StaticResource OB.Divider}" Margin="28,8,28,14" />
+            <Border Style="{StaticResource OB.Divider}" Margin="28,10,28,18" />
 
             <!-- ===== What's new ===== -->
             <StackPanel Margin="28,0,28,0">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                    <ui:SymbolIcon Symbol="Sparkle24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                    <ui:SymbolIcon Symbol="Sparkle24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                     <TextBlock Text="{h:L About_WhatsNew}" Style="{StaticResource OB.Section}" />
                 </StackPanel>
                 <ItemsControl x:Name="WhatsNew">
@@ -108,9 +89,9 @@
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="*" />
                                 </Grid.ColumnDefinitions>
-                                <Border Width="18" Height="18" CornerRadius="9" Background="{DynamicResource OB.SuccessSoft}" Margin="0,0,10,0"
+                                <Border Width="18" Height="18" CornerRadius="9" Background="{DynamicResource OB.CardStrong}" Margin="0,1,10,0"
                                         VerticalAlignment="Top">
-                                    <ui:SymbolIcon Symbol="Checkmark24" FontSize="11" Foreground="{StaticResource OB.Success}" />
+                                    <ui:SymbolIcon Symbol="Checkmark24" FontSize="11" Foreground="{DynamicResource OB.Subtext}" />
                                 </Border>
                                 <TextBlock Grid.Column="1" Text="{Binding}" Style="{StaticResource OB.Body}" FontSize="12.5"
                                            TextWrapping="Wrap" TextTrimming="None" />
@@ -120,7 +101,7 @@
                 </ItemsControl>
             </StackPanel>
 
-            <Grid Margin="28,10,28,22">
+            <Grid Margin="28,12,28,24">
                 <TextBlock VerticalAlignment="Center" Style="{StaticResource OB.FaintText}" Text="{h:L About_Copyright}" />
                 <Button HorizontalAlignment="Right" Style="{StaticResource OB.Btn}" MinWidth="96" Click="Close_Click" Content="{h:L Act_Close}" />
             </Grid>

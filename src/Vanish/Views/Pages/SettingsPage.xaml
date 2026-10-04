@@ -8,22 +8,22 @@
 
     <UserControl.Resources>
         <Style x:Key="SettingRow" TargetType="Border" BasedOn="{StaticResource OB.CardBox}">
-            <Setter Property="CornerRadius" Value="16" />
-            <Setter Property="Padding" Value="16,13" />
-            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="18,14" />
+            <Setter Property="Margin" Value="0,0,0,6" />
         </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="26,22,26,24" MaxWidth="880" HorizontalAlignment="Stretch">
+        <StackPanel Margin="40,8,40,32" MaxWidth="880" HorizontalAlignment="Stretch">
             <c:PageHeader Title="{h:L Nav_Settings}" Subtitle="{h:L Settings_Subtitle}" Symbol="Settings24" />
 
             <!-- appearance -->
-            <TextBlock Text="{h:L Settings_Appearance}" Style="{StaticResource OB.Section}" Margin="0,0,0,8" />
+            <TextBlock Text="{h:L Settings_Appearance}" Style="{StaticResource OB.Section}" Margin="0,0,0,10" />
             <Border Style="{StaticResource SettingRow}" c:Reveal.Enabled="True">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="DarkTheme24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="DarkTheme24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_Theme}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_ThemeText}" Style="{StaticResource OB.Caption}" />
@@ -44,7 +44,7 @@
             <Border Style="{StaticResource SettingRow}" c:Reveal.Enabled="True" c:Reveal.Delay="30">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="LocalLanguage24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="LocalLanguage24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_Language}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_LanguageText}" Style="{StaticResource OB.Caption}" />
@@ -63,7 +63,7 @@
             <Border Style="{StaticResource SettingRow}" c:Reveal.Enabled="True" c:Reveal.Delay="60">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Pulse24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="Pulse24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_LivePanel}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_LivePanelText}" Style="{StaticResource OB.Caption}" />
@@ -75,7 +75,7 @@
             <Border Style="{StaticResource SettingRow}" c:Reveal.Enabled="True" c:Reveal.Delay="90">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Sparkle24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="Sparkle24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_ReduceMotion}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_ReduceMotionText}" Style="{StaticResource OB.Caption}" />
@@ -86,11 +86,11 @@
             </Border>
 
             <!-- uninstall -->
-            <TextBlock Text="{h:L Settings_Uninstall}" Style="{StaticResource OB.Section}" Margin="0,14,0,8" />
+            <TextBlock Text="{h:L Settings_Uninstall}" Style="{StaticResource OB.Section}" Margin="0,22,0,10" />
             <Border Style="{StaticResource SettingRow}">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="18" Foreground="{StaticResource OB.Success}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_RestorePoint}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_RestorePointText}" Style="{StaticResource OB.Caption}" />
@@ -102,7 +102,7 @@
             <Border Style="{StaticResource SettingRow}">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Delete24" FontSize="18" Foreground="{StaticResource OB.Success}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="Delete24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_RecycleBin}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_RecycleBinText}" Style="{StaticResource OB.Caption}" />
@@ -114,7 +114,7 @@
             <Border Style="{StaticResource SettingRow}">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="QuestionCircle24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="QuestionCircle24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_Confirm}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_ConfirmText}" Style="{StaticResource OB.Caption}" />
@@ -126,7 +126,7 @@
             <Border Style="{StaticResource SettingRow}">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Flash24" FontSize="18" Foreground="{StaticResource OB.Warning}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="Flash24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_Silent}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_SilentText}" Style="{StaticResource OB.Caption}" />
@@ -137,11 +137,11 @@
             </Border>
 
             <!-- data + about -->
-            <TextBlock Text="{h:L Settings_Data}" Style="{StaticResource OB.Section}" Margin="0,14,0,8" />
+            <TextBlock Text="{h:L Settings_Data}" Style="{StaticResource OB.Section}" Margin="0,22,0,10" />
             <Border Style="{StaticResource SettingRow}">
                 <Grid>
                     <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="FolderOpen24" FontSize="18" Foreground="{StaticResource OB.Accent}" Margin="0,0,12,0" />
+                        <ui:SymbolIcon Symbol="FolderOpen24" FontSize="18" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,12,0" />
                         <StackPanel>
                             <TextBlock Text="{h:L Settings_DataFolder}" Style="{StaticResource OB.BodyStrong}" />
                             <TextBlock Text="{h:L Settings_DataFolderText}" Style="{StaticResource OB.Caption}" />

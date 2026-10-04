@@ -6,7 +6,7 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -16,7 +16,7 @@
             <StackPanel Orientation="Horizontal" Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
                 <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{DynamicResource OB.CardStrong}">
                     <TextBlock Style="{StaticResource OB.Caption}" FontSize="12" VerticalAlignment="Center">
-                        <Run Text="{Binding TotalCount, Mode=OneWay}" FontWeight="Bold" /><Run Text=" " /><Run Text="{h:L Apps_ProgramsWord}" /><Run Text="  ·  " /><Run Text="{Binding TotalSizeText, Mode=OneWay}" />
+                        <Run Text="{Binding TotalCount, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" " /><Run Text="{h:L Apps_ProgramsWord}" /><Run Text="  ·  " /><Run Text="{Binding TotalSizeText, Mode=OneWay}" />
                     </TextBlock>
                 </Border>
                 <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
@@ -134,7 +134,7 @@
                             </Grid.ColumnDefinitions>
                             <Grid Width="34" Height="34" HorizontalAlignment="Left">
                                 <Border CornerRadius="10" Background="{DynamicResource OB.CardStrong}">
-                                    <TextBlock Text="{Binding Initials}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource OB.Subtext}"
+                                    <TextBlock Text="{Binding Initials}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource OB.Subtext}"
                                                HorizontalAlignment="Center" VerticalAlignment="Center" />
                                 </Border>
                                 <Image c:IconLoader.Path="{Binding IconPath}" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality" />
@@ -164,13 +164,13 @@
         </Grid>
 
         <!-- =============================== WORKING =============================== -->
-        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
+        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Width="520" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
             <StackPanel>
                 <StackPanel Orientation="Horizontal">
                     <Grid Width="54" Height="54">
                         <c:Spinner Width="54" Height="54" Thickness="4" />
-                        <ui:SymbolIcon Symbol="Delete24" FontSize="20" Foreground="{StaticResource OB.Accent}" />
+                        <ui:SymbolIcon Symbol="Delete24" FontSize="20" Foreground="{DynamicResource OB.AccentText}" />
                     </Grid>
                     <StackPanel Margin="16,0,0,0" VerticalAlignment="Center" MaxWidth="390">
                         <TextBlock Text="{Binding WorkTitle}" Style="{StaticResource OB.Section}" FontSize="17" TextWrapping="Wrap" />
@@ -213,7 +213,7 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Border Style="{StaticResource OB.CardBox}" Padding="16,12" CornerRadius="16">
+            <Border Style="{StaticResource OB.CardBox}" Padding="16,12" CornerRadius="12">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
@@ -243,7 +243,7 @@
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,10,0" VerticalAlignment="Top" />
+                    <ui:SymbolIcon Symbol="ShieldCheckmark24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,10,0" VerticalAlignment="Top" />
                     <TextBlock Grid.Column="1" Text="{h:L Left_Explain}" Style="{StaticResource OB.Body}" FontSize="12.5" TextWrapping="Wrap" TextTrimming="None" />
                 </Grid>
             </Border>
@@ -312,7 +312,7 @@
                                 <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="0,0,10,0">
                                     <TextBlock Text="{Binding Name}" Style="{StaticResource OB.BodyStrong}" />
                                     <TextBlock Text="{Binding Location}" Style="{StaticResource OB.FaintText}" ToolTip="{Binding Location}" />
-                                    <TextBlock Text="{Binding Reason}" Style="{StaticResource OB.FaintText}" Foreground="{StaticResource OB.Accent}" />
+                                    <TextBlock Text="{Binding Reason}" Style="{StaticResource OB.FaintText}" Foreground="{DynamicResource OB.AccentText}" />
                                 </StackPanel>
                                 <c:Chip Grid.Column="3" Text="{Binding ConfidenceText}" Tint="{Binding ConfidenceColor}" Margin="0,0,10,0" />
                                 <TextBlock Grid.Column="4" Text="{Binding DisplaySize}" Style="{StaticResource OB.Caption}" VerticalAlignment="Center"
@@ -329,10 +329,10 @@
             </Grid>
 
             <!-- footer -->
-            <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
+            <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="12">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <ui:SymbolIcon Symbol="CheckboxChecked24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                        <ui:SymbolIcon Symbol="CheckboxChecked24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                         <TextBlock Text="{Binding SelectedLeftoverText}" Style="{StaticResource OB.BodyStrong}" VerticalAlignment="Center" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -349,7 +349,7 @@
         </Grid>
 
         <!-- =============================== DONE =============================== -->
-        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="30" Width="500" HorizontalAlignment="Center"
+        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="30" Width="500" HorizontalAlignment="Center"
                 VerticalAlignment="Center" Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}">
             <StackPanel HorizontalAlignment="Center">
                 <c:GradientBadge Symbol="Checkmark24" Size="72" From="#22C55E" To="#18C29C" HorizontalAlignment="Center" c:PopIn.Enabled="True" />

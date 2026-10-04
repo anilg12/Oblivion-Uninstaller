@@ -7,7 +7,7 @@
     xmlns:c="clr-namespace:Vanish.Controls">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-        <StackPanel Margin="26,22,26,24">
+        <StackPanel Margin="40,8,40,32">
             <c:PageHeader Title="{Binding Greeting}" Subtitle="{h:L Dash_Subtitle}" Symbol="Home24">
                 <Button Style="{StaticResource OB.Btn}" Command="{Binding RefreshCommand}">
                     <StackPanel Orientation="Horizontal">
@@ -18,16 +18,16 @@
             </c:PageHeader>
 
             <!-- ============ Health ============ -->
-            <Border Style="{StaticResource OB.CardBox}" CornerRadius="22" Padding="22" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="24" c:Reveal.Enabled="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid Width="132" Height="132" VerticalAlignment="Top">
-                        <c:RingGauge Value="{Binding HealthFraction}" Thickness="11" From="#22C55E" To="#18C29C" />
+                        <c:RingGauge Value="{Binding HealthFraction}" Thickness="11" />
                         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <c:CountUpText Value="{Binding HealthScore}" FontSize="36" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                            <c:CountUpText Value="{Binding HealthScore}" FontSize="34" FontWeight="SemiBold" FontFamily="{StaticResource OB.DisplayFont}"
                                            Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" />
                             <TextBlock Text="/ 100" Style="{StaticResource OB.FaintText}" HorizontalAlignment="Center" Margin="0,-4,0,0" />
                         </StackPanel>
@@ -46,7 +46,7 @@
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="17" Foreground="{StaticResource OB.Accent}" Margin="0,0,10,0" />
+                                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="17" Foreground="{DynamicResource OB.AccentText}" Margin="0,0,10,0" />
                                             <TextBlock Grid.Column="1" Text="{Binding Text}" Style="{StaticResource OB.Body}" TextWrapping="Wrap"
                                                        TextTrimming="None" VerticalAlignment="Center" />
                                             <Button Grid.Column="2" Style="{StaticResource OB.Btn}" Padding="11,5" FontSize="12" Margin="10,0,0,0"
@@ -163,15 +163,15 @@
             </UniformGrid>
 
             <!-- ============ Recent activity ============ -->
-            <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+            <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">
                         <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" />
                         <Button HorizontalAlignment="Right" Style="{StaticResource OB.BtnGhost}" Padding="8,3" FontSize="12"
                                 Command="{Binding GoCommand}" CommandParameter="Logs">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{h:L Dash_AllLogs}" Foreground="{StaticResource OB.Accent}" />
-                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12" Margin="3,1,0,0" Foreground="{StaticResource OB.Accent}" />
+                                <TextBlock Text="{h:L Dash_AllLogs}" Foreground="{DynamicResource OB.AccentText}" />
+                                <ui:SymbolIcon Symbol="ChevronRight24" FontSize="12" Margin="3,1,0,0" Foreground="{DynamicResource OB.AccentText}" />
                             </StackPanel>
                         </Button>
                     </Grid>
@@ -186,8 +186,8 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <Border Width="32" Height="32" CornerRadius="10" Background="{DynamicResource OB.AccentSoft}" Margin="0,0,12,0">
-                                        <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{StaticResource OB.Accent}" />
+                                    <Border Width="32" Height="32" CornerRadius="8" Background="{DynamicResource OB.CardStrong}" Margin="0,0,12,0">
+                                        <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="15" Foreground="{DynamicResource OB.Subtext}" />
                                     </Border>
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" />

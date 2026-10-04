@@ -6,7 +6,7 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -14,11 +14,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <c:PageHeader Title="{h:L Nav_Monitored}" Subtitle="{h:L Mon_Subtitle}" Symbol="EyeTracking24" From="#3A8DFF" To="#18C29C" />
+        <c:PageHeader Title="{h:L Nav_Monitored}" Subtitle="{h:L Mon_Subtitle}" Symbol="EyeTracking24" />
 
         <!-- the three steps -->
         <UniformGrid Grid.Row="1" Columns="3" Margin="-6,0,-6,8">
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True">
                 <StackPanel>
                     <c:GradientBadge Symbol="Camera24" Size="38" />
                     <TextBlock Text="{h:L Mon_Step1}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
@@ -27,14 +27,14 @@
                             IsEnabled="{Binding IsBusy, Converter={StaticResource InverseBool}}" Content="{h:L Mon_TakeBaseline}" />
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="60">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="60">
                 <StackPanel>
                     <c:GradientBadge Symbol="ArrowDownload24" Size="38" From="#F5A524" To="#FF7A45" />
                     <TextBlock Text="{h:L Mon_Step2}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
                     <TextBlock Text="{h:L Mon_Step2Text}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" />
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="18" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
                 <StackPanel>
                     <c:GradientBadge Symbol="DocumentSearch24" Size="38" From="#22C55E" To="#14B8A6" />
                     <TextBlock Text="{h:L Mon_Step3}" Style="{StaticResource OB.BodyStrong}" Margin="0,10,0,2" />
@@ -92,7 +92,7 @@
             </StackPanel>
         </Grid>
 
-        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16"
+        <Border Grid.Row="3" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="12"
                 Visibility="{Binding HasCompared, Converter={StaticResource BoolToVisibility}}">
             <Grid>
                 <TextBlock Text="{Binding ResultText}" Style="{StaticResource OB.BodyStrong}" VerticalAlignment="Center" />

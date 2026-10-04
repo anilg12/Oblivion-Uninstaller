@@ -17,16 +17,11 @@ public partial class AboutView : UserControl
         VersionLine.Text = string.Format(Loc.I["About_VersionFmt"], AppInfo.Version);
         WhatsNew.ItemsSource = Enumerable.Range(1, 7).Select(i => Loc.I[$"About_New{i}"]).ToList();
         Loaded += OnLoaded;
-        Unloaded += (_, _) => AvatarRotate.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, null);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)
     {
         if (!Reveal.AnimationsEnabled) return;
-
-        var spin = new DoubleAnimation(0, 360, TimeSpan.FromSeconds(9)) { RepeatBehavior = RepeatBehavior.Forever };
-        Timeline.SetDesiredFrameRate(spin, 30);
-        AvatarRotate.BeginAnimation(System.Windows.Media.RotateTransform.AngleProperty, spin);
 
         // The signature "writes" itself from left to right.
         InkStop1.Offset = 0;

@@ -6,7 +6,7 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -15,7 +15,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <c:PageHeader Title="{h:L Nav_BrowserExt}" Subtitle="{h:L Ext_Subtitle}" Symbol="PuzzlePiece24" From="#2E8BFF" To="#6E5BFF">
+        <c:PageHeader Title="{h:L Nav_BrowserExt}" Subtitle="{h:L Ext_Subtitle}" Symbol="PuzzlePiece24">
             <Button Style="{StaticResource OB.IconBtn}" Command="{Binding RefreshCommand}" ToolTip="{h:L Act_Refresh}">
                 <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
             </Button>
@@ -108,10 +108,10 @@
         <c:EmptyState Grid.Row="3" Symbol="PuzzlePiece24" Title="{h:L Ext_None}" Text="{h:L Ext_NoneText}"
                       Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
 
-        <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="16">
+        <Border Grid.Row="4" Margin="0,10,0,0" Style="{StaticResource OB.CardBox}" Padding="14,10" CornerRadius="12">
             <Grid>
                 <TextBlock Style="{StaticResource OB.Caption}" VerticalAlignment="Center">
-                    <Run Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="Bold" /><Run Text=" " /><Run Text="{h:L Ext_SelectedWord}" />
+                    <Run Text="{Binding SelectedCount, Mode=OneWay}" FontWeight="SemiBold" /><Run Text=" " /><Run Text="{h:L Ext_SelectedWord}" />
                 </TextBlock>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Content="{h:L Act_SelectNone}" Command="{Binding SelectNoneCommand}" />

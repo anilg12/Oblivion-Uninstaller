@@ -6,7 +6,7 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -22,7 +22,7 @@
 
         <!-- counters -->
         <UniformGrid Grid.Row="1" Columns="3" Margin="-6,0,-6,8" c:Reveal.Enabled="True">
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="16">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="12">
                 <StackPanel Orientation="Horizontal">
                     <c:GradientBadge Symbol="Power24" Size="36" />
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
@@ -31,7 +31,7 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="16">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="12">
                 <StackPanel Orientation="Horizontal">
                     <c:GradientBadge Symbol="Play24" Size="36" From="#22C55E" To="#14B8A6" />
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
@@ -40,7 +40,7 @@
                     </StackPanel>
                 </StackPanel>
             </Border>
-            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="16">
+            <Border Style="{StaticResource OB.CardBox}" Margin="6" Padding="14,12" CornerRadius="12">
                 <StackPanel Orientation="Horizontal">
                     <c:GradientBadge Symbol="Pause24" Size="36" From="#94A3B8" To="#64748B" />
                     <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">

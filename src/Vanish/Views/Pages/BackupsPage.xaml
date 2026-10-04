@@ -6,14 +6,14 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <c:PageHeader Title="{h:L Tool_Backups}" Subtitle="{h:L Backup_Subtitle}" Symbol="ArchiveArrowBack24" From="#8B5CF6" To="#3A8DFF">
+        <c:PageHeader Title="{h:L Tool_Backups}" Subtitle="{h:L Backup_Subtitle}" Symbol="ArchiveArrowBack24">
             <Button Style="{StaticResource OB.IconBtn}" Command="{Binding LoadCommand}" ToolTip="{h:L Act_Refresh}">
                 <ui:SymbolIcon Symbol="ArrowClockwise24" FontSize="16" />
             </Button>
@@ -73,7 +73,7 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <Border Width="32" Height="32" CornerRadius="9" Background="{DynamicResource OB.AccentSoft}" Margin="0,0,12,0">
-                                <ui:SymbolIcon Symbol="Key24" FontSize="15" Foreground="{StaticResource OB.Accent}" />
+                                <ui:SymbolIcon Symbol="Key24" FontSize="15" Foreground="{DynamicResource OB.AccentText}" />
                             </Border>
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
                                 <TextBlock Text="{Binding KeyPath}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" ToolTip="{Binding KeyPath}" />

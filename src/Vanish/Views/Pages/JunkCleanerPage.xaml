@@ -6,14 +6,14 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <c:PageHeader Title="{h:L Tool_Junk}" Subtitle="{h:L Junk_Subtitle}" Symbol="Broom24" From="#3A8DFF" To="#6F5BFF">
+        <c:PageHeader Title="{h:L Tool_Junk}" Subtitle="{h:L Junk_Subtitle}" Symbol="Broom24">
             <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Command="{Binding ExpandAllCommand}" ToolTip="{h:L Junk_ExpandAllTip}">
                     <StackPanel Orientation="Horizontal">
@@ -31,7 +31,7 @@
         </c:PageHeader>
 
         <!-- ================= summary ================= -->
-        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="18,16" Margin="0,0,0,12" c:Reveal.Enabled="True">
+        <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="18,16" Margin="0,0,0,12" c:Reveal.Enabled="True">
             <StackPanel>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -76,7 +76,7 @@
                         Visibility="{Binding HasResult, Converter={StaticResource BoolToVisibility}}" c:SlideIn.Enabled="True">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="CheckmarkCircle24" FontSize="18" Foreground="{StaticResource OB.Success}" Margin="0,0,10,0" />
-                        <c:CountUpText Value="{Binding ResultFreed}" Mode="Bytes" FontWeight="Bold" FontSize="13.5" Foreground="{DynamicResource OB.Text}"
+                        <c:CountUpText Value="{Binding ResultFreed}" Mode="Bytes" FontWeight="SemiBold" FontSize="13.5" Foreground="{DynamicResource OB.Text}"
                                        VerticalAlignment="Center" />
                         <TextBlock Text="{h:L Junk_Freed}" Style="{StaticResource OB.BodyStrong}" Margin="5,0,0,0" VerticalAlignment="Center" />
                         <TextBlock Text="{Binding ResultText}" Style="{StaticResource OB.Caption}" Margin="10,0,0,0" VerticalAlignment="Center" />
@@ -90,7 +90,7 @@
             <ItemsControl ItemsSource="{Binding Categories}" Margin="0,0,6,0">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Style="{StaticResource OB.CardBox}" Padding="0" CornerRadius="18" Margin="0,0,0,10"
+                        <Border Style="{StaticResource OB.CardBox}" Padding="0" CornerRadius="12" Margin="0,0,0,10"
                                 c:Reveal.Enabled="True" c:Reveal.Stagger="True">
                             <StackPanel>
                                 <!-- category header -->
@@ -112,7 +112,7 @@
                                         </StackPanel.InputBindings>
                                         <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
                                         <TextBlock Text="{Binding Detail}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" Margin="0,2,0,0" />
-                                        <TextBlock Text="{Binding SelectedText}" Style="{StaticResource OB.Caption}" Foreground="{StaticResource OB.Accent}"
+                                        <TextBlock Text="{Binding SelectedText}" Style="{StaticResource OB.Caption}" Foreground="{DynamicResource OB.AccentText}"
                                                    FontWeight="SemiBold" Margin="0,3,0,0"
                                                    Visibility="{Binding SelectedText, Converter={StaticResource NullToVisibility}}" />
                                     </StackPanel>
@@ -132,7 +132,7 @@
                                 <Border Margin="14,0,14,12" CornerRadius="10" Padding="10,7" Background="{DynamicResource OB.Card}"
                                         Visibility="{Binding HasNote, Converter={StaticResource BoolToVisibility}}">
                                     <StackPanel Orientation="Horizontal">
-                                        <ui:SymbolIcon Symbol="Info24" FontSize="13" Foreground="{StaticResource OB.Info}" Margin="0,0,8,0" />
+                                        <ui:SymbolIcon Symbol="Info24" FontSize="13" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                                         <TextBlock Text="{Binding Note}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" MaxWidth="620" />
                                     </StackPanel>
                                 </Border>

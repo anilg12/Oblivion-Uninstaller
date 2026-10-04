@@ -7,7 +7,7 @@
     xmlns:c="clr-namespace:Vanish.Controls">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-        <StackPanel Margin="26,22,26,24">
+        <StackPanel Margin="40,8,40,32">
             <c:PageHeader Title="{h:L Nav_Tools}" Subtitle="{h:L Tools_Subtitle}" Symbol="Toolbox24" />
 
             <ItemsControl ItemsSource="{Binding Groups}">
@@ -38,7 +38,7 @@
                                                         <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" FontSize="14" />
                                                         <Border CornerRadius="6" Padding="6,1" Margin="8,0,0,0" Background="{DynamicResource OB.SuccessSoft}" VerticalAlignment="Center"
                                                                 Visibility="{Binding IsNew, Converter={StaticResource BoolToVisibility}}">
-                                                            <TextBlock Text="{h:L Badge_New}" FontSize="9.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" />
+                                                            <TextBlock Text="{h:L Badge_New}" FontSize="9.5" FontWeight="SemiBold" Foreground="{StaticResource OB.Success}" />
                                                         </Border>
                                                     </StackPanel>
                                                     <TextBlock Text="{Binding Text}" Style="{StaticResource OB.Caption}" TextWrapping="Wrap" TextTrimming="None" Margin="0,3,0,0" />

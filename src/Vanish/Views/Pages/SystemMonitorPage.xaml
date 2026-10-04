@@ -20,13 +20,13 @@
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
-        <StackPanel Margin="26,22,26,24">
-            <c:PageHeader Title="{h:L Nav_SystemMonitor}" Subtitle="{h:L SysMon_Subtitle}" Symbol="Pulse24" From="#18C29C" To="#2E8BFF">
+        <StackPanel Margin="40,8,40,32">
+            <c:PageHeader Title="{h:L Nav_SystemMonitor}" Subtitle="{h:L SysMon_Subtitle}" Symbol="Pulse24">
                 <StackPanel Orientation="Horizontal">
                     <Border CornerRadius="10" Padding="10,6" Margin="0,0,8,0" Background="{DynamicResource OB.SuccessSoft}">
                         <StackPanel Orientation="Horizontal">
                             <c:PulseDot Width="12" Height="12" Margin="0,0,6,0" />
-                            <TextBlock Text="{h:L SysMon_Live}" FontSize="11.5" FontWeight="Bold" Foreground="{StaticResource OB.Success}" VerticalAlignment="Center" />
+                            <TextBlock Text="{h:L SysMon_Live}" FontSize="11.5" FontWeight="SemiBold" Foreground="{StaticResource OB.Success}" VerticalAlignment="Center" />
                         </StackPanel>
                     </Border>
                     <Button Style="{StaticResource OB.Btn}" Command="{Binding OpenTaskManagerCommand}">
@@ -41,49 +41,49 @@
             <!-- ============ gauges ============ -->
             <UniformGrid Columns="4" Margin="-6,0,-6,0">
                 <!-- CPU -->
-                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                            <ui:SymbolIcon Symbol="DeveloperBoard24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                             <TextBlock Text="{h:L Live_Cpu}" Style="{StaticResource OB.BodyStrong}" />
                         </StackPanel>
                         <Grid Width="96" Height="96" Margin="0,14,0,10">
                             <c:RingGauge Value="{Binding Cpu}" Thickness="9" />
-                            <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="21" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                            <c:CountUpText Value="{Binding CpuPercent}" Mode="Percent" FontSize="21" FontWeight="SemiBold" FontFamily="{StaticResource OB.DisplayFont}"
                                            Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
-                        <c:Sparkline Values="{Binding CpuHistory}" Maximum="100" Height="34" Color="#8B7BFF" />
+                        <c:Sparkline Values="{Binding CpuHistory}" Maximum="100" Height="34" />
                         <TextBlock Text="{Binding CpuName}" Style="{StaticResource OB.Caption}" Margin="0,8,0,0" ToolTip="{Binding CpuName}" />
                         <TextBlock Text="{Binding CpuDetail}" Style="{StaticResource OB.FaintText}" />
                     </StackPanel>
                 </Border>
                 <!-- RAM -->
-                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="50">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="50">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Board24" FontSize="16" Foreground="#18C29C" Margin="0,0,8,0" />
+                            <ui:SymbolIcon Symbol="Board24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                             <TextBlock Text="{h:L Live_Ram}" Style="{StaticResource OB.BodyStrong}" />
                         </StackPanel>
                         <Grid Width="96" Height="96" Margin="0,14,0,10">
-                            <c:RingGauge Value="{Binding Ram}" Thickness="9" From="#18C29C" To="#2E8BFF" />
-                            <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="21" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                            <c:RingGauge Value="{Binding Ram}" Thickness="9" />
+                            <c:CountUpText Value="{Binding RamPercent}" Mode="Percent" FontSize="21" FontWeight="SemiBold" FontFamily="{StaticResource OB.DisplayFont}"
                                            Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
-                        <c:Sparkline Values="{Binding RamHistory}" Maximum="100" Height="34" Color="#18C29C" />
+                        <c:Sparkline Values="{Binding RamHistory}" Maximum="100" Height="34" />
                         <TextBlock Text="{Binding RamUsedText}" Style="{StaticResource OB.Caption}" Margin="0,8,0,0" />
                         <TextBlock Style="{StaticResource OB.FaintText}"><Run Text="{h:L SysMon_Total}" /><Run Text=": " /><Run Text="{Binding TotalRamText, Mode=OneWay}" /></TextBlock>
                     </StackPanel>
                 </Border>
                 <!-- Temperature -->
-                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Foreground="#FF7A45" Margin="0,0,8,0" />
+                            <ui:SymbolIcon Symbol="Temperature24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                             <TextBlock Text="{h:L SysMon_Temp}" Style="{StaticResource OB.BodyStrong}" />
                         </StackPanel>
                         <Grid Width="96" Height="96" Margin="0,14,0,10">
-                            <c:RingGauge Value="{Binding Temp}" Thickness="9" From="#F5A524" To="#E5484D" />
-                            <TextBlock Text="{Binding TempText}" FontSize="19" FontWeight="Bold" FontFamily="{StaticResource OB.DisplayFont}"
+                            <c:RingGauge Value="{Binding Temp}" Thickness="9" />
+                            <TextBlock Text="{Binding TempText}" FontSize="19" FontWeight="SemiBold" FontFamily="{StaticResource OB.DisplayFont}"
                                        Foreground="{DynamicResource OB.Text}" HorizontalAlignment="Center" VerticalAlignment="Center" />
                         </Grid>
                         <TextBlock Text="{Binding TempState}" Style="{StaticResource OB.BodyStrong}" FontSize="12.5" Margin="0,4,0,0" />
@@ -91,10 +91,10 @@
                     </StackPanel>
                 </Border>
                 <!-- Network -->
-                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
+                <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="16" Foreground="{StaticResource OB.Info}" Margin="0,0,8,0" />
+                            <ui:SymbolIcon Symbol="ArrowSwap24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                             <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.BodyStrong}" />
                         </StackPanel>
                         <StackPanel Margin="0,16,0,0">
@@ -104,14 +104,14 @@
                             </StackPanel>
                             <TextBlock Text="{h:L SysMon_Download}" Style="{StaticResource OB.FaintText}" Margin="21,0,0,0" />
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                <ui:SymbolIcon Symbol="ArrowUp24" FontSize="15" Foreground="{StaticResource OB.Info}" Margin="0,0,6,0" />
+                                <ui:SymbolIcon Symbol="ArrowUp24" FontSize="15" Foreground="{DynamicResource OB.AccentText}" Margin="0,0,6,0" />
                                 <TextBlock Text="{Binding NetUpText}" Style="{StaticResource OB.BigNumber}" FontSize="18" />
                             </StackPanel>
                             <TextBlock Text="{h:L SysMon_Upload}" Style="{StaticResource OB.FaintText}" Margin="21,0,0,0" />
                         </StackPanel>
                         <Grid Height="40" Margin="0,12,0,0">
-                            <c:Sparkline Values="{Binding NetDownHistory}" Color="#22C55E" />
-                            <c:Sparkline Values="{Binding NetUpHistory}" Color="#3A8DFF" />
+                            <c:Sparkline Values="{Binding NetDownHistory}" />
+                            <c:Sparkline Values="{Binding NetUpHistory}" Color="#8C8C96" />
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -125,11 +125,11 @@
                     <ColumnDefinition Width="2*" />
                 </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
+                <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="120">
                     <StackPanel>
                         <Grid Margin="0,0,0,10">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <ui:SymbolIcon Symbol="DataBarVertical24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                                 <TextBlock Text="{h:L SysMon_TopProcesses}" Style="{StaticResource OB.Section}" />
                             </StackPanel>
                             <Border Style="{StaticResource OB.SegmentHost}" HorizontalAlignment="Right">
@@ -189,10 +189,10 @@
                 </Border>
 
                 <StackPanel Grid.Column="2">
-                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="160">
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="160">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                                <ui:SymbolIcon Symbol="Desktop24" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <ui:SymbolIcon Symbol="Desktop24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                                 <TextBlock Text="{h:L SysMon_ThisPc}" Style="{StaticResource OB.Section}" />
                             </StackPanel>
                             <Grid>
@@ -221,10 +221,10 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="16" Margin="0,12,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="200">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <ui:SymbolIcon Symbol="HardDrive20" FontSize="16" Foreground="{StaticResource OB.Accent}" Margin="0,0,8,0" />
+                                <ui:SymbolIcon Symbol="HardDrive20" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />
                                 <TextBlock Text="{h:L SysMon_Drives}" Style="{StaticResource OB.Section}" />
                             </StackPanel>
                             <ItemsControl ItemsSource="{Binding Drives}">
@@ -243,7 +243,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="20" Padding="16" Margin="0,12,0,0"
+                    <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="16" Margin="0,12,0,0"
                             Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,10">

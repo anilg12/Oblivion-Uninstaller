@@ -6,14 +6,14 @@
     xmlns:h="clr-namespace:Vanish.Helpers"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <Grid Margin="26,22,26,18">
+    <Grid Margin="40,8,40,32">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <c:PageHeader Title="{h:L Nav_Logs}" Subtitle="{h:L Logs_Subtitle}" Symbol="History24" From="#6E5BFF" To="#3A8DFF">
+        <c:PageHeader Title="{h:L Nav_Logs}" Subtitle="{h:L Logs_Subtitle}" Symbol="History24">
             <StackPanel Orientation="Horizontal">
                 <Button Style="{StaticResource OB.Btn}" Margin="0,0,8,0" Command="{Binding OpenFolderCommand}">
                     <StackPanel Orientation="Horizontal">
@@ -47,7 +47,7 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <Border Width="34" Height="34" CornerRadius="10" Background="{DynamicResource OB.AccentSoft}" Margin="0,0,12,0">
-                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="16" Foreground="{StaticResource OB.Accent}" />
+                            <ui:SymbolIcon Symbol="{Binding Symbol}" FontSize="16" Foreground="{DynamicResource OB.Subtext}" />
                         </Border>
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock Text="{Binding Title}" Style="{StaticResource OB.BodyStrong}" />
