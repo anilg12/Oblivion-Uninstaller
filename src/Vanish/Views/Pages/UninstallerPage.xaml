@@ -66,20 +66,23 @@
                     <ColumnDefinition Width="86" />
                     <ColumnDefinition Width="92" />
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="1" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="name">
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Button Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="name">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{h:L Apps_Name}" />
                         <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
                                        Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=name}" />
                     </StackPanel>
                 </Button>
-                <Button Grid.Column="1" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="publisher">
+                <TextBlock Text="/" Style="{StaticResource OB.FaintText}" VerticalAlignment="Center" Margin="0,0,0,0" />
+                <Button Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="publisher">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="{h:L Apps_SortPublisher}" />
                         <ui:SymbolIcon Symbol="ArrowSort24" FontSize="11" Margin="4,1,0,0"
                                        Visibility="{Binding Sort, Converter={StaticResource EqualsToVisibility}, ConverterParameter=publisher}" />
                     </StackPanel>
                 </Button>
+                </StackPanel>
                 <TextBlock Grid.Column="2" Text="{h:L Apps_Version}" Style="{StaticResource OB.Caption}" FontWeight="SemiBold" Margin="6,4" />
                 <Button Grid.Column="3" Style="{StaticResource OB.ColumnHeader}" Click="Sort_Click" Tag="size">
                     <StackPanel Orientation="Horizontal">
