@@ -12,8 +12,15 @@
 | 🍏 **Mac — Intel işlemcili** | `Oblivion-{version}-macOS-Intel.dmg` |
 | 🍏 Mac — emin değilim | `Oblivion-{version}-macOS-Universal.dmg` — her Mac'te çalışır |
 
-> 💡 Mac'te en kolay yol (uyarısız, işlemciyi kendisi seçer): Terminal'e yapıştır →
+> ✅ **Uyarısız kurulum (önerilen)** — “Windows kişisel bilgisayarınızı korudu” ekranı çıkmaz:
+>
+> 🪟 **Windows:** PowerShell'i aç, yapıştır, Enter →
+> `irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex`
+>
+> 🍏 **Mac:** Terminal'i aç, yapıştır, Enter (işlemciyi kendisi seçer) →
 > `curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash`
+>
+> Dosyaları tarayıcıyla indirirsen Windows imzasız yeni programlar için uyarı gösterebilir: **Ek bilgi → Yine de çalıştır**.
 
 ## ✨ 3.0'da neler yeni
 
@@ -51,6 +58,8 @@
 | 🍏 **Mac — Apple Silicon** (M1, M2, M3, M4…) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
 | 🍏 **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
 | 🍏 Mac — not sure | `Oblivion-{version}-macOS-Universal.dmg` — runs on every Mac |
+
+No-warning install on Windows (PowerShell): `irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex`
 
 Easiest on a Mac (no Gatekeeper prompt, picks the right build): `curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash`
 

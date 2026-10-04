@@ -166,6 +166,36 @@ jobs:
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Vanish.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
 
+      # The recommended install path: `irm …/install.ps1 | iex` (no SmartScreen prompt).
+      - name: One-line installer - install this build, run it, uninstall
+        shell: pwsh
+        run: |
+          $env:OBLIVION_SETUP = "$pwd\dist\OblivionSetup.exe"
+          $env:OBLIVION_SILENT = "1"
+          Get-Content install.ps1 -Raw | Invoke-Expression
+          $env:OBLIVION_SETUP = $null; $env:OBLIVION_SILENT = $null
+          $dir = "$env:ProgramFiles\Oblivion"
+          $exe = "$dir\Oblivion.exe"
+          if (-not (Test-Path $exe)) { throw "Oblivion.exe was not installed" }
+          $marked = Get-ChildItem $dir -Recurse -File | Where-Object { Get-Item $_.FullName -Stream Zone.Identifier -ErrorAction SilentlyContinue }
+          if ($marked) { throw "Installed files carry the downloaded-from-internet mark: $($marked.Name -join ', ')" }
+          $r = ./selftest.ps1 -Exe $exe -Dir "$pwd\snap\installed" -Mode perf
+          Write-Host "Installed app: first render $($r.firstRenderMs) ms, slowest page switch $($r.navigationMaxMs) ms"
+          $un = Start-Process "$dir\unins000.exe" -ArgumentList '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART' -Wait -PassThru
+          Start-Sleep 3
+          if ($un.ExitCode -ne 0 -or (Test-Path $exe)) { throw "Uninstall failed (code $($un.ExitCode))" }
+          Write-Host "install.ps1 OK: installed, ran, uninstalled"
+
+      - name: One-line installer - download the published setup from GitHub
+        shell: pwsh
+        run: |
+          $env:OBLIVION_DOWNLOAD_ONLY = "$env:RUNNER_TEMP\OblivionSetup-latest.exe"
+          Get-Content install.ps1 -Raw | Invoke-Expression
+          $file = Get-Item $env:OBLIVION_DOWNLOAD_ONLY
+          if ($file.Length -lt 10MB) { throw "Downloaded setup looks too small ($($file.Length) bytes)" }
+          if (Get-Item $file.FullName -Stream Zone.Identifier -ErrorAction SilentlyContinue) { throw "Download carries the internet mark" }
+          Write-Host "Downloaded $($file.Name): $([math]::Round($file.Length / 1MB, 1)) MB, no internet mark"
+
       - name: Upload portable build
         uses: actions/upload-artifact@v4
         with:

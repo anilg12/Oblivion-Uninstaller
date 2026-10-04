@@ -14,11 +14,9 @@
 <h3 align="center">Programları iz bırakmadan kaldır · bilgisayarını güvenle temizle · sistemini canlı izle</h3>
 
 <p align="center">
-  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.0.0-Windows-Setup.exe"><img src="https://img.shields.io/badge/Windows_i%C3%A7in_indir-Setup.exe-0078D4?style=for-the-badge&logo=windows11&logoColor=white" alt="Windows için indir" height="40"></a>
+  <a href="#indir"><img src="https://img.shields.io/badge/Windows%27a_kur-uyar%C4%B1s%C4%B1z-0078D4?style=for-the-badge&logo=windows11&logoColor=white" alt="Windows'a kur" height="40"></a>
   &nbsp;
-  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.0.0-macOS-AppleSilicon.dmg"><img src="https://img.shields.io/badge/Mac_(Apple_Silicon)-.dmg-111111?style=for-the-badge&logo=apple&logoColor=white" alt="Mac (Apple Silicon) için indir" height="40"></a>
-  &nbsp;
-  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.0.0-macOS-Intel.dmg"><img src="https://img.shields.io/badge/Mac_(Intel)-.dmg-555555?style=for-the-badge&logo=apple&logoColor=white" alt="Mac (Intel) için indir" height="40"></a>
+  <a href="#indir"><img src="https://img.shields.io/badge/Mac%27e_kur-Apple_Silicon_%2B_Intel-111111?style=for-the-badge&logo=apple&logoColor=white" alt="Mac'e kur" height="40"></a>
 </p>
 
 <p align="center"><img src="docs/assets/divider.svg" width="100%" alt=""></p>
@@ -107,7 +105,29 @@ Büyük dosyalar · Dosya parçalayıcı · Geçmiş ve gizlilik · Kanıt temiz
 
 <p align="center"><img src="docs/assets/divider.svg" width="100%" alt=""></p>
 
+<a name="indir"></a>
+
 ## ⬇️ İndir
+
+### 🪟 Windows — önerilen kurulum (uyarısız)
+
+**PowerShell**'i aç (Başlat'a `PowerShell` yaz), şu satırı yapıştır ve Enter'a bas:
+
+```powershell
+irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex
+```
+
+En yeni sürümü GitHub'dan indirip kurulum sihirbazını açar. Bu yolla kurulan dosyalar “internetten indirildi” olarak işaretlenmediği için **“Windows kişisel bilgisayarınızı korudu” (SmartScreen) uyarısı çıkmaz**. Yalnızca programları kaldırabilmek için gereken standart yönetici izni sorulur.
+
+### 🍏 Mac — önerilen kurulum (uyarısız)
+
+**Terminal**'i aç, şu satırı yapıştır ve Enter'a bas. Mac'inin işlemcisine (Apple Silicon / Intel) uygun sürümü kendisi seçer:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash
+```
+
+### 📦 Ya da dosyayı elle indir
 
 | Bilgisayarın | Dosya |
 |---|---|
@@ -118,24 +138,18 @@ Büyük dosyalar · Dosya parçalayıcı · Geçmiş ve gizlilik · Kanıt temiz
 | 🍏 Mac — hangisi olduğundan emin değilim | [`Oblivion-3.0.0-macOS-Universal.dmg`](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.0.0-macOS-Universal.dmg) — her Mac'te çalışır |
 
 <details>
-<summary>🍏 <b>Mac'e kurulum</b> (tek satır, uyarısız)</summary>
+<summary>🍏 <b>DMG ile Mac'e kurulum</b></summary>
 
-Terminal'i aç, şunu yapıştır, Enter'a bas. Mac'inin işlemcisine uygun sürümü kendisi seçer:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash
-```
-
-**DMG ile:** Oblivion'u **Applications** klasörüne sürükle. İlk açılışta “geliştirici doğrulanamadı” uyarısı çıkarsa **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**'a bas. En iyi sonuç için Oblivion'a **Tam Disk Erişimi** ver (uygulamanın içinde bunu açan bir düğme var).
+ Oblivion'u **Applications** klasörüne sürükle. İlk açılışta “geliştirici doğrulanamadı” uyarısı çıkarsa **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**'a bas. En iyi sonuç için Oblivion'a **Tam Disk Erişimi** ver (uygulamanın içinde bunu açan bir düğme var).
 
 </details>
 
 <details>
-<summary>🪟 <b>Windows'a kurulum</b></summary>
+<summary>🪟 <b>Setup.exe ile Windows'a kurulum</b> — neden uyarı çıkabilir?</summary>
 
-`Oblivion-3.0.0-Windows-Setup.exe` dosyasını çalıştır ve sihirbazı takip et. Önceki sürüm kuruluysa yerinde güncellenir. Programları kaldırabilmek için Oblivion yönetici izniyle çalışır.
+`Oblivion-3.0.0-Windows-Setup.exe` dosyasını çalıştır ve sihirbazı takip et. Önceki sürüm kuruluysa yerinde güncellenir.
 
-SmartScreen “Windows bilgisayarınızı korudu” derse **Ek bilgi → Yine de çalıştır**'a bas.
+Tarayıcıyla indirilen ve ücretli bir kod imzalama sertifikası taşımayan her yeni program için Windows, **“Windows kişisel bilgisayarınızı korudu”** uyarısını gösterir; bu uyarı programın zararlı olduğu anlamına gelmez. Bu uyarıyı hiç görmemek için yukarıdaki **tek satırlık PowerShell kurulumunu** kullan. Dosyayı yine de elle indirdiysen: **Ek bilgi → Yine de çalıştır**.
 
 </details>
 
@@ -175,6 +189,14 @@ Remove programs without a trace, clean your computer safely and watch your syste
 - 🧹 **Safe junk cleaner** *(new)*: **nothing is pre-selected**. Every category opens to show each file, and only what you tick is removed, after a confirmation with the full list.
 - 🎯 **Hunter mode**, 🚀 **Startup manager** (switch items off without deleting them), 🔭 **Install monitor**, 🧩 **Browser extensions**, 🛠️ Large files · File shredder · History & privacy · Evidence remover · Backup manager · Windows (Store / MSIX) apps.
 - 🛡️ **Safety first**: nothing is ever ticked for you, every deletion is confirmed with the exact list, Windows / Microsoft / Apple and shared locations are never offered, and there is a way back (an optional restore point and the Recycle Bin on Windows, the Trash on a Mac).
+
+**Recommended Windows install (no SmartScreen prompt):** open PowerShell and run
+
+```powershell
+irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex
+```
+
+It downloads the latest setup and starts it. Files fetched this way aren't marked as downloaded from the internet, so the “Windows protected your PC” screen doesn't appear (the browser-downloaded Setup.exe shows it because it isn't signed with a paid code-signing certificate).
 
 **Downloads:** the Windows installer or portable exe, and Mac DMGs for **Apple Silicon**, **Intel** or **Universal** (see the table above). One-line Mac install, which picks the right build and skips the Gatekeeper prompt:
 

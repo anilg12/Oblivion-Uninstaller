@@ -17,6 +17,10 @@ on:
         description: "Version tag to publish (created on the selected branch if missing), e.g. v3.0.0"
         required: true
         default: "v3.0.0"
+      windows_only:
+        description: "Rebuild only the Windows downloads; the release keeps its existing macOS DMGs"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -76,6 +80,7 @@ jobs:
           if-no-files-found: error
 
   mac:
+    if: ${{ !inputs.windows_only }}
     runs-on: macos-15
     timeout-minutes: 40
     steps:
@@ -131,6 +136,7 @@ jobs:
 
   publish:
     needs: [ windows, mac ]
+    if: ${{ always() && needs.windows.result == 'success' && (needs.mac.result == 'success' || needs.mac.result == 'skipped') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -139,6 +145,12 @@ jobs:
         with:
           path: assets
           merge-multiple: true
+
+      - name: Keep the published macOS DMGs (Windows-only rebuild)
+        if: ${{ inputs.windows_only }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "$TAG" --repo "$GITHUB_REPOSITORY" --pattern '*.dmg' --dir assets
 
       - name: List the downloads
         run: ls -lh assets
@@ -167,9 +179,9 @@ jobs:
           VERSION="${TAG#v}"
           NOTES="docs/release-notes.md"
           sed "s/{version}/$VERSION/g" "$NOTES" > notes.md
-          # Re-running replaces this release's files but keeps its tag.
-          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes 2>/dev/null || true
-          # Creates the tag on this commit when it doesn't exist yet.
+          # Re-running replaces the release and moves its tag to this commit.
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null || true
+          git push origin ":refs/tags/$TAG" 2>/dev/null || true
           gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Oblivion $VERSION" --notes-file notes.md --latest
 
