@@ -195,6 +195,13 @@ jobs:
           if ($file.Length -lt 10MB) { throw "Downloaded setup looks too small ($($file.Length) bytes)" }
           if (Get-Item $file.FullName -Stream Zone.Identifier -ErrorAction SilentlyContinue) { throw "Download carries the internet mark" }
           Write-Host "Downloaded $($file.Name): $([math]::Round($file.Length / 1MB, 1)) MB, no internet mark"
+          # Same again without the GitHub API (what users hit when its hourly limit is used up).
+          Remove-Item $file.FullName -Force
+          $env:OBLIVION_SKIP_API = "1"
+          Get-Content install.ps1 -Raw | Invoke-Expression
+          $file = Get-Item $env:OBLIVION_DOWNLOAD_ONLY
+          if ($file.Length -lt 10MB) { throw "Fallback download looks too small ($($file.Length) bytes)" }
+          Write-Host "Fallback download OK: $([math]::Round($file.Length / 1MB, 1)) MB"
 
       - name: Upload portable build
         uses: actions/upload-artifact@v4

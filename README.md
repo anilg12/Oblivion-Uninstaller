@@ -3,11 +3,11 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases/latest"><img src="https://img.shields.io/github/v/release/anilg12/Oblivion-Uninstaller?style=for-the-badge&color=7C6CF6&label=s%C3%BCr%C3%BCm" alt="Sürüm"></a>
-  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases"><img src="https://img.shields.io/github/downloads/anilg12/Oblivion-Uninstaller/total?style=for-the-badge&color=B45BFF&label=indirme" alt="İndirme"></a>
+  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases/latest"><img src="https://img.shields.io/github/v/release/anilg12/Oblivion-Uninstaller?style=for-the-badge&color=4F6BED&label=s%C3%BCr%C3%BCm" alt="Sürüm"></a>
+  <a href="https://github.com/anilg12/Oblivion-Uninstaller/releases"><img src="https://img.shields.io/github/downloads/anilg12/Oblivion-Uninstaller/total?style=for-the-badge&color=5E5E66&label=indirme" alt="İndirme"></a>
   <img src="https://img.shields.io/badge/Windows-10%20%7C%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white" alt="Windows 10 | 11">
   <img src="https://img.shields.io/badge/macOS-14%2B-111111?style=for-the-badge&logo=apple&logoColor=white" alt="macOS 14+">
-  <img src="https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-yerel-22C55E?style=for-the-badge" alt="Apple Silicon + Intel">
+  <img src="https://img.shields.io/badge/Apple%20Silicon%20%2B%20Intel-yerel-30A46C?style=for-the-badge" alt="Apple Silicon + Intel">
   <a href="LICENSE"><img src="https://img.shields.io/badge/lisans-MIT-2EA043?style=for-the-badge" alt="MIT"></a>
 </p>
 

@@ -1,136 +1,48 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="Oblivion — uninstaller and system cleaner for Windows and macOS">
   <title>Oblivion — uninstaller and system cleaner for Windows and macOS</title>
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#1B1D3F"/>
-      <stop offset="0.55" stop-color="#2A2466"/>
-      <stop offset="1" stop-color="#141530"/>
-    </linearGradient>
-    <radialGradient id="glowA" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#7C6CF6" stop-opacity="0.75"/>
-      <stop offset="1" stop-color="#7C6CF6" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glowB" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#B45BFF" stop-opacity="0.6"/>
-      <stop offset="1" stop-color="#B45BFF" stop-opacity="0"/>
-    </radialGradient>
-    <radialGradient id="glowC" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="#2E8BFF" stop-opacity="0.45"/>
-      <stop offset="1" stop-color="#2E8BFF" stop-opacity="0"/>
-    </radialGradient>
-    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#6E5BFF"/>
-      <stop offset="1" stop-color="#B45BFF"/>
-    </linearGradient>
-    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#FFFFFF"/>
-      <stop offset="0.5" stop-color="#D9CCFF"/>
-      <stop offset="1" stop-color="#9FC4FF"/>
-    </linearGradient>
-    <linearGradient id="shine" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/>
-      <stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.55"/>
-      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
-    </linearGradient>
-    <clipPath id="titleClip">
-      <text x="300" y="168" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="14">OBLIVION</text>
-    </clipPath>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3038"/><stop offset="1" stop-color="#16171B"/></linearGradient>
+    <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D5D6DC"/></linearGradient>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/></pattern>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#141416" stop-opacity="0"/><stop offset="1" stop-color="#141416" stop-opacity="1"/></linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
     <style>
-      .float1 { animation: drift1 16s ease-in-out infinite alternate; }
-      .float2 { animation: drift2 19s ease-in-out infinite alternate; }
-      .float3 { animation: drift3 23s ease-in-out infinite alternate; }
-      .logo { animation: breathe 3.2s ease-in-out infinite; transform-origin: 170px 150px; }
-      .ring { animation: spin 12s linear infinite; transform-origin: 170px 150px; }
-      .shine { animation: sweep 5.5s ease-in-out infinite; }
-      .sub { animation: rise 1.2s ease-out both 0.3s; }
-      .chips { animation: rise 1.2s ease-out both 0.8s; }
-      .dot { animation: twinkle 3s ease-in-out infinite; }
-      .d2 { animation-delay: 0.6s; } .d3 { animation-delay: 1.2s; } .d4 { animation-delay: 1.8s; }
-      .d5 { animation-delay: 2.4s; } .d6 { animation-delay: 0.9s; } .d7 { animation-delay: 1.5s; }
-      .particle { animation: up 7s linear infinite; }
-      .p2 { animation-duration: 9s; animation-delay: 1.5s; } .p3 { animation-duration: 8s; animation-delay: 3s; }
-      .p4 { animation-duration: 10s; animation-delay: 4.5s; } .p5 { animation-duration: 7.5s; animation-delay: 2.2s; }
-      @keyframes drift1 { from { transform: translate(0, 0); } to { transform: translate(140px, 40px); } }
-      @keyframes drift2 { from { transform: translate(0, 0); } to { transform: translate(-160px, -30px); } }
-      @keyframes drift3 { from { transform: translate(0, 0); } to { transform: translate(90px, -50px); } }
-      @keyframes breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.045); } }
-      @keyframes spin { to { transform: rotate(360deg); } }
-      @keyframes sweep { 0% { transform: translateX(-420px); } 60%, 100% { transform: translateX(980px); } }
-      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-      @keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.9; } }
-      @keyframes up { 0% { transform: translateY(0); opacity: 0; } 15% { opacity: 0.8; } 100% { transform: translateY(-260px); opacity: 0; } }
-      @media (prefers-reduced-motion: reduce) {
-        .float1, .float2, .float3, .logo, .ring, .shine, .dot, .particle { animation: none; }
-      }
+      .in1 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .05s; }
+      .in2 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .18s; }
+      .in3 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .30s; }
+      @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+      @media (prefers-reduced-motion: reduce) { .in1, .in2, .in3 { animation: none; } }
+      text { font-family: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; }
     </style>
   </defs>
+  <rect width="1200" height="320" rx="20" fill="#141416"/>
+  <rect width="1200" height="320" rx="20" fill="url(#grid)"/>
+  <rect x="600" width="600" height="320" rx="20" fill="url(#fade)" opacity="0.6"/>
+  <rect x="0.5" y="0.5" width="1199" height="319" rx="19.5" fill="none" stroke="#2A2A2F"/>
 
-  <rect width="1200" height="320" rx="28" fill="url(#bg)"/>
-
-  <!-- aurora -->
-  <g opacity="0.9">
-    <ellipse class="float1" cx="230" cy="90" rx="320" ry="190" fill="url(#glowA)"/>
-    <ellipse class="float2" cx="980" cy="260" rx="360" ry="210" fill="url(#glowB)"/>
-    <ellipse class="float3" cx="650" cy="40" rx="300" ry="150" fill="url(#glowC)"/>
+  <g class="in1">
+    <rect x="96" y="70" width="200" height="200" rx="45" fill="#000" opacity="0.45" filter="url(#soft)"/>
+    <rect x="96" y="60" width="200" height="200" rx="45" fill="url(#tile)"/>
+    <rect x="97" y="61" width="198" height="198" rx="44" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
+    <path d="M 243.64 136.77 A 53.0 53.0 0 1 1 217.56 111.58" fill="none" stroke="url(#ring)" stroke-width="19.6" stroke-linecap="round"/>
+<circle cx="234.18" cy="120.47" r="7.06" fill="#8EA2FF" fill-opacity="1.0"/>
+<circle cx="254.71" cy="112.46" r="4.70" fill="#8EA2FF" fill-opacity="0.8"/>
+<circle cx="273.33" cy="109.78" r="2.74" fill="#8EA2FF" fill-opacity="0.55"/>
   </g>
 
-  <!-- stars -->
-  <g fill="#FFFFFF">
-    <circle class="dot" cx="520" cy="54" r="1.6"/>
-    <circle class="dot d2" cx="1080" cy="70" r="2"/>
-    <circle class="dot d3" cx="900" cy="140" r="1.4"/>
-    <circle class="dot d4" cx="1130" cy="200" r="1.8"/>
-    <circle class="dot d5" cx="60" cy="260" r="1.5"/>
-    <circle class="dot d6" cx="760" cy="290" r="1.6"/>
-    <circle class="dot d7" cx="420" cy="280" r="1.3"/>
+  <g class="in2">
+    <text x="360" y="150" font-size="76" font-weight="600" letter-spacing="-1.5" fill="#EDEDEF">Oblivion</text>
+    <text x="362" y="196" font-size="24" font-weight="400" fill="#A3A3AA">Uninstaller &amp; system cleaner for Windows and macOS</text>
   </g>
 
-  <!-- rising particles -->
-  <g fill="#C9B8FF">
-    <circle class="particle" cx="1010" cy="330" r="2.4"/>
-    <circle class="particle p2" cx="1090" cy="330" r="1.8"/>
-    <circle class="particle p3" cx="960" cy="330" r="2"/>
-    <circle class="particle p4" cx="1150" cy="330" r="1.6"/>
-    <circle class="particle p5" cx="1040" cy="330" r="1.4"/>
-  </g>
-
-  <!-- logo -->
-  <g>
-    <circle class="ring" cx="170" cy="150" r="88" fill="none" stroke="url(#brand)" stroke-width="3" stroke-dasharray="22 14" opacity="0.65"/>
-    <g class="logo">
-      <rect x="110" y="90" width="120" height="120" rx="34" fill="url(#brand)"/>
-      <rect x="110" y="90" width="120" height="120" rx="34" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="2"/>
-      <!-- trash can -->
-      <g fill="#FFFFFF">
-        <rect x="138" y="118" width="64" height="9" rx="4.5"/>
-        <rect x="159" y="110" width="22" height="10" rx="4"/>
-        <path d="M144 131 h52 l-5 50 a8 8 0 0 1 -8 7 h-26 a8 8 0 0 1 -8 -7 z"/>
-      </g>
-      <g stroke="#8E6BFF" stroke-width="4" stroke-linecap="round">
-        <line x1="161" y1="142" x2="161" y2="176"/>
-        <line x1="179" y1="142" x2="179" y2="176"/>
-      </g>
-    </g>
-  </g>
-
-  <!-- title with a light sweep -->
-  <text x="300" y="168" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif" font-size="92" font-weight="800" letter-spacing="14" fill="url(#title)">OBLIVION</text>
-  <g clip-path="url(#titleClip)">
-    <rect class="shine" x="300" y="60" width="160" height="140" fill="url(#shine)" transform="skewX(-20)"/>
-  </g>
-
-  <g class="sub">
-    <text x="304" y="214" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif" font-size="26" font-weight="500" fill="#E6E1FF" opacity="0.92">Uninstaller &amp; system cleaner for Windows and macOS</text>
-  </g>
-
-  <g class="chips" font-family="Segoe UI, -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif" font-size="15" font-weight="700">
-    <rect x="304" y="236" width="118" height="32" rx="16" fill="#FFFFFF" fill-opacity="0.12"/>
-    <text x="363" y="257" text-anchor="middle" fill="#FFFFFF">v3.0.0</text>
-    <rect x="432" y="236" width="150" height="32" rx="16" fill="#3A8DFF" fill-opacity="0.28"/>
-    <text x="507" y="257" text-anchor="middle" fill="#DCEBFF">Windows 10 / 11</text>
-    <rect x="592" y="236" width="196" height="32" rx="16" fill="#22C55E" fill-opacity="0.24"/>
-    <text x="690" y="257" text-anchor="middle" fill="#D7FBE5">macOS · Apple Silicon</text>
-    <rect x="798" y="236" width="150" height="32" rx="16" fill="#F5A524" fill-opacity="0.24"/>
-    <text x="873" y="257" text-anchor="middle" fill="#FFEFD2">macOS · Intel</text>
+  <g class="in3" font-size="15" font-weight="600">
+    <rect x="362" y="226" width="140" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
+    <text x="432" y="247" text-anchor="middle" fill="#EDEDEF">Windows 10 · 11</text>
+    <rect x="514" y="226" width="112" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
+    <text x="570" y="247" text-anchor="middle" fill="#EDEDEF">macOS 14+</text>
+    <rect x="638" y="226" width="196" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
+    <text x="736" y="247" text-anchor="middle" fill="#EDEDEF">Apple Silicon + Intel</text>
+    <rect x="846" y="226" width="72" height="32" rx="8" fill="#4F6BED" fill-opacity="0.18" stroke="#4F6BED" stroke-opacity="0.45"/>
+    <text x="882" y="247" text-anchor="middle" fill="#A3B4FF">v3.0</text>
   </g>
 </svg>
