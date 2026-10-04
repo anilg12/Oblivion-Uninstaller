@@ -80,6 +80,7 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
+        with:
           sparse-checkout: |
             macos
           sparse-checkout-cone-mode: true
