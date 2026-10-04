@@ -71,14 +71,14 @@ struct SettingsView: View {
                 about(p)
                     .appearIn(0.24)
             }
-            .padding(26)
+            .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         }
     }
 
     private func settingRow<Control: View>(symbol: String, colors: [UInt32], title: String, detail: String,
                                            p: Palette, @ViewBuilder control: () -> Control) -> some View {
         HStack(spacing: 14) {
-            GradientBadge(symbol: symbol, colors: colors, size: 40)
+            GradientBadge(symbol: symbol, colors: colors, size: 34)
             VStack(alignment: .leading, spacing: 3) {
                 Text(title).font(.system(size: 14, weight: .semibold)).foregroundStyle(p.text)
                 Text(detail).font(.system(size: 12)).foregroundStyle(p.subtext)
@@ -88,15 +88,15 @@ struct SettingsView: View {
             control()
         }
         .padding(16)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(p.card))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.stroke, lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.stroke, lineWidth: 1))
     }
 
     private func about(_ p: Palette) -> some View {
         HStack(alignment: .center, spacing: 14) {
             LogoMark(size: 54, glow: !prefs.calmMotion)
             VStack(alignment: .leading, spacing: 4) {
-                Text("Oblivion").font(.system(size: 22, weight: .heavy, design: .rounded)).foregroundStyle(p.text)
+                Text("Oblivion").font(.system(size: 22, weight: .semibold)).foregroundStyle(p.text)
                 Text(loc.t("set.version", ["version": AppInfo.version]))
                     .font(.system(size: 12)).foregroundStyle(p.subtext)
                 Text(loc["set.about"]).font(.system(size: 12.5)).foregroundStyle(p.subtext)
@@ -110,7 +110,7 @@ struct SettingsView: View {
         }
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.card))
-        .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.stroke, lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.stroke, lineWidth: 1))
     }
 }

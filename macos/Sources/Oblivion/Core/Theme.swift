@@ -13,46 +13,68 @@ extension Color {
     }
 }
 
-/// Oblivion's Daccord-inspired palette (navy / violet), with a light variant.
+/// Oblivion "Graphite": neutral warm greys, hairline borders and a single indigo accent.
+/// The same values are used by the Windows app.
 struct Palette {
     let dark: Bool
 
     init(_ scheme: ColorScheme) { dark = scheme == .dark }
 
-    var tintTop: Color { dark ? Color(hex: 0x2C2F66) : Color(hex: 0xEEECFF) }
-    var tintBottom: Color { dark ? Color(hex: 0x191B36) : Color(hex: 0xDDD9F8) }
-    var rail: Color { dark ? Color(hex: 0x1C1F3D, opacity: 0.94) : Color(hex: 0xE2DFFA, opacity: 0.94) }
-    var panel: Color { dark ? Color(hex: 0x2B3164, opacity: 0.86) : Color.white.opacity(0.72) }
-    var content: Color { dark ? Color(hex: 0x22244B, opacity: 0.82) : Color.white.opacity(0.62) }
-    var right: Color { dark ? Color(hex: 0x2C2F48, opacity: 0.9) : Color(hex: 0xF7F6FF, opacity: 0.88) }
-    var navSelected: Color { dark ? Color(hex: 0x13152B) : Color(hex: 0x2B2F58) }
-    var card: Color { dark ? Color.white.opacity(0.055) : Color.black.opacity(0.035) }
-    var cardStrong: Color { dark ? Color.white.opacity(0.10) : Color.black.opacity(0.06) }
-    var stroke: Color { dark ? Color.white.opacity(0.08) : Color.black.opacity(0.08) }
-    var text: Color { dark ? Color.white : Color(hex: 0x1B1D3A) }
-    var subtext: Color { dark ? Color.white.opacity(0.62) : Color(hex: 0x1B1D3A, opacity: 0.62) }
-    var faint: Color { dark ? Color.white.opacity(0.38) : Color(hex: 0x1B1D3A, opacity: 0.4) }
+    /// Window / content canvas.
+    var tintTop: Color { dark ? Color(hex: 0x141416) : Color(hex: 0xF7F7F5) }
+    var tintBottom: Color { tintTop }
+    /// Sidebar surface (drawn over a light vibrancy layer).
+    var rail: Color { dark ? Color(hex: 0x19191C, opacity: 0.86) : Color(hex: 0xF0F0ED, opacity: 0.86) }
+    var panel: Color { rail }
+    var content: Color { tintTop }
+    var right: Color { dark ? Color(hex: 0x19191C) : Color(hex: 0xF0F0ED) }
+    var navSelected: Color { dark ? Color(hex: 0x27272C) : Color.white }
+    var navHover: Color { dark ? Color(hex: 0x202024) : Color(hex: 0xE7E7E3) }
+    var card: Color { dark ? Color(hex: 0x1C1C1F) : Color.white }
+    var cardHover: Color { dark ? Color(hex: 0x222226) : Color(hex: 0xFBFBF9) }
+    var cardStrong: Color { dark ? Color(hex: 0x26262A) : Color(hex: 0xEFEFEC) }
+    var stroke: Color { dark ? Color(hex: 0x2A2A2F) : Color(hex: 0xE4E3DF) }
+    var strokeStrong: Color { dark ? Color(hex: 0x3A3A41) : Color(hex: 0xD2D1CC) }
+    var track: Color { dark ? Color(hex: 0x2C2C31) : Color(hex: 0xE8E7E3) }
+    var text: Color { dark ? Color(hex: 0xEDEDEF) : Color(hex: 0x18181B) }
+    var subtext: Color { dark ? Color(hex: 0xA3A3AA) : Color(hex: 0x5E5E66) }
+    var faint: Color { dark ? Color(hex: 0x6E6E76) : Color(hex: 0x93939B) }
+    /// Accent for text and small icons, tuned for contrast on this background.
+    var accentText: Color { dark ? Color(hex: 0xA3B4FF) : Color(hex: 0x3A52C9) }
+    var accentSoft: Color { Palette.accent.opacity(dark ? 0.17 : 0.10) }
+    var shadow: Color { dark ? Color.black.opacity(0.35) : Color(hex: 0x18181B, opacity: 0.08) }
 
-    static let accent = Color(hex: 0x7C6CF6)
-    static let accent2 = Color(hex: 0xB45BFF)
+    static let accent = Color(hex: 0x4F6BED)
+    static let accent2 = accent
     static let danger = Color(hex: 0xE5484D)
-    static let success = Color(hex: 0x22C55E)
-    static let warning = Color(hex: 0xF5A524)
-    static let info = Color(hex: 0x3A8DFF)
+    static let success = Color(hex: 0x30A46C)
+    static let warning = Color(hex: 0xF2A33A)
+    static let info = accent
 
+    /// Kept as a gradient type for existing call sites; it is a flat accent now.
     static var brandGradient: LinearGradient {
-        LinearGradient(colors: [Color(hex: 0x6E5BFF), Color(hex: 0xB45BFF)],
-                       startPoint: .topLeading, endPoint: .bottomTrailing)
+        LinearGradient(colors: [accent, accent], startPoint: .top, endPoint: .bottom)
     }
 
     static func signature(_ dark: Bool) -> LinearGradient {
-        let colors = dark
-            ? [Color(hex: 0x8FC0FF), Color(hex: 0xD7ABFF)]
-            : [Color(hex: 0x4F6BFF), Color(hex: 0x9B4BE0)]
-        return LinearGradient(colors: colors, startPoint: .leading, endPoint: .trailing)
+        let c = dark ? Color(hex: 0xEDEDEF) : Color(hex: 0x18181B)
+        return LinearGradient(colors: [c, c], startPoint: .leading, endPoint: .trailing)
+    }
+
+    /// Legacy per-feature colour pairs collapse to one tone: red stays red (destructive),
+    /// everything else becomes the accent.
+    static func tone(_ hexes: [UInt32]) -> Color {
+        isDestructive(hexes) ? danger : accent
+    }
+
+    static func isDestructive(_ hexes: [UInt32]) -> Bool {
+        guard let h = hexes.first else { return false }
+        let r = (h >> 16) & 0xFF, g = (h >> 8) & 0xFF, b = h & 0xFF
+        return r > 0xC8 && g < 0x80 && b < 0x80
     }
 
     static func gradient(_ hexes: [UInt32]) -> LinearGradient {
-        LinearGradient(colors: hexes.map { Color(hex: $0) }, startPoint: .topLeading, endPoint: .bottomTrailing)
+        let c = tone(hexes)
+        return LinearGradient(colors: [c, c], startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 }

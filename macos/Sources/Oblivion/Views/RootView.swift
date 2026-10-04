@@ -12,7 +12,6 @@ struct RootView: View {
             // The live panel steps aside on narrow windows to give the content room.
             let showRightPanel = prefs.showLivePanel && geo.size.width >= 1300
             HStack(spacing: 0) {
-                IconRail()
                 NavPanel()
                 pageArea
                 if showRightPanel {
@@ -20,7 +19,7 @@ struct RootView: View {
                         .transition(.move(edge: .trailing).combined(with: .opacity))
                 }
             }
-            .animation(.spring(response: 0.4, dampingFraction: 0.9), value: showRightPanel)
+            .animation(.easeOut(duration: 0.25), value: showRightPanel)
             .sheet(isPresented: $state.showAbout) {
                 AboutView()
                     .environmentObject(loc)
@@ -66,14 +65,11 @@ struct RootView: View {
         return ZStack {
             pageView
                 .id(state.page)
-                .transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 18)), removal: .opacity))
+                .transition(.asymmetric(insertion: .opacity.combined(with: .offset(y: 6)), removal: .opacity))
         }
+        .padding(.top, 14)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(p.content))
-        .overlay(RoundedRectangle(cornerRadius: 22, style: .continuous).stroke(p.stroke, lineWidth: 1))
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .padding(.vertical, 12)
-        .padding(.horizontal, 10)
+        .background(p.content)
         // Every destructive action asks here first, listing exactly what it affects.
         .sheet(item: $state.confirm) { request in
             ConfirmSheet(request: request)
@@ -103,69 +99,12 @@ struct RootView: View {
     }
 }
 
-// MARK: - Icon rail
-
-struct IconRail: View {
-    @EnvironmentObject private var state: AppState
-    @EnvironmentObject private var loc: Loc
-    @EnvironmentObject private var prefs: Prefs
-    @Environment(\.colorScheme) private var scheme
-    @Namespace private var selection
-
-    var body: some View {
-        let p = Palette(scheme)
-        VStack(spacing: 6) {
-            LogoMark(size: 42, glow: !prefs.calmMotion)
-                .padding(.top, 46)
-                .padding(.bottom, 12)
-            pageButton(.dashboard, "square.grid.2x2.fill", "nav.dashboard")
-            pageButton(.apps, "square.stack.3d.up.fill", "nav.apps")
-            pageButton(.storeApps, "bag.fill", "nav.store")
-            pageButton(.systemMonitor, "gauge.with.dots.needle.67percent", "rail.systemMonitor")
-            pageButton(.hunter, "scope", "nav.hunter")
-            RailButton(symbol: "wrench.and.screwdriver.fill", active: Page.toolPages.contains(state.page),
-                       help: loc["nav.tools"], namespace: selection) {
-                state.navigate(.tools)
-            }
-            Spacer()
-            RailButton(symbol: "info.circle.fill", active: false, help: loc["rail.about"]) {
-                state.showAbout = true
-            }
-            RailButton(symbol: themeSymbol, active: false, help: loc["rail.theme"]) {
-                withAnimation(.easeInOut(duration: 0.35)) { prefs.cycleAppearance() }
-            }
-            RailButton(text: loc.isTurkish ? "TR" : "EN", active: false, help: loc["rail.language"]) {
-                withAnimation(.easeInOut(duration: 0.25)) { loc.toggle() }
-            }
-            pageButton(.settings, "gearshape.fill", "nav.settings")
-                .padding(.bottom, 16)
-        }
-        .frame(width: 68)
-        .frame(maxHeight: .infinity)
-        .background(p.rail)
-    }
-
-    private func pageButton(_ page: Page, _ symbol: String, _ key: String) -> some View {
-        RailButton(symbol: symbol, active: state.page == page, help: loc[key], namespace: selection) {
-            state.navigate(page)
-        }
-    }
-
-    private var themeSymbol: String {
-        switch prefs.appearance {
-        case "dark": return "moon.stars.fill"
-        case "light": return "sun.max.fill"
-        default: return "circle.lefthalf.filled"
-        }
-    }
-}
-
+/// Small square icon button for the sidebar footer (theme, language, about).
 struct RailButton: View {
     var symbol: String? = nil
     var text: String? = nil
     let active: Bool
     let help: String
-    /// When set, the active highlight slides between the buttons sharing it.
     var namespace: Namespace.ID? = nil
     let action: () -> Void
     @State private var hover = false
@@ -175,37 +114,23 @@ struct RailButton: View {
         let p = Palette(scheme)
         Button(action: action) {
             ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    .fill(p.cardStrong.opacity(hover ? 1 : 0.6))
-                if active { activeFill }
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(active ? p.navSelected : (hover ? p.navHover : Color.clear))
                 if let symbol {
                     Image(systemName: symbol)
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.system(size: 13, weight: .regular))
                 } else if let text {
-                    Text(text).font(.system(size: 12, weight: .heavy, design: .rounded))
+                    Text(text).font(.system(size: 11, weight: .semibold))
                 }
             }
-            .foregroundStyle(active ? Color.white : p.text)
-            .frame(width: 44, height: 44)
+            .foregroundStyle(hover || active ? p.text : p.subtext)
+            .frame(width: 32, height: 32)
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
         .help(help)
-        .scaleEffect(hover ? 1.07 : 1)
-        .shadow(color: Palette.accent.opacity(active ? 0.5 : 0), radius: 10, y: 3)
-        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: hover)
-        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: active)
+        .animation(.easeOut(duration: 0.12), value: hover)
         .onHover { hover = $0 }
-    }
-
-    @ViewBuilder
-    private var activeFill: some View {
-        let shape = RoundedRectangle(cornerRadius: 14, style: .continuous)
-        if let namespace {
-            shape.fill(Palette.brandGradient).matchedGeometryEffect(id: "railSelection", in: namespace)
-        } else {
-            shape.fill(Palette.brandGradient)
-        }
     }
 }
 
@@ -225,56 +150,101 @@ struct NavPanel: View {
         var id: Page { page }
     }
 
-    private let items: [Item] = [
+    private let mainItems: [Item] = [
         Item(page: .dashboard, symbol: "square.grid.2x2", key: "nav.dashboard"),
         Item(page: .apps, symbol: "square.stack.3d.up", key: "nav.apps"),
         Item(page: .storeApps, symbol: "bag", key: "nav.store"),
         Item(page: .systemMonitor, symbol: "gauge.with.dots.needle.67percent", key: "nav.systemMonitor", isNew: true),
-        Item(page: .monitor, symbol: "binoculars", key: "nav.monitor"),
-        Item(page: .browserExt, symbol: "puzzlepiece.extension", key: "nav.browser"),
-        Item(page: .logs, symbol: "list.bullet.rectangle", key: "nav.logs"),
-        Item(page: .hunter, symbol: "scope", key: "nav.hunter"),
-        Item(page: .tools, symbol: "wrench.and.screwdriver", key: "nav.tools"),
-        Item(page: .settings, symbol: "gearshape", key: "nav.settings"),
     ]
+
+    private let moreItems: [Item] = [
+        Item(page: .tools, symbol: "wrench.and.screwdriver", key: "nav.tools"),
+        Item(page: .browserExt, symbol: "puzzlepiece.extension", key: "nav.browser"),
+        Item(page: .monitor, symbol: "binoculars", key: "nav.monitor"),
+        Item(page: .hunter, symbol: "scope", key: "nav.hunter"),
+        Item(page: .logs, symbol: "list.bullet.rectangle", key: "nav.logs"),
+    ]
+
+    @EnvironmentObject private var prefs: Prefs
 
     var body: some View {
         let p = Palette(scheme)
         VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: 8) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("OBLIVION")
-                        .font(.system(size: 19, weight: .heavy, design: .rounded))
-                        .tracking(2.5)
+            HStack(alignment: .center, spacing: 10) {
+                LogoMark(size: 30)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text("Oblivion")
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(p.text)
                     Text(loc.t("about.version", ["version": AppInfo.version]))
-                        .font(.system(size: 10.5, weight: .medium))
-                        .foregroundStyle(p.subtext)
+                        .font(.system(size: 11))
+                        .foregroundStyle(p.faint)
                 }
                 Spacer(minLength: 4)
-                InfoButton(help: loc["rail.about"]) { state.showAbout = true }
             }
-            .padding(.top, 46)
-            .padding(.horizontal, 6)
-            .padding(.bottom, 16)
+            .padding(.top, 50)
+            .padding(.horizontal, 8)
+            .padding(.bottom, 18)
 
             ActionCard()
 
             ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 3) {
-                    ForEach(items) { item in
-                        NavRow(symbol: item.symbol, title: loc[item.key], active: isActive(item.page),
-                               badge: item.isNew ? (loc.isTurkish ? "YENİ" : "NEW") : nil, namespace: selection) {
-                            state.navigate(item.page)
-                        }
-                    }
+                VStack(alignment: .leading, spacing: 2) {
+                    groupTitle(loc.isTurkish ? "GENEL" : "GENERAL", p)
+                    ForEach(mainItems) { row($0) }
+                    groupTitle(loc.isTurkish ? "TEMİZLİK VE İZLEME" : "CLEANING & TRACKING", p)
+                    ForEach(moreItems) { row($0) }
                 }
             }
+
+            Divider().overlay(p.stroke).padding(.vertical, 8)
+            NavRow(symbol: "gearshape", title: loc["nav.settings"], active: state.page == .settings, namespace: selection) {
+                state.navigate(.settings)
+            }
+            HStack(spacing: 2) {
+                RailButton(symbol: themeSymbol, active: false, help: loc["rail.theme"]) {
+                    withAnimation(.easeInOut(duration: 0.25)) { prefs.cycleAppearance() }
+                }
+                RailButton(text: loc.isTurkish ? "TR" : "EN", active: false, help: loc["rail.language"]) {
+                    withAnimation(.easeInOut(duration: 0.2)) { loc.toggle() }
+                }
+                Spacer()
+                InfoButton(help: loc["rail.about"]) { state.showAbout = true }
+                    .padding(.trailing, 6)
+            }
+            .padding(.top, 6)
+            .padding(.bottom, 14)
         }
         .padding(.horizontal, 12)
-        .frame(width: 232)
+        .frame(width: 248)
         .frame(maxHeight: .infinity, alignment: .top)
-        .background(p.panel)
+        .background(p.rail)
+        .overlay(alignment: .trailing) { Rectangle().fill(p.stroke).frame(width: 1) }
+    }
+
+    private func row(_ item: Item) -> some View {
+        NavRow(symbol: item.symbol, title: loc[item.key], active: isActive(item.page),
+               badge: item.isNew ? (loc.isTurkish ? "YENİ" : "NEW") : nil, namespace: selection) {
+            state.navigate(item.page)
+        }
+    }
+
+    private func groupTitle(_ text: String, _ p: Palette) -> some View {
+        Text(text)
+            .font(.system(size: 10.5, weight: .semibold))
+            .tracking(0.6)
+            .foregroundStyle(p.faint)
+            .padding(.horizontal, 10)
+            .padding(.top, 16)
+            .padding(.bottom, 6)
+    }
+
+    private var themeSymbol: String {
+        switch prefs.appearance {
+        case "dark": return "moon"
+        case "light": return "sun.max"
+        default: return "circle.lefthalf.filled"
+        }
     }
 
     private func isActive(_ page: Page) -> Bool {
@@ -295,32 +265,32 @@ struct NavRow: View {
     var body: some View {
         let p = Palette(scheme)
         Button(action: action) {
-            HStack(spacing: 12) {
+            HStack(spacing: 10) {
                 Image(systemName: symbol)
-                    .font(.system(size: 14, weight: .medium))
-                    .frame(width: 20)
-                    .foregroundStyle(active ? Palette.accent2 : p.subtext)
+                    .font(.system(size: 13, weight: .regular))
+                    .frame(width: 18)
+                    .foregroundStyle(active ? p.text : p.subtext)
                 Text(title)
-                    .font(.system(size: 13, weight: active ? .semibold : .regular))
+                    .font(.system(size: 13, weight: active ? .medium : .regular))
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
                 Spacer(minLength: 4)
                 if let badge, !active {
                     Text(badge)
-                        .font(.system(size: 9, weight: .heavy))
-                        .foregroundStyle(Palette.success)
+                        .font(.system(size: 9.5, weight: .semibold))
+                        .foregroundStyle(p.accentText)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Capsule().fill(Palette.success.opacity(0.16)))
+                        .background(RoundedRectangle(cornerRadius: 5, style: .continuous).fill(p.accentSoft))
                 }
             }
-            .foregroundStyle(active ? Color.white : p.text)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 9)
+            .foregroundStyle(active ? p.text : p.subtext)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
             .background {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(hover && !active ? p.cardStrong : Color.clear)
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(hover && !active ? p.navHover : Color.clear)
                     if active { selectionFill(p) }
                 }
             }
@@ -333,11 +303,14 @@ struct NavRow: View {
 
     @ViewBuilder
     private func selectionFill(_ p: Palette) -> some View {
-        let shape = RoundedRectangle(cornerRadius: 10, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 8, style: .continuous)
         if let namespace {
-            shape.fill(p.navSelected).matchedGeometryEffect(id: "navSelection", in: namespace)
-        } else {
             shape.fill(p.navSelected)
+                .overlay(shape.stroke(p.stroke, lineWidth: 1))
+                .shadow(color: p.shadow, radius: 1, y: 1)
+                .matchedGeometryEffect(id: "navSelection", in: namespace)
+        } else {
+            shape.fill(p.navSelected).overlay(shape.stroke(p.stroke, lineWidth: 1))
         }
     }
 }
@@ -380,7 +353,7 @@ struct ActionCard: View {
                 }
             } label: {
                 Label(loc["action.more"], systemImage: "ellipsis.circle")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
             }
             .menuStyle(.borderlessButton)
@@ -388,20 +361,19 @@ struct ActionCard: View {
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity)
             .padding(.vertical, 6)
-            .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(p.cardStrong))
-            .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).stroke(p.stroke, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(p.card))
+            .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).stroke(p.strokeStrong, lineWidth: 1))
             .disabled(!canAct)
 
             Text(state.selectedApp?.name ?? loc["action.hint"])
                 .font(.system(size: 11))
-                .foregroundStyle(p.subtext)
+                .foregroundStyle(p.faint)
                 .lineLimit(1)
                 .truncationMode(.middle)
+                .padding(.top, 2)
         }
-        .padding(10)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(p.card))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(p.stroke, lineWidth: 1))
-        .padding(.bottom, 14)
+        .padding(.horizontal, 2)
+        .padding(.bottom, 4)
     }
 }
 
@@ -454,24 +426,22 @@ struct RightPanel: View {
                     LiveDot()
                     Spacer()
                     Button { state.navigate(.systemMonitor) } label: {
-                        Image(systemName: "arrow.up.right")
-                            .font(.system(size: 11, weight: .bold))
-                            .frame(width: 24, height: 24)
-                            .background(Circle().fill(p.cardStrong))
+                        Text(loc.isTurkish ? "Ayrıntılar" : "Details")
+                            .font(.system(size: 11.5, weight: .medium))
                     }
                     .buttonStyle(.plain)
-                    .foregroundStyle(p.text)
+                    .foregroundStyle(p.accentText)
                     .help(loc["live.open"])
                 }
 
                 HStack(spacing: 6) {
                     MiniGauge(title: loc["live.cpu"], value: s.cpu / 100, text: Fmt.percent(s.cpu, loc),
-                              colors: [0x6E5BFF, 0xB45BFF], size: 62, animate: !prefs.calmMotion)
+                              size: 62, animate: !prefs.calmMotion)
                     MiniGauge(title: loc["live.memory"], value: s.memPercent / 100, text: Fmt.percent(s.memPercent, loc),
-                              colors: [0x18C29C, 0x2E8BFF], size: 62, animate: !prefs.calmMotion)
+                              size: 62, animate: !prefs.calmMotion)
                     MiniGauge(title: loc["live.temp"], value: s.temperature.map { $0 / 100 } ?? s.thermalState.fraction,
                               text: s.temperature.map { "\(Int($0.rounded()))°" } ?? loc[s.thermalState.shortKey],
-                              colors: [0xF5A524, 0xE5484D], size: 62, animate: !prefs.calmMotion)
+                              size: 62, animate: !prefs.calmMotion)
                 }
 
                 VStack(alignment: .leading, spacing: 9) {
@@ -480,12 +450,12 @@ struct RightPanel: View {
                             .font(.system(size: 11.5)).foregroundStyle(p.subtext)
                         Spacer()
                         Text("↓ \(Fmt.rate(s.netDown))   ↑ \(Fmt.rate(s.netUp))")
-                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .font(.system(size: 11, weight: .medium).monospacedDigit())
                             .foregroundStyle(p.text)
                             .lineLimit(1)
                             .minimumScaleFactor(0.8)
                     }
-                    Sparkline(values: s.netDownHistory, color: Palette.success)
+                    Sparkline(values: s.netDownHistory)
                         .frame(height: 22)
                     diskRow(s, p)
                     if let battery = s.battery {
@@ -508,13 +478,14 @@ struct RightPanel: View {
                     .frame(maxWidth: .infinity)
                     .padding(.top, 6)
             }
-            .padding(.top, 46)
-            .padding(.horizontal, 18)
+            .padding(.top, 50)
+            .padding(.horizontal, 20)
             .padding(.bottom, 18)
         }
-        .frame(width: 268)
+        .frame(width: 272)
         .frame(maxHeight: .infinity)
         .background(p.right)
+        .overlay(alignment: .leading) { Rectangle().fill(p.stroke).frame(width: 1) }
         .onAppear { monitor.subscribe("right", detailed: false) }
         .onDisappear { monitor.unsubscribe("right") }
     }
@@ -534,7 +505,7 @@ struct RightPanel: View {
                     .font(.system(size: 11.5, weight: .semibold))
                     .foregroundStyle(p.text)
             }
-            GradientProgressBar(value: used, height: 6)
+            GradientProgressBar(value: used, height: 5)
             Text(loc.t("live.diskFree", ["free": Fmt.bytes(free), "total": Fmt.bytes(total)]))
                 .font(.system(size: 10.5))
                 .foregroundStyle(p.faint)
@@ -560,7 +531,7 @@ struct RightPanel: View {
             } else {
                 ForEach(state.recentActivity) { entry in
                     HStack(alignment: .top, spacing: 9) {
-                        Circle().fill(Palette.brandGradient).frame(width: 7, height: 7).padding(.top, 5)
+                        Circle().fill(p.faint).frame(width: 5, height: 5).padding(.top, 6)
                         VStack(alignment: .leading, spacing: 2) {
                             Text(loc[entry.actionKey])
                                 .font(.system(size: 12, weight: .semibold))

@@ -31,7 +31,7 @@ struct DashboardView: View {
                 }
                 .appearIn(0.24)
             }
-            .padding(26)
+            .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         }
         .onAppear {
             state.loadApps()
@@ -165,8 +165,9 @@ struct QuickAction: View {
                     .padding(.horizontal, 4)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 12)
-            .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(p.card))
+            .padding(.vertical, 14)
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.stroke, lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -198,8 +199,8 @@ struct FullDiskAccessBanner: View {
             .buttonStyle(OBButtonStyle(kind: .secondary))
         }
         .padding(14)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Palette.warning.opacity(0.12)))
-        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.warning.opacity(0.35), lineWidth: 1))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Palette.warning.opacity(0.12)))
+        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Palette.warning.opacity(0.35), lineWidth: 1))
     }
 }
 
@@ -241,12 +242,12 @@ struct HealthCard: View {
                             .font(.system(size: 11.5, weight: .medium))
                             .foregroundStyle(p.subtext)
                         Text("↓ \(Fmt.rate(s.netDown))")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(p.text)
                         Text("↑ \(Fmt.rate(s.netUp))")
-                            .font(.system(size: 14, weight: .bold, design: .rounded))
+                            .font(.system(size: 14, weight: .semibold))
                             .foregroundStyle(p.text)
-                        Sparkline(values: s.netDownHistory, color: Palette.success)
+                        Sparkline(values: s.netDownHistory)
                             .frame(height: 22)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)

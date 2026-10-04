@@ -32,7 +32,7 @@ struct ToolsView: View {
                     }
                 }
             }
-            .padding(26)
+            .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         }
     }
 }
@@ -50,7 +50,7 @@ struct ToolCard: View {
         let p = Palette(scheme)
         Button(action: action) {
             VStack(alignment: .leading, spacing: 12) {
-                GradientBadge(symbol: symbol, colors: colors, size: 60)
+                GradientBadge(symbol: symbol, colors: colors, size: 44)
                 Text(title).font(.system(size: 16, weight: .semibold)).foregroundStyle(p.text)
                 Text(detail).font(.system(size: 12)).foregroundStyle(p.subtext)
                     .fixedSize(horizontal: false, vertical: true)
@@ -59,13 +59,13 @@ struct ToolCard: View {
                     Text(open)
                     Image(systemName: "arrow.right")
                 }
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(Palette.accent2)
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(p.accentText)
             }
             .padding(18)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(p.card))
-            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).stroke(p.stroke, lineWidth: 1))
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
+            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(p.stroke, lineWidth: 1))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
@@ -187,7 +187,7 @@ struct StartupView: View {
                 }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         .onAppear { model.load() }
     }
 
@@ -352,7 +352,7 @@ struct JunkView: View {
             }
             footer(p)
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         .onAppear { model.scanIfNeeded() }
     }
 
@@ -399,7 +399,7 @@ struct JunkView: View {
         HStack(spacing: 14) {
             VStack(alignment: .leading, spacing: 2) {
                 Text(Fmt.bytes(model.selectedSize))
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 22, weight: .semibold))
                     .foregroundStyle(model.selectedCount > 0 ? p.text : p.faint)
                     .contentTransition(.numericText())
                     .animation(.snappy, value: model.selectedSize)
@@ -421,7 +421,7 @@ struct JunkView: View {
                 .disabled(model.busy || model.selectedCount == 0)
         }
         .padding(14)
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(p.cardStrong))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.cardStrong))
     }
 
     private func askToClean() {
@@ -463,12 +463,12 @@ struct JunkCategoryCard: View {
                     .transition(.opacity.combined(with: .move(edge: .top)))
             }
         }
-        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(p.card))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
         .overlay(
-            RoundedRectangle(cornerRadius: 16, style: .continuous)
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .stroke(category.selectedCount > 0 ? Palette.accent.opacity(0.6) : p.stroke, lineWidth: 1)
         )
-        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         .animation(.easeOut(duration: 0.2), value: category.selectedCount)
     }
 
@@ -499,10 +499,10 @@ struct JunkCategoryCard: View {
                 } else if category.items.isEmpty {
                     Text(loc["junk.empty"]).font(.system(size: 11)).foregroundStyle(p.faint)
                 } else if category.unreadable {
-                    Text("—").font(.system(size: 14, weight: .bold, design: .rounded)).foregroundStyle(p.text)
+                    Text("—").font(.system(size: 14, weight: .semibold)).foregroundStyle(p.text)
                 } else {
                     Text(Fmt.bytes(category.size))
-                        .font(.system(size: 14, weight: .bold, design: .rounded))
+                        .font(.system(size: 14, weight: .semibold))
                         .foregroundStyle(p.text)
                         .contentTransition(.numericText())
                     Text(category.selectedCount > 0
@@ -599,7 +599,7 @@ struct JunkItemRow: View {
                 .font(.system(size: 10.5))
                 .foregroundStyle(p.faint)
             Text(Fmt.bytes(item.size))
-                .font(.system(size: 11.5, weight: .semibold, design: .rounded))
+                .font(.system(size: 11.5, weight: .semibold))
                 .foregroundStyle(p.text)
                 .frame(width: 76, alignment: .trailing)
             Button {
@@ -737,7 +737,7 @@ struct LargeFilesView: View {
                                 }
                                 Spacer()
                                 Text(Fmt.date(file.modified)).font(.system(size: 11)).foregroundStyle(p.faint)
-                                Text(Fmt.bytes(file.size)).font(.system(size: 12.5, weight: .bold, design: .rounded))
+                                Text(Fmt.bytes(file.size)).font(.system(size: 12.5, weight: .semibold))
                                     .foregroundStyle(p.text).frame(width: 84, alignment: .trailing)
                                 Button {
                                     NSWorkspace.shared.activateFileViewerSelecting([file.url])
@@ -766,7 +766,7 @@ struct LargeFilesView: View {
                 }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
     }
 
     private func askToTrash(_ files: [LargeFile]) {
@@ -847,11 +847,11 @@ struct ShredderView: View {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 26)
             .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
                     .strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
                     .foregroundStyle(dropHover ? Palette.danger : p.stroke)
             )
-            .background(RoundedRectangle(cornerRadius: 18, style: .continuous).fill(dropHover ? Palette.danger.opacity(0.08) : Color.clear))
+            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(dropHover ? Palette.danger.opacity(0.08) : Color.clear))
             .dropDestination(for: URL.self) { urls, _ in
                 model.add(urls)
                 return true
@@ -896,7 +896,7 @@ struct ShredderView: View {
                     .disabled(model.queue.isEmpty || model.busy)
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
     }
 
     private func askToShred() {
@@ -960,7 +960,7 @@ struct HistoryView: View {
                         Spacer()
                     }
                     .padding(.horizontal, 14).padding(.vertical, 11)
-                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
                         .fill(item.selected ? Palette.accent.opacity(0.12) : p.card))
                     .contentShape(Rectangle())
                     .onTapGesture { item.selected.toggle() }
@@ -982,7 +982,7 @@ struct HistoryView: View {
                     .disabled(model.busy || !model.items.contains(where: \.selected))
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
     }
 
     private func askToClean() {

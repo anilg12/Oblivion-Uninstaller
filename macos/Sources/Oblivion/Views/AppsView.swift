@@ -70,8 +70,8 @@ struct AppListView: View {
                     .help(loc["action.refresh"])
                 }
             }
-            .padding(.horizontal, 24)
-            .padding(.top, 22)
+            .padding(.horizontal, 36)
+            .padding(.top, 30)
 
             if state.isLoadingApps && state.apps.isEmpty {
                 LoadingView(text: loc["apps.loading"])
@@ -245,25 +245,21 @@ struct WorkingView: View {
     var body: some View {
         let p = Palette(scheme)
         VStack(spacing: 18) {
-            TimelineView(.animation) { context in
-                let t = context.date.timeIntervalSinceReferenceDate
-                ZStack {
-                    Circle()
-                        .fill(Palette.accent.opacity(0.18))
-                        .frame(width: 112, height: 112)
-                        .scaleEffect(1 + 0.06 * CGFloat(sin(t * 2.4)))
-                    if let icon = state.targetIconPath {
-                        AppIconView(path: icon, size: 72)
-                    } else {
-                        GradientBadge(symbol: "magnifyingglass", colors: [0x6E5BFF, 0xB45BFF], size: 72)
-                    }
+            ZStack {
+                RoundedRectangle(cornerRadius: 24, style: .continuous)
+                    .fill(p.card)
+                    .overlay(RoundedRectangle(cornerRadius: 24, style: .continuous).stroke(p.stroke, lineWidth: 1))
+                    .frame(width: 104, height: 104)
+                if let icon = state.targetIconPath {
+                    AppIconView(path: icon, size: 68)
+                } else {
+                    GradientBadge(symbol: "magnifyingglass", colors: [0x4F6BED], size: 68)
                 }
-                .offset(y: -5 * CGFloat(sin(t * 3.0)))
             }
             .frame(height: 120)
 
             Text(state.targetName)
-                .font(.system(size: 20, weight: .bold, design: .rounded))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(p.text)
             GradientProgressBar()
                 .frame(width: 260)
@@ -431,7 +427,7 @@ struct DoneView: View {
                 .opacity(appeared ? 1 : 0)
                 .background { Burst(count: 34, spread: 120).frame(width: 300, height: 240) }
             Text(loc["done.title"])
-                .font(.system(size: 26, weight: .bold, design: .rounded))
+                .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(p.text)
             Text(state.targetName)
                 .font(.system(size: 15, weight: .medium))
@@ -457,12 +453,12 @@ struct DoneView: View {
 
     private func summary(value: String, label: String, p: Palette) -> some View {
         VStack(spacing: 4) {
-            Text(value).font(.system(size: 20, weight: .bold, design: .rounded)).foregroundStyle(p.text)
+            Text(value).font(.system(size: 20, weight: .semibold)).foregroundStyle(p.text)
             Text(label).font(.system(size: 11.5)).foregroundStyle(p.subtext)
         }
         .frame(width: 150)
         .padding(.vertical, 14)
-        .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(p.card))
+        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(p.card))
     }
 }
 
@@ -478,7 +474,7 @@ struct ForceUninstallSheet: View {
             HStack(spacing: 14) {
                 GradientBadge(symbol: "bolt.fill", colors: [0xFF9F45, 0xE5484D], size: 46)
                 VStack(alignment: .leading, spacing: 3) {
-                    Text(loc["force.title"]).font(.system(size: 18, weight: .bold, design: .rounded))
+                    Text(loc["force.title"]).font(.system(size: 18, weight: .semibold))
                     Text(loc["force.subtitle"]).font(.system(size: 12)).foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }

@@ -20,10 +20,10 @@ struct SystemMonitorView: View {
                     HStack(spacing: 8) {
                         HStack(spacing: 6) {
                             LiveDot()
-                            Text(loc["sys.live"]).font(.system(size: 11, weight: .heavy)).foregroundStyle(Palette.success)
+                            Text(loc["sys.live"]).font(.system(size: 11, weight: .semibold)).foregroundStyle(Palette.success)
                         }
                         .padding(.horizontal, 10).padding(.vertical, 6)
-                        .background(Capsule().fill(Palette.success.opacity(0.14)))
+                        .background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Palette.success.opacity(0.12)))
                         Button {
                             NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Activity Monitor.app"))
                         } label: {
@@ -43,7 +43,7 @@ struct SystemMonitorView: View {
                     .appearIn(0)
                     gaugeCard(title: loc["live.memory"], symbol: "memorychip", colors: [0x18C29C, 0x2E8BFF],
                               value: s.memPercent / 100, center: Fmt.percent(s.memPercent, loc), p: p) {
-                        Sparkline(values: s.memHistory, maximum: 100, color: Color(hex: 0x18C29C)).frame(height: 34)
+                        Sparkline(values: s.memHistory, maximum: 100).frame(height: 34)
                         Text(loc.t("sys.memUsed", ["used": Fmt.bytes(Int64(s.memUsed)), "total": Fmt.bytes(Int64(s.memTotal))]))
                             .font(.system(size: 11)).foregroundStyle(p.subtext).lineLimit(1)
                         Text(loc["sys.memNote"]).font(.system(size: 10.5)).foregroundStyle(p.faint).lineLimit(1)
@@ -65,7 +65,7 @@ struct SystemMonitorView: View {
                 }
                 .appearIn(0.12)
             }
-            .padding(26)
+            .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         }
         .onAppear { monitor.subscribe("page", detailed: true) }
         .onDisappear { monitor.unsubscribe("page") }
@@ -77,7 +77,7 @@ struct SystemMonitorView: View {
                                         p: Palette, @ViewBuilder extra: () -> Extra) -> some View {
         // GlassCard keeps its content closure, so the extra view is built up front.
         let details = extra()
-        return GlassCard(padding: 16, radius: 20) {
+        return GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 Label(title, systemImage: symbol)
                     .font(.system(size: 13, weight: .semibold))
@@ -85,7 +85,7 @@ struct SystemMonitorView: View {
                 ZStack {
                     RingGauge(value: value, colors: colors, lineWidth: 9)
                     Text(center)
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(p.text)
                         .contentTransition(.numericText())
                         .animation(.snappy, value: center)
@@ -99,7 +99,7 @@ struct SystemMonitorView: View {
 
     private func temperatureCard(_ s: SystemSnapshot, _ p: Palette) -> some View {
         let thermal = s.thermalState
-        return GlassCard(padding: 16, radius: 20) {
+        return GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 Label(loc["sys.temperature"], systemImage: "thermometer.medium")
                     .font(.system(size: 13, weight: .semibold))
@@ -108,7 +108,7 @@ struct SystemMonitorView: View {
                     RingGauge(value: s.temperature.map { $0 / 100 } ?? thermal.fraction,
                               colors: [0xF5A524, 0xE5484D], lineWidth: 9)
                     Text(s.temperature.map { "\(Int($0.rounded())) °C" } ?? loc[thermal.shortKey])
-                        .font(.system(size: s.temperature == nil ? 15 : 19, weight: .bold, design: .rounded))
+                        .font(.system(size: s.temperature == nil ? 15 : 19, weight: .semibold))
                         .foregroundStyle(p.text)
                         .multilineTextAlignment(.center)
                 }
@@ -126,7 +126,7 @@ struct SystemMonitorView: View {
     }
 
     private func networkCard(_ s: SystemSnapshot, _ p: Palette) -> some View {
-        GlassCard(padding: 16, radius: 20) {
+        GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 Label(loc["live.network"], systemImage: "arrow.up.arrow.down")
                     .font(.system(size: 13, weight: .semibold))
@@ -137,8 +137,8 @@ struct SystemMonitorView: View {
                 }
                 .padding(.vertical, 6)
                 ZStack {
-                    Sparkline(values: s.netDownHistory, color: Palette.success)
-                    Sparkline(values: s.netUpHistory, color: Palette.info)
+                    Sparkline(values: s.netDownHistory)
+                    Sparkline(values: s.netUpHistory, color: Color(hex: 0x8C8C96))
                 }
                 .frame(height: 40)
             }
@@ -150,7 +150,7 @@ struct SystemMonitorView: View {
             Image(systemName: symbol).foregroundStyle(color).font(.system(size: 12, weight: .bold))
             VStack(alignment: .leading, spacing: 0) {
                 Text(Fmt.rate(value))
-                    .font(.system(size: 17, weight: .bold, design: .rounded))
+                    .font(.system(size: 17, weight: .semibold))
                     .foregroundStyle(p.text)
                     .contentTransition(.numericText())
                 Text(label).font(.system(size: 10.5)).foregroundStyle(p.faint)
@@ -160,7 +160,7 @@ struct SystemMonitorView: View {
 
     private func processesCard(_ s: SystemSnapshot, _ p: Palette) -> some View {
         let rows = processMode == 0 ? s.topCPU : s.topMemory
-        return GlassCard(padding: 16, radius: 20) {
+        return GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {
                     Label(loc["sys.topProcesses"], systemImage: "chart.bar.fill")
@@ -193,11 +193,11 @@ struct SystemMonitorView: View {
                                 .lineLimit(1)
                             Spacer()
                             Text(String(format: "%.1f%%", row.cpu))
-                                .font(.system(size: 12, design: .rounded))
+                                .font(.system(size: 12))
                                 .foregroundStyle(processMode == 0 ? p.text : p.subtext)
                                 .frame(width: 58, alignment: .trailing)
                             Text(Fmt.bytes(row.memory))
-                                .font(.system(size: 12, design: .rounded))
+                                .font(.system(size: 12))
                                 .foregroundStyle(processMode == 1 ? p.text : p.subtext)
                                 .frame(width: 76, alignment: .trailing)
                             Button {
@@ -221,7 +221,7 @@ struct SystemMonitorView: View {
 
     private func thisMacCard(_ s: SystemSnapshot, _ p: Palette) -> some View {
         let i = monitor.info
-        return GlassCard(padding: 16, radius: 20) {
+        return GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Label(loc["sys.thisMac"], systemImage: "laptopcomputer")
                     .font(.system(size: 14, weight: .semibold))
@@ -239,7 +239,7 @@ struct SystemMonitorView: View {
     }
 
     private func drivesCard(_ s: SystemSnapshot, _ p: Palette) -> some View {
-        GlassCard(padding: 16, radius: 20) {
+        GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 Label(loc["sys.drives"], systemImage: "internaldrive")
                     .font(.system(size: 14, weight: .semibold))
@@ -260,7 +260,7 @@ struct SystemMonitorView: View {
     }
 
     private func batteryCard(_ b: BatteryInfo, _ p: Palette) -> some View {
-        GlassCard(padding: 16, radius: 20) {
+        GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 8) {
                 Label(loc.t(b.charging ? "live.batteryCharging" : "live.battery", ["percent": "\(b.percent)"]),
                       systemImage: b.charging ? "battery.100.bolt" : "battery.75")

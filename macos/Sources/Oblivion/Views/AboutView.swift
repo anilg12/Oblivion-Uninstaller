@@ -18,18 +18,17 @@ struct AboutView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var scheme
     @State private var ink: CGFloat = 0
-    @State private var spin = false
 
     var body: some View {
         let p = Palette(scheme)
         VStack(alignment: .leading, spacing: 0) {
             header
+            Divider().overlay(p.stroke).padding(.horizontal, 28).padding(.top, 20).padding(.bottom, 22)
             avatar
                 .padding(.horizontal, 28)
-                .padding(.top, -52)
 
             VStack(alignment: .leading, spacing: 6) {
-                SignatureText(size: 44)
+                SignatureText(size: 30)
                     .mask(alignment: .leading) {
                         GeometryReader { geo in
                             Rectangle().frame(width: geo.size.width * ink)
@@ -55,19 +54,22 @@ struct AboutView: View {
                 .padding(.top, 8)
             }
             .padding(.horizontal, 28)
-            .padding(.top, 10)
+            .padding(.top, 14)
 
-            Divider().overlay(p.stroke).padding(.horizontal, 28).padding(.vertical, 16)
+            Divider().overlay(p.stroke).padding(.horizontal, 28).padding(.vertical, 18)
 
             VStack(alignment: .leading, spacing: 9) {
-                Label(loc["about.whatsNew"], systemImage: "sparkles")
+                Text(loc["about.whatsNew"])
                     .font(.system(size: 14, weight: .semibold))
                     .foregroundStyle(p.text)
+                    .padding(.bottom, 2)
                 ForEach(1...7, id: \.self) { i in
                     HStack(alignment: .top, spacing: 10) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(Palette.success)
-                            .font(.system(size: 13))
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(p.subtext)
+                            .font(.system(size: 10, weight: .semibold))
+                            .frame(width: 18, height: 18)
+                            .background(Circle().fill(p.cardStrong))
                         Text(loc["about.new\(i)"])
                             .font(.system(size: 12.5))
                             .foregroundStyle(p.text)
@@ -88,72 +90,50 @@ struct AboutView: View {
                     .keyboardShortcut(.cancelAction)
             }
             .padding(.horizontal, 28)
-            .padding(.vertical, 20)
+            .padding(.top, 20)
+            .padding(.bottom, 24)
         }
         .frame(width: 560)
-        .background(LinearGradient(colors: [p.tintTop, p.tintBottom], startPoint: .topLeading, endPoint: .bottomTrailing))
+        .background(p.dark ? Color(hex: 0x1E1E21) : Color.white)
         .onAppear {
             if prefs.calmMotion {
                 ink = 1
             } else {
-                withAnimation(.easeInOut(duration: 1.3).delay(0.25)) { ink = 1 }
-                spin = true
+                withAnimation(.easeOut(duration: 0.9).delay(0.15)) { ink = 1 }
             }
         }
     }
 
     private var header: some View {
-        ZStack(alignment: .topLeading) {
-            // The decorative circles live in an overlay so they never change the header's layout.
-            Palette.brandGradient
-                .overlay(alignment: .topLeading) {
-                    ZStack(alignment: .topLeading) {
-                        Circle().fill(Color.white.opacity(0.12)).frame(width: 260, height: 260).offset(x: 360, y: -130)
-                        Circle().fill(Color.white.opacity(0.08)).frame(width: 150, height: 150).offset(x: -50, y: 80)
-                        Circle().fill(Color.white.opacity(0.07)).frame(width: 70, height: 70).offset(x: 300, y: 110)
-                    }
-                }
-            HStack(spacing: 10) {
-                Image(nsImage: NSApp.applicationIconImage)
-                    .resizable()
-                    .frame(width: 34, height: 34)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text("Oblivion").font(.system(size: 15, weight: .bold)).foregroundStyle(.white)
-                    Text(loc.t("about.version", ["version": AppInfo.version]))
-                        .font(.system(size: 11)).foregroundStyle(.white.opacity(0.8))
-                }
+        let p = Palette(scheme)
+        return HStack(spacing: 12) {
+            LogoMark(size: 44)
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Oblivion").font(.system(size: 17, weight: .semibold)).foregroundStyle(p.text)
+                Text(loc.t("about.version", ["version": AppInfo.version]))
+                    .font(.system(size: 11.5)).foregroundStyle(p.faint)
             }
-            .padding(24)
-            HStack {
-                Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 12, weight: .bold))
-                        .foregroundStyle(.white)
-                        .frame(width: 28, height: 28)
-                        .background(Circle().fill(Color.white.opacity(0.18)))
-                }
-                .buttonStyle(.plain)
-                .padding(16)
+            Spacer()
+            Button { dismiss() } label: {
+                Image(systemName: "xmark")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(p.subtext)
+                    .frame(width: 28, height: 28)
+                    .background(Circle().fill(p.cardStrong))
             }
+            .buttonStyle(.plain)
         }
-        .frame(height: 150)
-        .clipped()
+        .padding(.horizontal, 28)
+        .padding(.top, 26)
     }
 
     private var avatar: some View {
-        ZStack {
-            Circle()
-                .stroke(AngularGradient(colors: [Color(hex: 0x8FC0FF), Color(hex: 0xB45BFF), Color(hex: 0xFF7AC6), Color(hex: 0x8FC0FF)],
-                                        center: .center), lineWidth: 4)
-                .frame(width: 104, height: 104)
-                .rotationEffect(.degrees(spin ? 360 : 0))
-                .animation(spin ? .linear(duration: 9).repeatForever(autoreverses: false) : .default, value: spin)
-            Circle().fill(Palette(scheme).tintTop).frame(width: 92, height: 92)
-            Circle().fill(Palette.brandGradient).frame(width: 84, height: 84)
-            Text("AG")
-                .font(.system(size: 32, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
-        }
+        let p = Palette(scheme)
+        return Text("AG")
+            .font(.system(size: 19, weight: .semibold))
+            .foregroundStyle(p.text)
+            .frame(width: 56, height: 56)
+            .background(Circle().fill(p.cardStrong))
+            .overlay(Circle().stroke(p.stroke, lineWidth: 1))
     }
 }

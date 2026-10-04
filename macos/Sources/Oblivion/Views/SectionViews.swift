@@ -93,7 +93,7 @@ struct MonitorView: View {
                 Spacer()
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
     }
 
     private func step(_ n: Int, _ symbol: String, _ text: String, _ colors: [UInt32], _ p: Palette) -> some View {
@@ -101,7 +101,7 @@ struct MonitorView: View {
             HStack(spacing: 12) {
                 GradientBadge(symbol: symbol, colors: colors, size: 38)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("\(n)").font(.system(size: 11, weight: .heavy)).foregroundStyle(Palette.accent2)
+                    Text("\(n)").font(.system(size: 11, weight: .semibold)).foregroundStyle(Palette.accent2)
                     Text(text).font(.system(size: 12)).foregroundStyle(p.text).fixedSize(horizontal: false, vertical: true)
                 }
             }
@@ -239,7 +239,7 @@ struct BrowserExtensionsView: View {
                 }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         .onAppear { if !model.loaded { model.load() } }
     }
 
@@ -364,7 +364,7 @@ struct LogsView: View {
                 }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         .onAppear { model.load() }
         .alert(loc["logs.clearConfirm"], isPresented: $confirmClear) {
             Button(loc["logs.clear"], role: .destructive) {
@@ -465,25 +465,22 @@ struct HunterView: View {
                 }
             }
         }
-        .padding(24)
+        .padding(.horizontal, 36).padding(.top, 30).padding(.bottom, 24)
         .onAppear { model.refresh() }
     }
 
     private func targetCard(_ p: Palette) -> some View {
-        GlassCard(padding: 18, radius: 18) {
+        GlassCard(padding: 18) {
             HStack(spacing: 18) {
                 ZStack {
-                    Circle().stroke(Palette.accent.opacity(0.35), lineWidth: 2).frame(width: 74, height: 74)
-                        .scaleEffect(pulse ? 1.18 : 0.92)
-                        .opacity(pulse ? 0 : 1)
-                        .animation(.easeOut(duration: 1.6).repeatForever(autoreverses: false), value: pulse)
+                    Circle().fill(p.cardStrong).frame(width: 74, height: 74)
+                    Circle().stroke(p.strokeStrong, style: StrokeStyle(lineWidth: 1, dash: [3, 3])).frame(width: 74, height: 74)
                     if let target = model.target, let url = target.url {
                         AppIconView(path: url.path, size: 52)
                     } else {
                         Image(systemName: "scope")
                             .font(.system(size: 34, weight: .semibold))
-                            .foregroundStyle(Palette.brandGradient)
-                            .symbolEffect(.pulse, isActive: !prefs.calmMotion && GraphicsSupport.richEffects)
+                            .foregroundStyle(p.text)
                     }
                 }
                 .frame(width: 80, height: 80)
@@ -491,7 +488,7 @@ struct HunterView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(model.target?.name ?? loc["hunt.noTarget"])
-                        .font(.system(size: 18, weight: .bold, design: .rounded)).foregroundStyle(p.text)
+                        .font(.system(size: 18, weight: .semibold)).foregroundStyle(p.text)
                     Text(model.target == nil ? loc["hunt.howto"] : (model.target?.bundleID ?? ""))
                         .font(.system(size: 12)).foregroundStyle(p.subtext)
                         .fixedSize(horizontal: false, vertical: true)
