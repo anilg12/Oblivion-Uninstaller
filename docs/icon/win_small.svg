@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3038"/><stop offset="1" stop-color="#16171B"/></linearGradient>
+  <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D5D6DC"/></linearGradient>
+  <linearGradient id="edge" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0.10"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.03"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0.06"/></linearGradient>
+  <filter id="blur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="22"/></filter>
+</defs>
+
+<rect x="24" y="24" width="976" height="976" rx="220" fill="url(#bg)"/>
+<rect x="27" y="27" width="970" height="970" rx="217" fill="none" stroke="url(#edge)" stroke-width="6"/>
+<path d="M 748.85 396.48 A 263.52000000000004 263.52000000000004 0 1 1 619.18 271.26" fill="none" stroke="url(#ring)" stroke-width="131.76000000000002" stroke-linecap="round"/>
+<circle cx="685.62" cy="305.09" r="55.34" fill="#8EA2FF" fill-opacity="1.0"/>
+<circle cx="840.04" cy="236.75" r="35.58" fill="#8EA2FF" fill-opacity="0.8"/>
+</svg>
