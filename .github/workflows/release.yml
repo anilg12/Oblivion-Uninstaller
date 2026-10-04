@@ -14,8 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to (re)publish, e.g. v3.0.0"
+        description: "Version tag to publish (created on the selected branch if missing), e.g. v3.0.0"
         required: true
+        default: "v3.0.0"
 
 permissions:
   contents: write
@@ -29,8 +30,6 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.TAG }}
 
       - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
@@ -81,8 +80,6 @@ jobs:
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.TAG }}
           sparse-checkout: |
             macos
           sparse-checkout-cone-mode: true
@@ -136,8 +133,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ env.TAG }}
 
       - uses: actions/download-artifact@v4
         with:
@@ -173,7 +168,8 @@ jobs:
           sed "s/{version}/$VERSION/g" "$NOTES" > notes.md
           # Re-running replaces this release's files but keeps its tag.
           gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes 2>/dev/null || true
-          gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" \
+          # Creates the tag on this commit when it doesn't exist yet.
+          gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
             --title "Oblivion $VERSION" --notes-file notes.md --latest
 
       - name: Remove the CI screenshot branches
