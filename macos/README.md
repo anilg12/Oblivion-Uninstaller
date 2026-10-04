@@ -4,8 +4,6 @@ Native **SwiftUI** version of Oblivion for Apple Silicon (M1–M4) and Intel Mac
 running on **macOS 14 Sonoma, 15 Sequoia and 26 Tahoe**. Same feature set and
 design language as the Windows app — rebuilt around how macOS actually stores apps.
 
-**Tasarım & geliştirme: ANIL GÜL**
-
 ## Features
 
 | Section | What it does on macOS |
@@ -20,9 +18,10 @@ design language as the Windows app — rebuilt around how macOS actually stores 
 | **Hunter mode** | Click any app window and Oblivion locks onto it: quit, force quit, reveal or uninstall. |
 | **Logs database** | Persistent history of everything Oblivion did. |
 | **Tools** | Startup manager (LaunchAgents/Daemons), Junk cleaner, Large file finder, Shredder, History & privacy cleaner. |
-| **Design** | Daccord-style layout: icon rail, labelled navigation, frosted-glass window, right profile panel, animations, light/dark/system theme, Turkish & English. |
+| **System monitor** | Live CPU, memory, CPU temperature (Apple Silicon HID sensors / Intel SMC), network, disks, battery health and the busiest processes. Sampling stops while nothing shows it. |
+| **Design** | Daccord-style layout: icon rail, labelled navigation, frosted-glass window, live right panel, animations (with a Reduce motion setting), light/dark/system theme, Turkish & English. About sheet from the (i) button or the app menu. |
 
-Everything Oblivion removes goes to the **Trash** first (except the Shredder and cache cleaning).
+Nothing is ever pre-selected, every removal is confirmed with the exact list, and everything goes to the **Trash** first (except the Shredder and cache / log / Trash cleaning).
 
 ## Install
 
@@ -34,7 +33,7 @@ curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/m
 
 **Or manually:**
 
-1. Download `Oblivion-<version>-macOS.dmg` from the GitHub release.
+1. Download the DMG for your Mac from the GitHub release: `…-macOS-AppleSilicon.dmg` (M1 and newer), `…-macOS-Intel.dmg`, or `…-macOS-Universal.dmg` (both).
 2. Drag **Oblivion** onto **Applications**.
 3. First launch: the app is ad-hoc signed (not notarized), so macOS will block it once.
    Go to **System Settings → Privacy & Security → Open Anyway**, or run:
@@ -47,8 +46,9 @@ Requires macOS 14+ with Xcode 15 or newer.
 
 ```bash
 cd macos
-./build-mac.sh            # -> build/Oblivion-2.0.0-macOS.dmg  (universal arm64 + x86_64)
+./build-mac.sh            # -> build/Oblivion-3.0.0-macOS-{AppleSilicon,Intel,Universal}.dmg
 ```
 
-CI builds the same DMG on every change to `macos/` (`.github/workflows/build-macos.yml`).
-Running that workflow manually with `release_tag: v2.0.0` attaches the DMG to the release.
+CI builds the DMGs and runs the self-test on Apple Silicon and Intel runners on every change to
+`macos/` (`.github/workflows/build-macos.yml`). Pushing a `v*` tag publishes a release with the
+Windows and Mac downloads (`.github/workflows/release.yml`).

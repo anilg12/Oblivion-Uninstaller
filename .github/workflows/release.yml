@@ -1,0 +1,185 @@
+name: Release
+
+# Pushing a tag such as v3.0.0 builds every download and publishes it as the only release:
+#   Oblivion-<version>-Windows-Setup.exe      installer (Windows 10 1809+ / 11, x64)
+#   Oblivion-<version>-Windows-Portable.exe   single file, no install
+#   Oblivion-<version>-macOS-AppleSilicon.dmg
+#   Oblivion-<version>-macOS-Intel.dmg
+#   Oblivion-<version>-macOS-Universal.dmg
+# Older releases (and their tags) and the CI screenshot branches are removed.
+
+on:
+  push:
+    tags: [ "v*" ]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to (re)publish, e.g. v3.0.0"
+        required: true
+
+permissions:
+  contents: write
+
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Publish (installer build, ReadyToRun)
+        run: >
+          dotnet publish src/Vanish/Vanish.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -o dist/app
+
+      - name: Publish (portable single file)
+        run: >
+          dotnet publish src/Vanish/Vanish.csproj
+          -c Release -r win-x64 --self-contained
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -p:EnableCompressionInSingleFile=true
+          -p:PublishReadyToRun=true
+          -p:DebugType=None
+          -o dist/portable
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer and name the downloads
+        shell: pwsh
+        run: |
+          $version = "$env:TAG".TrimStart('v')
+          & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Vanish.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
+          New-Item -ItemType Directory -Force -Path release | Out-Null
+          Copy-Item dist\OblivionSetup.exe "release\Oblivion-$version-Windows-Setup.exe"
+          Copy-Item dist\portable\Oblivion.exe "release\Oblivion-$version-Windows-Portable.exe"
+          Get-ChildItem release | Format-Table Name, Length
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: release/*
+          if-no-files-found: error
+
+  mac:
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+          sparse-checkout: |
+            macos
+          sparse-checkout-cone-mode: true
+          filter: blob:none
+
+      - name: Select newest stable Xcode
+        run: |
+          XCODE=$(ls -d /Applications/Xcode_*.app 2>/dev/null | grep -viE 'beta|rc|release' | sort -V | tail -1 || true)
+          if [ -n "$XCODE" ]; then sudo xcode-select -s "$XCODE"; fi
+          swift --version
+
+      - name: Import Developer ID certificate (if configured)
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          if [ -z "$MACOS_CERT_P12" ]; then
+            echo "No Developer ID secrets: building with an ad-hoc signature."
+            exit 0
+          fi
+          KC="$RUNNER_TEMP/signing.keychain-db"
+          KCPASS="$(uuidgen)"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KCPASS" "$KC"
+          security set-keychain-settings -lut 21600 "$KC"
+          security unlock-keychain -p "$KCPASS" "$KC"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KC"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KCPASS" "$KC" >/dev/null
+          security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
+          ID=$(security find-identity -v -p codesigning "$KC" | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
+          echo "DEVELOPER_ID=$ID" >> "$GITHUB_ENV"
+
+      - name: Build the three DMGs
+        working-directory: macos
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          chmod +x build-mac.sh
+          OBLIVION_VERSION="${TAG#v}" ./build-mac.sh
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: macos/build/*.dmg
+          if-no-files-found: error
+
+  publish:
+    needs: [ windows, mac ]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: assets
+          merge-multiple: true
+
+      - name: List the downloads
+        run: ls -lh assets
+
+      - name: Remove older releases and their tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 100 --json tagName -q '.[].tagName' | while read -r t; do
+            if [ -n "$t" ] && [ "$t" != "$TAG" ]; then
+              echo "Deleting release $t"
+              gh release delete "$t" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag
+            fi
+          done
+          for t in $(git ls-remote --tags origin | sed -E 's#.*refs/tags/##; s#\^\{\}$##' | sort -u); do
+            if [ "$t" != "$TAG" ]; then
+              echo "Deleting tag $t"
+              git push origin ":refs/tags/$t" || true
+            fi
+          done
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${TAG#v}"
+          NOTES="docs/release-notes.md"
+          sed "s/{version}/$VERSION/g" "$NOTES" > notes.md
+          # Re-running replaces this release's files but keeps its tag.
+          gh release delete "$TAG" --repo "$GITHUB_REPOSITORY" --yes 2>/dev/null || true
+          gh release create "$TAG" assets/* --repo "$GITHUB_REPOSITORY" \
+            --title "Oblivion $VERSION" --notes-file notes.md --latest
+
+      - name: Remove the CI screenshot branches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for b in ci-snapshots ci-snapshots-win ci-snapshots-mac ci-snapshots-mac-intel claude/macos-port; do
+            git push origin --delete "$b" 2>/dev/null && echo "deleted $b" || true
+          done
