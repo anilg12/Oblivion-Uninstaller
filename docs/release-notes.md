@@ -25,6 +25,7 @@
 ## ✨ 3.0'da neler yeni
 
 ### Her iki platformda
+- 🎨 **Baştan tasarlanan arayüz** — sade grafit tonlar, tek vurgu rengi, ince çizgiler, bol boşluk; tek ve düzenli bir kenar çubuğu. **Yeni uygulama simgesi.**
 - 📊 **Canlı Sistem İzleyici** — işlemci, bellek, **işlemci sıcaklığı**, ağ, diskler, pil ve en çok kaynak kullanan işlemler. Sayfa kapalıyken hiç kaynak tüketmez.
 - 🧹 **Yeniden yazılan gereksiz dosya temizleyici** — **hiçbir şey otomatik seçilmez.** Her kategori açılır, silinecek her dosya ve klasör tek tek görünür; yalnızca senin işaretlediklerin, onay penceresindeki tam listeyle silinir.
 - 🛡️ **Kalıntılar asla senin yerine işaretlenmez** — istersen tek tıkla yalnızca “kesin” eşleşmeler seçilir. Microsoft / Apple ve paylaşılan klasörler hiç listelenmez.
@@ -34,6 +35,7 @@
 - 🎞️ Daha akıcı animasyonlar ve efektler — ekran kartını yormadan; istersen **Hareketi azalt**.
 
 ### 🪟 Windows
+- 🖥️ **Oblivion açıkken masaüstünün ve arka plandaki pencerelerin yanıp sönmesi giderildi** — arayüz boşta hiç yeniden çizilmez.
 - ⚡ **İkinci ve sonraki açılışlardaki kasma giderildi** — açılış 1 saniyenin altında, sayfa geçişleri 0,25 saniyenin altında (CI ölçümü).
 - 🆕 Yeni araçlar: **Büyük dosyalar**, **Dosya parçalayıcı**, **Geçmiş ve gizlilik**, **Kanıt temizleyici**, **Yedek yöneticisi**.
 - 🎯 Avcı modunda nişangâh: herhangi bir pencerenin üzerine sürükle, programı bul.
@@ -64,6 +66,8 @@ No-warning install on Windows (PowerShell): `irm https://raw.githubusercontent.c
 Easiest on a Mac (no Gatekeeper prompt, picks the right build): `curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash`
 
 ### What's new in 3.0
+- 🎨 **Redesigned from scratch** — calm graphite tones, a single accent colour, hairline borders, generous spacing, one tidy sidebar and a **new app icon**.
+- 🪟 **Windows:** the desktop and background windows no longer flicker while Oblivion has focus.
 - 📊 **Live System Monitor** — CPU, memory, **CPU temperature**, network, disks, battery and the busiest processes; costs nothing while it's closed.
 - 🧹 **Rewritten junk cleaner** — **nothing is pre-selected.** Every category opens to show each file and folder; only what you tick is removed, after a confirmation with the full list.
 - 🛡️ **Leftovers are never ticked for you** — one click selects only the exact matches if you want. Microsoft / Apple and shared folders are never offered.

@@ -29,8 +29,8 @@
 </p>
 
 <p align="center">
-  <img src="docs/assets/macos-tour.gif" alt="Oblivion macOS: panel, sistem izleyici, gereksiz dosyalar, onay, kalıntılar, hakkında" width="92%">
-  <br><sub>🍏 <b>macOS 14+</b> (Apple Silicon ve Intel) — panel · sistem izleyici · gereksiz dosyalar · onay · kalıntılar · hakkında</sub>
+  <img src="docs/assets/macos-tour.gif" alt="Oblivion macOS: panel, uygulamalar, kalıntılar, gereksiz dosyalar, sistem izleyici" width="92%">
+  <br><sub>🍏 <b>macOS 14+</b> (Apple Silicon ve Intel) — panel · uygulamalar · kalıntılar · gereksiz dosyalar · sistem izleyici · açık tema</sub>
 </p>
 
 <p align="center"><img src="docs/assets/divider.svg" width="100%" alt=""></p>

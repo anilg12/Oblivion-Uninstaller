@@ -33,7 +33,7 @@ struct SystemMonitorView: View {
                     }
                 }
 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 4), spacing: 12) {
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12, alignment: .top), count: 4), spacing: 12) {
                     gaugeCard(title: loc["live.cpu"], symbol: "cpu", colors: [0x6E5BFF, 0xB45BFF],
                               value: s.cpu / 100, center: Fmt.percent(s.cpu, loc), p: p) {
                         Sparkline(values: s.cpuHistory, maximum: 100).frame(height: 34)
