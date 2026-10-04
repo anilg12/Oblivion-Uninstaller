@@ -10,9 +10,9 @@
     <AssemblyName>Oblivion</AssemblyName>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Assets\Oblivion.ico</ApplicationIcon>
-    <Version>3.0.0</Version>
-    <FileVersion>3.0.0.0</FileVersion>
-    <InformationalVersion>3.0.0</InformationalVersion>
+    <Version>3.1.0</Version>
+    <FileVersion>3.1.0.0</FileVersion>
+    <InformationalVersion>3.1.0</InformationalVersion>
     <Product>Oblivion</Product>
     <Description>Oblivion — uninstaller and system cleaner</Description>
     <Company>ANIL GUL</Company>

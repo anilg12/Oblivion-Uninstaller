@@ -1,48 +1,59 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 320" width="1200" height="320" role="img" aria-label="Oblivion — uninstaller and system cleaner for Windows and macOS">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" width="1200" height="420" role="img" aria-label="Oblivion — uninstaller and system cleaner for Windows and macOS">
   <title>Oblivion — uninstaller and system cleaner for Windows and macOS</title>
   <defs>
     <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E3038"/><stop offset="1" stop-color="#16171B"/></linearGradient>
     <linearGradient id="ring" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#D5D6DC"/></linearGradient>
     <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#FFFFFF" stroke-opacity="0.035" stroke-width="1"/></pattern>
-    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#141416" stop-opacity="0"/><stop offset="1" stop-color="#141416" stop-opacity="1"/></linearGradient>
-    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#4F6BED" stop-opacity="0.55"/><stop offset="1" stop-color="#4F6BED" stop-opacity="0"/></radialGradient>
+    <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0"><stop offset="0.45" stop-color="#141416" stop-opacity="0"/><stop offset="1" stop-color="#141416" stop-opacity="0.85"/></linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFFFFF" stop-opacity="0"/><stop offset="0.5" stop-color="#FFFFFF" stop-opacity="0.07"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/></linearGradient>
+    <clipPath id="card"><rect width="1200" height="420" rx="22"/></clipPath>
+    <clipPath id="tileclip"><rect x="104" y="100.0" width="208" height="208" rx="47"/></clipPath>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="16"/></filter>
     <style>
-      .in1 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .05s; }
-      .in2 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .18s; }
-      .in3 { animation: rise .7s cubic-bezier(.2,.7,.2,1) both .30s; }
-      @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-      @media (prefers-reduced-motion: reduce) { .in1, .in2, .in3 { animation: none; } }
       text { font-family: "Segoe UI Variable Display", "Segoe UI", -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; }
+      .rise1 { animation: rise .8s cubic-bezier(.2,.7,.2,1) both .05s; }
+      .rise2 { animation: rise .8s cubic-bezier(.2,.7,.2,1) both .2s; }
+      .rise3 { animation: rise .8s cubic-bezier(.2,.7,.2,1) both .35s; }
+      .breathe { animation: breathe 6s ease-in-out infinite; transform-origin: 208.0px 204.0px; }
+      .turn { animation: turn 90s linear infinite; transform-origin: 1080px 210px; }
+      .sheen { animation: sheen 7s ease-in-out infinite 1.5s; }
+      @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+      @keyframes breathe { 0%, 100% { opacity: .35; transform: scale(1); } 50% { opacity: .6; transform: scale(1.06); } }
+      @keyframes turn { to { transform: rotate(360deg); } }
+      @keyframes sheen { 0% { transform: translateX(-260px); } 35%, 100% { transform: translateX(300px); } }
+      @media (prefers-reduced-motion: reduce) { .rise1, .rise2, .rise3, .breathe, .turn, .sheen { animation: none; } }
     </style>
   </defs>
-  <rect width="1200" height="320" rx="20" fill="#141416"/>
-  <rect width="1200" height="320" rx="20" fill="url(#grid)"/>
-  <rect x="600" width="600" height="320" rx="20" fill="url(#fade)" opacity="0.6"/>
-  <rect x="0.5" y="0.5" width="1199" height="319" rx="19.5" fill="none" stroke="#2A2A2F"/>
+  <g clip-path="url(#card)">
+    <rect width="1200" height="420" fill="#141416"/>
+    <rect width="1200" height="420" fill="url(#grid)"/>
+    <g class="turn" opacity="0.07">
+      <path d="M 1304.7 100.4 A 250 250 0 1 1 1181.7 -18.4" fill="none" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round"/>
+    </g>
+    <rect width="1200" height="420" fill="url(#fade)"/>
+  </g>
+  <rect x="0.5" y="0.5" width="1199" height="419" rx="21.5" fill="none" stroke="#2A2A2F"/>
 
-  <g class="in1">
-    <rect x="96" y="70" width="200" height="200" rx="45" fill="#000" opacity="0.45" filter="url(#soft)"/>
-    <rect x="96" y="60" width="200" height="200" rx="45" fill="url(#tile)"/>
-    <rect x="97" y="61" width="198" height="198" rx="44" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="2"/>
-    <path d="M 243.64 136.77 A 53.0 53.0 0 1 1 217.56 111.58" fill="none" stroke="url(#ring)" stroke-width="19.6" stroke-linecap="round"/>
-<circle cx="234.18" cy="120.47" r="7.06" fill="#8EA2FF" fill-opacity="1.0"/>
-<circle cx="254.71" cy="112.46" r="4.70" fill="#8EA2FF" fill-opacity="0.8"/>
-<circle cx="273.33" cy="109.78" r="2.74" fill="#8EA2FF" fill-opacity="0.55"/>
+  <g class="rise1">
+    <circle class="breathe" cx="208.0" cy="204.0" r="162" fill="url(#glow)"/>
+    <rect x="104" y="112.0" width="208" height="208" rx="47" fill="#000" opacity="0.55" filter="url(#soft)"/>
+    <rect x="104" y="100.0" width="208" height="208" rx="47" fill="url(#tile)"/>
+    <rect x="105" y="101.0" width="206" height="206" rx="46" fill="none" stroke="#FFFFFF" stroke-opacity="0.09" stroke-width="2"/>
+    <g clip-path="url(#tileclip)"><rect class="sheen" x="104" y="100.0" width="200" height="208" fill="url(#sheen)"/></g>
+    <path d="M 257.54 179.84 A 55.120000000000005 55.120000000000005 0 1 1 230.42 153.65" fill="none" stroke="url(#ring)" stroke-width="20.384" stroke-linecap="round"/>
+<circle cx="247.71" cy="162.88" r="7.34" fill="#8EA2FF" fill-opacity="1.0"/>
+<circle cx="269.05" cy="154.56" r="4.89" fill="#8EA2FF" fill-opacity="0.8"/>
+<circle cx="288.42" cy="151.78" r="2.85" fill="#8EA2FF" fill-opacity="0.55"/>
+    <circle cx="247.7" cy="162.9" r="7.5" fill="#8EA2FF" opacity="0"><animate attributeName="cx" values="247.7;288.0" dur="3.6s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="cy" values="162.9;108.7" dur="3.6s" begin="0s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="opacity" values="0;1;0" keyTimes="0;.15;1" dur="3.6s" begin="0s" repeatCount="indefinite"/><animate attributeName="r" values="7.5;2.62" dur="3.6s" begin="0s" repeatCount="indefinite"/></circle><circle cx="251.8" cy="167.3" r="5" fill="#8EA2FF" opacity="0"><animate attributeName="cx" values="251.8;297.5" dur="3.6s" begin="1.2s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="cy" values="167.3;117.6" dur="3.6s" begin="1.2s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="opacity" values="0;1;0" keyTimes="0;.15;1" dur="3.6s" begin="1.2s" repeatCount="indefinite"/><animate attributeName="r" values="5;1.75" dur="3.6s" begin="1.2s" repeatCount="indefinite"/></circle><circle cx="255.4" cy="172.0" r="3.4" fill="#8EA2FF" opacity="0"><animate attributeName="cx" values="255.4;306.0" dur="3.6s" begin="2.4s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="cy" values="172.0;127.4" dur="3.6s" begin="2.4s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="opacity" values="0;1;0" keyTimes="0;.15;1" dur="3.6s" begin="2.4s" repeatCount="indefinite"/><animate attributeName="r" values="3.4;1.19" dur="3.6s" begin="2.4s" repeatCount="indefinite"/></circle><circle cx="244.7" cy="160.2" r="2.6" fill="#8EA2FF" opacity="0"><animate attributeName="cx" values="244.7;281.1" dur="4.8s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="cy" values="160.2;103.3" dur="4.8s" begin="0.6s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="opacity" values="0;1;0" keyTimes="0;.15;1" dur="4.8s" begin="0.6s" repeatCount="indefinite"/><animate attributeName="r" values="2.6;0.91" dur="4.8s" begin="0.6s" repeatCount="indefinite"/></circle><circle cx="257.5" cy="175.4" r="2.2" fill="#8EA2FF" opacity="0"><animate attributeName="cx" values="257.5;311.2" dur="4.8s" begin="3.0s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="cy" values="175.4;134.4" dur="4.8s" begin="3.0s" repeatCount="indefinite" calcMode="spline" keySplines=".2 .6 .3 1"/><animate attributeName="opacity" values="0;1;0" keyTimes="0;.15;1" dur="4.8s" begin="3.0s" repeatCount="indefinite"/><animate attributeName="r" values="2.2;0.77" dur="4.8s" begin="3.0s" repeatCount="indefinite"/></circle>
   </g>
 
-  <g class="in2">
-    <text x="360" y="150" font-size="76" font-weight="600" letter-spacing="-1.5" fill="#EDEDEF">Oblivion</text>
-    <text x="362" y="196" font-size="24" font-weight="400" fill="#A3A3AA">Uninstaller &amp; system cleaner for Windows and macOS</text>
+  <g class="rise2">
+    <text x="388" y="196" font-size="84" font-weight="600" letter-spacing="-2" fill="#EDEDEF">Oblivion</text>
+    <text x="391" y="244" font-size="25" fill="#A3A3AA">Programları iz bırakmadan kaldır, bilgisayarını güvenle temizle.</text>
   </g>
-
-  <g class="in3" font-size="15" font-weight="600">
-    <rect x="362" y="226" width="140" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
-    <text x="432" y="247" text-anchor="middle" fill="#EDEDEF">Windows 10 · 11</text>
-    <rect x="514" y="226" width="112" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
-    <text x="570" y="247" text-anchor="middle" fill="#EDEDEF">macOS 14+</text>
-    <rect x="638" y="226" width="196" height="32" rx="8" fill="#1C1C1F" stroke="#2A2A2F"/>
-    <text x="736" y="247" text-anchor="middle" fill="#EDEDEF">Apple Silicon + Intel</text>
-    <rect x="846" y="226" width="72" height="32" rx="8" fill="#4F6BED" fill-opacity="0.18" stroke="#4F6BED" stroke-opacity="0.45"/>
-    <text x="882" y="247" text-anchor="middle" fill="#A3B4FF">v3.0</text>
+  <g class="rise3" font-size="15" font-weight="600">
+    <rect x="392" y="300" width="140" height="34" rx="9" fill="#1C1C1F" stroke="#2A2A2F"/><text x="462.0" y="322.5" text-anchor="middle" fill="#EDEDEF">Windows 10 · 11</text><rect x="544" y="300" width="112" height="34" rx="9" fill="#1C1C1F" stroke="#2A2A2F"/><text x="600.0" y="322.5" text-anchor="middle" fill="#EDEDEF">macOS 14+</text><rect x="668" y="300" width="196" height="34" rx="9" fill="#1C1C1F" stroke="#2A2A2F"/><text x="766.0" y="322.5" text-anchor="middle" fill="#EDEDEF">Apple Silicon + Intel</text><rect x="876" y="300" width="72" height="34" rx="9" fill="#4F6BED" fill-opacity="0.16" stroke="#4F6BED" stroke-opacity="0.5"/><text x="912.0" y="322.5" text-anchor="middle" fill="#A3B4FF">v3.1</text>
   </g>
 </svg>

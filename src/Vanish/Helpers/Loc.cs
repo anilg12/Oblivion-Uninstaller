@@ -65,7 +65,7 @@ public sealed class Loc : INotifyPropertyChanged
         ["About_Repo"] = "Projeyi incele",
         ["About_Role"] = "Oblivion'un tasarımcısı ve geliştiricisi",
         ["About_VersionFmt"] = "Sürüm {0}",
-        ["About_WhatsNew"] = "3.0'daki yenilikler",
+        ["About_WhatsNew"] = "Yenilikler",
 
         ["Act_Cancel"] = "İptal",
         ["Act_Clean"] = "Temizle",
@@ -661,7 +661,7 @@ public sealed class Loc : INotifyPropertyChanged
         ["About_Repo"] = "View project",
         ["About_Role"] = "Designer & developer of Oblivion",
         ["About_VersionFmt"] = "Version {0}",
-        ["About_WhatsNew"] = "What's new in 3.0",
+        ["About_WhatsNew"] = "What's new",
 
         ["Act_Cancel"] = "Cancel",
         ["Act_Clean"] = "Clean",

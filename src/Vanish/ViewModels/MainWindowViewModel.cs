@@ -99,7 +99,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
 public static class AppInfo
 {
     public static string Version =>
-        typeof(AppInfo).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "3.0.0";
+        typeof(AppInfo).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "3.1.0";
 
     public const string GitHub = "https://github.com/anilg12";
     public const string Repository = "https://github.com/anilg12/Oblivion-Uninstaller";

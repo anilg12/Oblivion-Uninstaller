@@ -1,6 +1,6 @@
 name: Release
 
-# Pushing a tag such as v3.0.0 builds every download and publishes it as the only release:
+# Pushing a tag such as v3.1.0 builds every download and publishes it as the only release:
 #   Oblivion-<version>-Windows-Setup.exe      installer (Windows 10 1809+ / 11, x64)
 #   Oblivion-<version>-Windows-Portable.exe   single file, no install
 #   Oblivion-<version>-macOS-AppleSilicon.dmg
@@ -14,9 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Version tag to publish (created on the selected branch if missing), e.g. v3.0.0"
+        description: "Version tag to publish (created on the selected branch if missing), e.g. v3.1.0"
         required: true
-        default: "v3.0.0"
+        default: "v3.1.0"
       windows_only:
         description: "Rebuild only the Windows downloads; the release keeps its existing macOS DMGs"
         type: boolean
@@ -192,3 +192,32 @@ jobs:
           for b in ci-snapshots ci-snapshots-win ci-snapshots-mac ci-snapshots-mac-intel claude/macos-port; do
             git push origin --delete "$b" 2>/dev/null && echo "deleted $b" || true
           done
+
+  # Downloads what was just published (not the build artifacts) and checks that the Setup
+  # installs this version and that the portable exe is this version too.
+  verify-windows:
+    needs: publish
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Download, install and check the published Windows files
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = "$env:TAG".TrimStart('v')
+          gh release download "$env:TAG" --repo "$env:GITHUB_REPOSITORY" --pattern '*-Windows-*.exe' --dir dl
+          Get-ChildItem dl | Format-Table Name, Length
+          $setup = "dl\Oblivion-$version-Windows-Setup.exe"
+          $portable = "dl\Oblivion-$version-Windows-Portable.exe"
+          foreach ($f in $setup, $portable) { if (-not (Test-Path $f)) { throw "Missing $f" } }
+          $pv = (Get-Item $portable).VersionInfo.ProductVersion
+          if (-not "$pv".StartsWith($version)) { throw "Portable exe is version $pv, expected $version" }
+          $p = Start-Process $setup -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait -PassThru
+          if ($p.ExitCode -ne 0) { throw "Setup failed with code $($p.ExitCode)" }
+          $exe = "$env:ProgramFiles\Oblivion\Oblivion.exe"
+          if (-not (Test-Path $exe)) { throw "Oblivion.exe was not installed" }
+          $iv = (Get-Item $exe).VersionInfo.ProductVersion
+          if (-not "$iv".StartsWith($version)) { throw "Installed app is version $iv, expected $version" }
+          Write-Host "Setup installs Oblivion $iv; portable is $pv"
+          Start-Process "$env:ProgramFiles\Oblivion\unins000.exe" -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART' -Wait

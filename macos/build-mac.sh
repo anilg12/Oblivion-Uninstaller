@@ -9,7 +9,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 
 APP_NAME="Oblivion"
-VERSION="${OBLIVION_VERSION:-3.0.0}"
+VERSION="${OBLIVION_VERSION:-3.1.0}"
 OUT="build"
 
 rm -rf "$OUT"

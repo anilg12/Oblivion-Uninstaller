@@ -2,80 +2,50 @@
   <img src="https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/docs/assets/banner.svg" alt="Oblivion" width="100%">
 </p>
 
-## ⬇️ Hangi dosyayı indirmeliyim?
+### Hangi dosyayı indirmeliyim?
 
-| Bilgisayarın | İndir |
+| Bilgisayarın | Dosya |
 |---|---|
-| 🪟 **Windows 10 / 11** (önerilen) | `Oblivion-{version}-Windows-Setup.exe` — kurulum sihirbazı, Başlat menüsü ve masaüstü kısayolu |
-| 🪟 Windows, kurulumsuz | `Oblivion-{version}-Windows-Portable.exe` — tek dosya, çift tıkla çalışır |
-| 🍏 **Mac — Apple Silicon** (M1, M2, M3, M4…) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
-| 🍏 **Mac — Intel işlemcili** | `Oblivion-{version}-macOS-Intel.dmg` |
-| 🍏 Mac — emin değilim | `Oblivion-{version}-macOS-Universal.dmg` — her Mac'te çalışır |
+| **Windows 10 / 11** — önerilen | `Oblivion-{version}-Windows-Setup.exe` — kurulum sihirbazı |
+| Windows, kurulumsuz | `Oblivion-{version}-Windows-Portable.exe` — tek dosya, çift tıkla çalışır |
+| **Mac — Apple Silicon** (M1, M2, M3, M4…) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
+| **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
+| Mac — emin değilim | `Oblivion-{version}-macOS-Universal.dmg` — her Mac'te çalışır |
 
-> ✅ **Uyarısız kurulum (önerilen)** — “Windows kişisel bilgisayarınızı korudu” ekranı çıkmaz:
->
-> 🪟 **Windows:** PowerShell'i aç, yapıştır, Enter →
-> `irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex`
->
-> 🍏 **Mac:** Terminal'i aç, yapıştır, Enter (işlemciyi kendisi seçer) →
-> `curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash`
->
-> Dosyaları tarayıcıyla indirirsen Windows imzasız yeni programlar için uyarı gösterebilir: **Ek bilgi → Yine de çalıştır**.
+### {version} ile gelenler
 
-## ✨ 3.0'da neler yeni
+**Yeni tasarım**
+- Arayüz baştan tasarlandı: sade grafit tonlar, tek vurgu rengi, ince çizgiler ve bol boşluk. Tek ve düzenli bir kenar çubuğu.
+- Yeni uygulama simgesi ve yeni kurulum sihirbazı görselleri.
 
-### Her iki platformda
-- 🎨 **Baştan tasarlanan arayüz** — sade grafit tonlar, tek vurgu rengi, ince çizgiler, bol boşluk; tek ve düzenli bir kenar çubuğu. **Yeni uygulama simgesi.**
-- 📊 **Canlı Sistem İzleyici** — işlemci, bellek, **işlemci sıcaklığı**, ağ, diskler, pil ve en çok kaynak kullanan işlemler. Sayfa kapalıyken hiç kaynak tüketmez.
-- 🧹 **Yeniden yazılan gereksiz dosya temizleyici** — **hiçbir şey otomatik seçilmez.** Her kategori açılır, silinecek her dosya ve klasör tek tek görünür; yalnızca senin işaretlediklerin, onay penceresindeki tam listeyle silinir.
-- 🛡️ **Kalıntılar asla senin yerine işaretlenmez** — istersen tek tıkla yalnızca “kesin” eşleşmeler seçilir. Microsoft / Apple ve paylaşılan klasörler hiç listelenmez.
-- ✅ Her silme işleminden önce, etkilenecek dosyaların tam listesiyle **onay**.
-- ⏯️ Başlangıç öğeleri **silinmeden kapatılıp yeniden açılabilir**.
-- ℹ️ Geliştirici bilgileri ana ekrandan kaldırıldı; **ⓘ Hakkında** penceresine taşındı.
-- 🎞️ Daha akıcı animasyonlar ve efektler — ekran kartını yormadan; istersen **Hareketi azalt**.
+**Windows**
+- Oblivion açıkken masaüstünün ve arka plandaki pencerelerin yanıp sönmesi giderildi; arayüz boştayken hiç yeniden çizilmez.
+- Kurulumdan sonra Windows ikon önbelleği yenilenir, kısayollar hemen yeni simgeyle görünür.
 
-### 🪟 Windows
-- 🖥️ **Oblivion açıkken masaüstünün ve arka plandaki pencerelerin yanıp sönmesi giderildi** — arayüz boşta hiç yeniden çizilmez.
-- ⚡ **İkinci ve sonraki açılışlardaki kasma giderildi** — açılış 1 saniyenin altında, sayfa geçişleri 0,25 saniyenin altında (CI ölçümü).
-- 🆕 Yeni araçlar: **Büyük dosyalar**, **Dosya parçalayıcı**, **Geçmiş ve gizlilik**, **Kanıt temizleyici**, **Yedek yöneticisi**.
-- 🎯 Avcı modunda nişangâh: herhangi bir pencerenin üzerine sürükle, programı bul.
-- Sıcaklık, Windows'un bildirdiği ACPI termal bölge değerinden okunur (desteklemeyen cihazlarda “Ölçülemiyor” yazar).
-
-### 🍏 macOS
-- 🧠 **Apple Silicon ve Intel için ayrı yerel derlemeler** — Apple Silicon'da sıcaklık işlemci sensörlerinden (HID), Intel'de SMC'den okunur.
-- 🔋 Pil sağlığı ve döngü sayısı, pilde çalışırken daha seyrek ölçüm, pencere gizliyken ölçüm durur.
-- 📋 Uygulama menüsünde “Oblivion hakkında”.
+**3.0'dan beri**
+- Canlı sistem izleyici: işlemci, bellek, işlemci sıcaklığı, ağ, diskler, pil ve en yoğun işlemler.
+- Gereksiz dosya temizleyici baştan yazıldı: hiçbir şey otomatik seçilmez, silinecek her dosya tek tek görünür.
+- Kalıntılar asla senin yerine işaretlenmez; Microsoft / Apple ve paylaşılan klasörler hiç listelenmez.
+- Her silme işleminden önce, etkilenecek dosyaların tam listesiyle onay.
+- Başlangıç öğeleri silinmeden kapatılıp yeniden açılabilir.
+- Windows: büyük dosyalar, dosya parçalayıcı, geçmiş ve gizlilik, kanıt temizleyici, yedek yöneticisi; avcı modunda nişangâh.
+- Mac: Apple Silicon ve Intel için ayrı yerel derlemeler, pil sağlığı ve döngü sayısı.
 
 ---
 
 <details>
-<summary>🇬🇧 <b>English</b></summary>
-
-### Which file do I need?
+<summary><b>English</b></summary>
 
 | Your computer | Download |
 |---|---|
-| 🪟 **Windows 10 / 11** (recommended) | `Oblivion-{version}-Windows-Setup.exe` — installer with Start menu and desktop shortcuts |
-| 🪟 Windows, no install | `Oblivion-{version}-Windows-Portable.exe` — a single file, just run it |
-| 🍏 **Mac — Apple Silicon** (M1, M2, M3, M4…) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
-| 🍏 **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
-| 🍏 Mac — not sure | `Oblivion-{version}-macOS-Universal.dmg` — runs on every Mac |
+| **Windows 10 / 11** (recommended) | `Oblivion-{version}-Windows-Setup.exe` — installer |
+| Windows, no install | `Oblivion-{version}-Windows-Portable.exe` — single file |
+| **Mac — Apple Silicon** | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
+| **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
+| Mac — not sure | `Oblivion-{version}-macOS-Universal.dmg` — runs on every Mac |
 
-No-warning install on Windows (PowerShell): `irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex`
+**New in {version}:** a redesign from scratch (calm graphite tones, one accent colour, hairline borders, a single tidy sidebar), a new app icon and installer artwork. On Windows the desktop and background windows no longer flicker while Oblivion has focus, and shortcuts show the new icon right after installing.
 
-Easiest on a Mac (no Gatekeeper prompt, picks the right build): `curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash`
-
-### What's new in 3.0
-- 🎨 **Redesigned from scratch** — calm graphite tones, a single accent colour, hairline borders, generous spacing, one tidy sidebar and a **new app icon**.
-- 🪟 **Windows:** the desktop and background windows no longer flicker while Oblivion has focus.
-- 📊 **Live System Monitor** — CPU, memory, **CPU temperature**, network, disks, battery and the busiest processes; costs nothing while it's closed.
-- 🧹 **Rewritten junk cleaner** — **nothing is pre-selected.** Every category opens to show each file and folder; only what you tick is removed, after a confirmation with the full list.
-- 🛡️ **Leftovers are never ticked for you** — one click selects only the exact matches if you want. Microsoft / Apple and shared folders are never offered.
-- ✅ A confirmation with the exact list of files before every destructive action.
-- ⏯️ Startup items can be switched off and back on without deleting them.
-- ℹ️ The developer credits moved off the main screen into an **ⓘ About** window.
-- 🎞️ Smoother animations and effects that stay light on the GPU, plus a **Reduce motion** option.
-- 🪟 **Windows:** the stutter on later launches is gone (start-up under a second, page switches under 0.25 s in CI); new Large files, File shredder, History & privacy, Evidence remover and Backup manager tools; a crosshair in Hunter mode.
-- 🍏 **macOS:** separate native builds for Apple Silicon and Intel with their own temperature readers (HID sensors / SMC); battery health and cycle count; sampling slows down on battery and stops while the window is hidden.
+**Since 3.0:** live system monitor, a rewritten junk cleaner where nothing is pre-selected, leftovers that are never ticked for you, a full confirmation list before every deletion, startup items that can be switched off and on, new Windows tools, and native Apple Silicon and Intel builds on the Mac.
 
 </details>

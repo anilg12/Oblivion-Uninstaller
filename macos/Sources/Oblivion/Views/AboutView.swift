@@ -3,7 +3,7 @@ import SwiftUI
 
 enum AppInfo {
     static var version: String {
-        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.0.0"
+        Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "3.1.0"
     }
 
     static let github = URL(string: "https://github.com/anilg12")!

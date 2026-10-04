@@ -46,7 +46,7 @@ Requires macOS 14+ with Xcode 15 or newer.
 
 ```bash
 cd macos
-./build-mac.sh            # -> build/Oblivion-3.0.0-macOS-{AppleSilicon,Intel,Universal}.dmg
+./build-mac.sh            # -> build/Oblivion-3.1.0-macOS-{AppleSilicon,Intel,Universal}.dmg
 ```
 
 CI builds the DMGs and runs the self-test on Apple Silicon and Intel runners on every change to

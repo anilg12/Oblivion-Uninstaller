@@ -3,7 +3,7 @@
 ; The version can be overridden:  iscc /DMyAppVersion=3.0.1 installer\Vanish.iss
 
 #ifndef MyAppVersion
-  #define MyAppVersion "3.0.0"
+  #define MyAppVersion "3.1.0"
 #endif
 #define MyAppName "Oblivion"
 #define MyAppPublisher "ANIL GÜL"
@@ -36,6 +36,12 @@ Compression=lzma2/ultra64
 SolidCompression=yes
 LZMANumBlockThreads=4
 WizardStyle=modern
+WizardImageFile=art\wizard-large100.bmp,art\wizard-large150.bmp,art\wizard-large200.bmp
+WizardSmallImageFile=art\wizard-small100.bmp,art\wizard-small150.bmp,art\wizard-small200.bmp
+WizardImageStretch=no
+; Ask Windows to refresh its icon cache after installing, so shortcuts show the current icon
+; instead of one cached from an earlier version.
+ChangesAssociations=yes
 ; Oblivion needs admin to read HKLM and run uninstallers
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64compatible
