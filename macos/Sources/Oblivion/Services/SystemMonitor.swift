@@ -10,11 +10,11 @@ struct ProcessRow: Identifiable, Hashable {
     var id: String { name }
     let name: String
     let count: Int
-    /// Share of the whole machine's CPU (0–100).
+    // % of the whole machine's cpu (0-100)
     let cpu: Double
     let memory: Int64
     let pids: [pid_t]
-    /// .app bundle (for the icon), when the process belongs to one.
+    // .app bundle for the icon, if the process has one
     let bundlePath: String?
 }
 
@@ -43,7 +43,7 @@ struct SystemSnapshot {
     var memTotal: UInt64 = ProcessInfo.processInfo.physicalMemory
     var memPercent: Double = 0
     var memHistory: [Double] = []
-    /// °C when a sensor could be read (Apple Silicon HID sensors / Intel SMC), otherwise nil.
+    // celsius, nil if no sensor could be read (apple silicon HID / intel SMC)
     var temperature: Double?
     var thermalState: ProcessInfo.ThermalState = .nominal
     var netDown: Double = 0
@@ -71,8 +71,8 @@ struct StaticSystemInfo {
 
 // MARK: - Monitor
 
-/// Live system statistics. Sampling runs only while a view is subscribed and the window
-/// is visible; on battery power it samples less often to save energy.
+// live system stats. only samples while a view is subscribed and the window is visible,
+// less often on battery
 @MainActor
 final class SystemMonitor: ObservableObject {
     @Published private(set) var snapshot = SystemSnapshot()
@@ -164,7 +164,7 @@ final class SystemMonitor: ObservableObject {
 
     // MARK: Actions
 
-    /// Ends every process of a group (apps are asked to quit first).
+    // kill every process in the group (apps get a normal quit first)
     func end(_ row: ProcessRow) -> Bool {
         var ok = false
         for pid in row.pids {
@@ -184,7 +184,7 @@ final class SystemMonitor: ObservableObject {
     ]
 }
 
-// MARK: - Sampler (runs off the main thread, one sample at a time)
+// MARK: - Sampler (background, one sample at a time)
 
 final class Sampler: @unchecked Sendable {
     private let historyLength = 60
@@ -277,14 +277,14 @@ final class Sampler: @unchecked Sendable {
         guard result == KERN_SUCCESS else { return (0, total) }
         var pageSize: vm_size_t = 0
         host_page_size(mach_host_self(), &pageSize)
-        // Same as Activity Monitor's "Memory Used": app memory + wired + compressed.
+        // same as activity monitor's "Memory Used": app + wired + compressed
         let app = max(0, Int64(stats.internal_page_count) - Int64(stats.purgeable_count))
         let pages = app + Int64(stats.wire_count) + Int64(stats.compressor_page_count)
         let used = UInt64(max(0, pages)) * UInt64(pageSize)
         return (min(used, total), total)
     }
 
-    // MARK: Network (32-bit interface counters; deltas handle wrap-around)
+    // MARK: Network (32-bit counters, deltas handle the wrap-around)
 
     private func network() -> (Double, Double) {
         var ifaddr: UnsafeMutablePointer<ifaddrs>?
@@ -377,7 +377,7 @@ final class Sampler: @unchecked Sendable {
         return Date().timeIntervalSince1970 - Double(boot.tv_sec)
     }
 
-    // MARK: Processes (ps: works for every process without special rights)
+    // MARK: Processes (ps, works without special rights)
 
     private func sampleProcesses() {
         let out = Shell.run("/bin/ps", ["-Ao", "pid=,pcpu=,rss=,comm="]).out
@@ -426,7 +426,7 @@ enum StaticInfoReader {
         }
         info.architecture = architecture()
 
-        // One-time hardware query (marketing name and graphics), off the main thread.
+        // hardware info once (model name, gpu), in the background
         let json = Shell.run("/usr/sbin/system_profiler", ["SPHardwareDataType", "SPDisplaysDataType", "-json", "-detailLevel", "mini"]).out
         if let data = json.data(using: .utf8),
            let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
@@ -470,8 +470,8 @@ enum StaticInfoReader {
 
 // MARK: - CPU temperature
 
-/// Reads the CPU temperature: Apple Silicon exposes its die sensors through the HID event
-/// system, Intel Macs through the SMC. Each architecture tries its native source first.
+// cpu temperature. apple silicon: die sensors through the HID event system, intel: SMC.
+// each one tries its own source first
 final class ThermalReader: @unchecked Sendable {
     private let hid = HIDTemperature()
     private let smc = SMCTemperature()
@@ -485,7 +485,7 @@ final class ThermalReader: @unchecked Sendable {
     }
 }
 
-/// IOHIDEventSystemClient (exported by IOKit, used by Activity-Monitor-like tools).
+// IOHIDEventSystemClient (exported by IOKit, what activity monitor style tools use)
 final class HIDTemperature: @unchecked Sendable {
     private typealias CreateFn = @convention(c) (CFAllocator?) -> OpaquePointer?
     private typealias SetMatchingFn = @convention(c) (OpaquePointer, CFDictionary) -> Int32
@@ -523,7 +523,7 @@ final class HIDTemperature: @unchecked Sendable {
             return
         }
         client = c
-        // Apple vendor usage page 0xff00, usage 5 = temperature sensor.
+        // apple vendor usage page 0xff00, usage 5 = temp sensor
         let matching = ["PrimaryUsagePage": 0xff00, "PrimaryUsage": 5] as CFDictionary
         _ = unsafeBitCast(setMatching, to: SetMatchingFn.self)(c, matching)
     }
@@ -558,7 +558,7 @@ final class HIDTemperature: @unchecked Sendable {
     }
 }
 
-/// Minimal AppleSMC reader for temperature keys (sp78 / flt values).
+// minimal AppleSMC reader for the temperature keys (sp78 / flt)
 final class SMCTemperature: @unchecked Sendable {
     static let intelKeys = ["TC0P", "TC0D", "TC0E", "TC0F", "TC0H", "TCXC", "TC1C"]
     static let appleSiliconKeys = ["Tp09", "Tp0T", "Tp01", "Tp05", "Tp0D", "Tp0H", "Tp0L", "Tp0P", "Tp0X", "Tp0b", "Tf04", "Tf09"]
@@ -573,7 +573,7 @@ final class SMCTemperature: @unchecked Sendable {
         var cpuPLimit: UInt32 = 0, gpuPLimit: UInt32 = 0, memPLimit: UInt32 = 0
     }
 
-    /// 12 bytes like the C struct (explicit tail padding keeps the outer layout identical).
+    // 12 bytes like the C struct, explicit padding at the end so the outer layout matches
     private struct KeyInfo {
         var dataSize: UInt32 = 0
         var dataType: UInt32 = 0

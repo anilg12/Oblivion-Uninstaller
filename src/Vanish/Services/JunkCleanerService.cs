@@ -6,11 +6,9 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Finds regenerable junk (temp files, caches, crash dumps, update downloads, browser
-/// caches, old installers, the Recycle Bin). Every category lists its exact contents;
-/// only what the user ticks is removed. Personal files go to the Recycle Bin.
-/// </summary>
+// regenerable junk: temp, caches, crash dumps, update downloads, browser caches, old installers,
+// recycle bin. every category lists its exact contents and only ticked items get removed.
+// personal files go to the recycle bin
 public sealed class JunkCleanerService : IJunkCleanerService
 {
     private const int MaxListed = 150;
@@ -43,7 +41,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
 
     private static Color C(uint rgb) => Color.FromRgb((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb);
 
-    /// <summary>Scans one category in the background and returns its entries (largest first).</summary>
+    // scans one category in the background and returns its entries (largest first)
     public Task<(IReadOnlyList<JunkEntry> Items, long Bytes, int Count)> ScanAsync(JunkCategory category, CancellationToken ct = default)
         => Task.Run(() => Scan(category.Id, ct), ct);
 
@@ -165,7 +163,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
             }
         }
 
-        // Opera keeps its cache under LocalAppData even though the profile is in Roaming.
+        // opera's cache is in LocalAppData even though the profile is in Roaming
         foreach (var opera in new[] { "Opera Stable", "Opera GX Stable" })
         {
             var root = Path.Combine(Local, "Opera Software", opera);
@@ -173,8 +171,8 @@ public sealed class JunkCleanerService : IJunkCleanerService
             AddFolder(sink, Path.Combine(root, "Code Cache"), $"{opera.Replace(" Stable", "")} · Code Cache", ct);
         }
 
-        // Firefox: ONLY the cache folders under LocalAppData — never the profile itself
-        // (bookmarks, passwords and history live in the Roaming profile).
+        // firefox: ONLY the cache folders in LocalAppData, never the profile
+        // (bookmarks, passwords, history are in the roaming profile)
         var ffProfiles = Path.Combine(Local, @"Mozilla\Firefox\Profiles");
         if (Directory.Exists(ffProfiles))
         {
@@ -186,7 +184,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
                 AddFolder(sink, Path.Combine(profile, "thumbnails"), $"Firefox · {pname} · thumbnails", ct);
             }
         }
-        _ = Roaming; // the roaming profile is intentionally never touched
+        _ = Roaming; // never touch the roaming profile
     }
 
     private static void AddFolder(List<JunkEntry> sink, string folder, string label, CancellationToken ct)
@@ -198,7 +196,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
         {
             Name = label,
             Location = folder,
-            Paths = new[] { folder + @"\*" }, // contents only; the folder itself stays
+            Paths = new[] { folder + @"\*" }, // contents only, keep the folder
             SizeBytes = size,
             Count = count,
             Modified = newest,
@@ -280,7 +278,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
         return (size, count, newest);
     }
 
-    /// <summary>Removes the given entries. Returns (items removed, bytes freed, items skipped).</summary>
+    // removes the given entries. returns (items removed, bytes freed, items skipped)
     public Task<(int Removed, long Freed, int Skipped)> CleanAsync(IReadOnlyList<JunkEntry> entries, IProgress<double>? progress = null, CancellationToken ct = default)
         => Task.Run(() =>
         {
@@ -327,7 +325,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
             return (removed, freed, skipped);
         }, ct);
 
-    /// <summary>Deletes a file, a folder, or (contentsOnly) the contents of a folder. Locked files are skipped.</summary>
+    // deletes a file, a folder, or (contentsOnly) the contents of a folder. locked files are skipped
     private static (int Removed, long Freed, int Skipped) DeletePath(string path, bool contentsOnly, CancellationToken ct)
     {
         int removed = 0, skipped = 0;
@@ -361,7 +359,7 @@ public sealed class JunkCleanerService : IJunkCleanerService
             catch { skipped++; }
         }
 
-        // Remove now-empty directories, deepest first.
+        // remove empty dirs, deepest first
         var dirs = new List<string>();
         try { dirs.AddRange(Directory.EnumerateDirectories(path, "*", new EnumerationOptions { RecurseSubdirectories = true, IgnoreInaccessible = true, AttributesToSkip = FileAttributes.ReparsePoint })); }
         catch { /* ignore */ }

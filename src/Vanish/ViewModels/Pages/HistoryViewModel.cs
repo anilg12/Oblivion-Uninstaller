@@ -6,7 +6,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>History &amp; privacy: Windows usage traces. Nothing is ticked by default.</summary>
+// history & privacy: windows usage traces, nothing ticked by default
 public sealed partial class HistoryViewModel : PageViewModel
 {
     private readonly HistoryCleanerService _service;

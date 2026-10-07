@@ -6,7 +6,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>One tile on the Tools hub.</summary>
+// one tile on the Tools hub
 public sealed class ToolTile
 {
     public required string Tag { get; init; }

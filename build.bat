@@ -1,6 +1,5 @@
 @echo off
-REM Double-click this file to build Oblivion.
-REM It runs build.ps1 with the execution policy bypassed and keeps the window open.
+REM double click to build. runs build.ps1 with ExecutionPolicy Bypass and keeps the window open
 cd /d "%~dp0"
 powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build.ps1"
 echo.

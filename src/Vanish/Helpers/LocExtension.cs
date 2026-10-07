@@ -3,10 +3,7 @@ using System.Windows.Markup;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// XAML shorthand for a live-updating localized string: <c>Text="{h:L Nav_Dashboard}"</c>
-/// (same as <c>{Binding [Nav_Dashboard], Source={x:Static h:Loc.I}}</c>).
-/// </summary>
+// shorthand: Text="{h:L Nav_Dashboard}" = {Binding [Nav_Dashboard], Source={x:Static h:Loc.I}}
 [MarkupExtensionReturnType(typeof(object))]
 public sealed class L : MarkupExtension
 {

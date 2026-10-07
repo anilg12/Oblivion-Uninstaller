@@ -4,12 +4,12 @@ namespace Vanish.Services;
 
 public interface IJunkCleanerService
 {
-    /// <summary>Creates the junk categories (unscanned, nothing selected).</summary>
+    // creates the junk categories (unscanned, nothing selected)
     IReadOnlyList<JunkCategory> CreateCategories();
 
-    /// <summary>Lists one category's removable entries (largest first) in the background.</summary>
+    // lists one category's removable entries (largest first) in the background
     Task<(IReadOnlyList<JunkEntry> Items, long Bytes, int Count)> ScanAsync(JunkCategory category, CancellationToken ct = default);
 
-    /// <summary>Removes exactly the given entries. Returns (removed, bytes freed, skipped).</summary>
+    // removes exactly the given entries. returns (removed, bytes freed, skipped)
     Task<(int Removed, long Freed, int Skipped)> CleanAsync(IReadOnlyList<JunkEntry> entries, IProgress<double>? progress = null, CancellationToken ct = default);
 }

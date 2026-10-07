@@ -5,10 +5,8 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Hunter mode: drag the crosshair onto any window to identify its program, or pick
-/// from the list of running apps with visible windows.
-/// </summary>
+// hunter mode: drag the crosshair onto a window to find its program,
+// or pick from the running apps with visible windows
 public sealed class HunterService
 {
     public Task<IReadOnlyList<RunningApp>> GetRunningAppsAsync(CancellationToken ct = default)
@@ -38,7 +36,7 @@ public sealed class HunterService
             return apps.OrderBy(a => a.ProcessName, StringComparer.CurrentCultureIgnoreCase).ToList();
         }, ct);
 
-    /// <summary>The program owning the top-level window under the mouse cursor (null for our own window).</summary>
+    // the program owning the top-level window under the mouse cursor (null for our own window)
     public RunningApp? AppUnderCursor()
     {
         if (!Native.GetCursorPos(out var pt)) return null;

@@ -25,10 +25,10 @@
                 <ColumnDefinition x:Name="RightColumn" Width="284" />
             </Grid.ColumnDefinitions>
 
-            <!-- ======================= SIDEBAR ======================= -->
+            <!-- sidebar -->
             <Border Grid.Column="0" Background="{DynamicResource OB.Sidebar}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="0,0,1,0">
                 <DockPanel Margin="14,16,14,14">
-                    <!-- Brand (the developer's name lives in About, not here). -->
+                    <!-- logo (my name is in About) -->
                     <Grid DockPanel.Dock="Top" Margin="6,2,0,20">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
@@ -43,7 +43,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Uninstall actions for the selected program -->
+                    <!-- uninstall actions for the selected program -->
                     <Border DockPanel.Dock="Top" CornerRadius="12" Padding="10" Margin="0,0,0,6" Background="{DynamicResource OB.Card}"
                             BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1">
                         <StackPanel>
@@ -97,7 +97,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- Footer: settings + theme / language / about -->
+                    <!-- footer: settings, theme, language, about -->
                     <StackPanel x:Name="RailBottomPanel" DockPanel.Dock="Bottom" Margin="0,8,0,0">
                             <Button Style="{StaticResource OB.NavRow}" Tag="Settings" Click="Nav_Click">
                                 <Grid>
@@ -211,13 +211,13 @@
                 </DockPanel>
             </Border>
 
-            <!-- Caption bar over the content (window buttons, drag area). -->
+            <!-- caption bar (window buttons, drag area) -->
             <ui:TitleBar Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Top" Height="40" Title="" Padding="0" Panel.ZIndex="5" />
 
-            <!-- ======================= PAGE HOST ======================= -->
+            <!-- page host -->
             <ContentControl x:Name="PageHost" Grid.Column="1" Margin="0,40,0,0" Focusable="False" ClipToBounds="True" />
 
-            <!-- ======================= LIVE SYSTEM PANEL ======================= -->
+            <!-- live system panel -->
             <Border x:Name="RightPanel" Grid.Column="2" Margin="0,40,0,0" Background="Transparent"
                     BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1,0,0,0" DataContext="{Binding Live}">
                 <DockPanel Margin="22,14,22,18">
@@ -235,7 +235,7 @@
                         </Button>
                     </Grid>
 
-                    <!-- Bottom: recent activity -->
+                    <!-- recent activity -->
                     <StackPanel DockPanel.Dock="Bottom" DataContext="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
                         <Border Height="1" Background="{DynamicResource OB.Stroke}" Margin="0,6,0,16" />
                         <TextBlock Text="{h:L Dash_RecentActivity}" Style="{StaticResource OB.Section}" FontSize="13" Margin="0,0,0,10" />
@@ -297,7 +297,7 @@
 
                         <Border Height="1" Background="{DynamicResource OB.Stroke}" Margin="0,18,0,16" />
 
-                        <!-- Disk -->
+                        <!-- disk -->
                         <Grid>
                             <TextBlock Style="{StaticResource OB.Body}" FontSize="12.5">
                                 <Run Text="{h:L Live_Disk}" /><Run Text=" " /><Run Text="{Binding DiskTitle, Mode=OneWay}" />
@@ -306,7 +306,7 @@
                         <c:GradientBar Value="{Binding Disk}" Height="5" Margin="0,8,0,6" />
                         <TextBlock Text="{Binding DiskText}" Style="{StaticResource OB.FaintText}" />
 
-                        <!-- Network -->
+                        <!-- network -->
                         <TextBlock Text="{h:L Live_Network}" Style="{StaticResource OB.Body}" FontSize="12.5" Margin="0,18,0,0" />
                         <c:Sparkline Values="{Binding NetHistory}" Height="30" Margin="0,8,0,6" />
                         <Grid>
@@ -320,7 +320,7 @@
                             </StackPanel>
                         </Grid>
 
-                        <!-- Battery (laptops) -->
+                        <!-- battery (laptops) -->
                         <StackPanel Margin="0,18,0,0" Visibility="{Binding HasBattery, Converter={StaticResource BoolToVisibility}}">
                             <TextBlock Text="{Binding BatteryText}" Style="{StaticResource OB.Body}" FontSize="12.5" />
                             <c:GradientBar Value="{Binding Battery}" Height="5" Margin="0,8,0,0" />
@@ -329,13 +329,13 @@
                 </DockPanel>
             </Border>
 
-            <!-- ======================= DIALOG LAYER ======================= -->
+            <!-- dialog layer -->
             <Grid x:Name="DialogLayer" Grid.ColumnSpan="3" Visibility="Collapsed" Panel.ZIndex="10">
                 <Border x:Name="DialogBackdrop" Background="{DynamicResource OB.Backdrop}" />
                 <ContentControl x:Name="DialogHost" HorizontalAlignment="Center" VerticalAlignment="Center" Focusable="False" />
             </Grid>
 
-            <!-- ======================= TOAST ======================= -->
+            <!-- toast -->
             <Border x:Name="ToastHost" Grid.Column="1" Panel.ZIndex="20" Visibility="Collapsed"
                     HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,28" MaxWidth="560"
                     CornerRadius="12" Padding="12,10,18,10" Background="{DynamicResource OB.DialogBg}"

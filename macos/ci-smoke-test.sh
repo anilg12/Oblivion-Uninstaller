@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# CI smoke test (run after build-mac.sh on a macOS runner).
-# Creates a fake app with typical leftovers, launches Oblivion in snapshot mode
-# (it captures every page, uninstalls the fake app, force-uninstalls a "ghost"
-# app and quits), then reports what was removed. Output: build/snapshots/
+# ci smoke test, runs after build-mac.sh on a mac runner.
+# makes a fake app with typical leftovers, starts Oblivion in snapshot mode (screenshots every
+# page, uninstalls the fake app, force-uninstalls a "ghost" app, quits) and reports what got
+# removed. output goes to build/snapshots/
 set -uo pipefail
 cd "$(dirname "$0")"
 
@@ -59,7 +59,7 @@ cat > "$L/LaunchAgents/com.oblivion.testapp.helper.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST
-# Chrome-style app: data under a vendor folder (Application Support/Acme/Browser).
+# chrome-like: data inside a vendor folder (Application Support/Acme/Browser)
 APP2="$HOME/Applications/Acme Browser.app"
 mkdir -p "$APP2/Contents/MacOS"
 sed -e 's/com.oblivion.testapp/com.acme.browser/' -e 's/<string>OblivionTestApp</<string>Acme Browser</' \
@@ -71,10 +71,10 @@ VENDOR=(
 )
 for d in "${VENDOR[@]}"; do mkdir -p "$d/Default" && echo "history" > "$d/Default/History"; done
 defaults write com.acme.browser lastRun -string today
-# Sibling app of the same vendor: must NOT be touched.
+# another app from the same vendor, must NOT be touched
 mkdir -p "$L/Application Support/Acme/Notes" && echo keep > "$L/Application Support/Acme/Notes/keep.txt"
 
-# Decoy that must NOT be touched.
+# decoy, must NOT be touched
 mkdir -p "$L/Application Support/UnrelatedVendor" && echo keep > "$L/Application Support/UnrelatedVendor/keep.txt"
 sleep 2
 
@@ -131,8 +131,8 @@ echo "------------------------------------------------------------"
 echo "app log:"; tail -50 "$OUT/app-log.txt"
 ls -1 "$OUT"
 
-# Self-test failures ("!! " lines: something was pre-selected, a toggle failed, a fixture
-# was missing…) fail the job, as does a crash. A timeout only warns.
+# "!! " lines in the report (something pre-selected, a toggle failed, missing fixture...)
+# or a crash fail the job. a timeout only warns
 if [ -f "$OUT/report.txt" ] && grep -q '^!! ' "$OUT/report.txt"; then
   echo "::error::Self-test reported problems:"
   grep '^!! ' "$OUT/report.txt"

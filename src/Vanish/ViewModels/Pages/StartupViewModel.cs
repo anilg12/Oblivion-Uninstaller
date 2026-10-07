@@ -8,10 +8,8 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Startup manager: programs that start with Windows. Switching one off works like
-/// Task Manager (reversible); deleting removes the entry after backing it up.
-/// </summary>
+// startup manager. disabling works like task manager (reversible), deleting removes the entry
+// after backing it up
 public sealed partial class StartupViewModel : PageViewModel
 {
     private readonly IStartupService _service;
@@ -96,7 +94,7 @@ public sealed partial class StartupViewModel : PageViewModel
         DisabledCount = TotalCount - EnabledCount;
     }
 
-    /// <summary>The toggle in each row writes straight through to Windows (and reverts if that fails).</summary>
+    // the toggle in each row writes straight through to Windows (and reverts if that fails)
     private async void OnEntryChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_applying || e.PropertyName != nameof(StartupEntry.IsEnabled) || sender is not StartupEntry entry) return;

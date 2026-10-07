@@ -2,11 +2,9 @@
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// Runtime localization (Turkish / English) with live switching.
-/// XAML: <c>Text="{h:L Nav_AllApps}"</c> (or <c>{Binding [Nav_AllApps], Source={x:Static h:Loc.I}}</c>).
-/// Raising "Item[]" refreshes every indexer binding when the language changes.
-/// </summary>
+// TR/EN strings with live switching.
+// xaml: Text="{h:L Nav_AllApps}" or {Binding [Nav_AllApps], Source={x:Static h:Loc.I}}
+// raising "Item[]" refreshes all indexer bindings when the language changes
 public sealed class Loc : INotifyPropertyChanged
 {
     public static Loc I { get; } = new();
@@ -15,7 +13,7 @@ public sealed class Loc : INotifyPropertyChanged
 
     private string _lang = "tr";
 
-    /// <summary>"tr" or "en".</summary>
+    // "tr" or "en"
     public string Language
     {
         get => _lang;
@@ -37,7 +35,7 @@ public sealed class Loc : INotifyPropertyChanged
 
     public void Toggle() => Language = _lang == "tr" ? "en" : "tr";
 
-    /// <summary>Localized lookup. Falls back to English, then to the key itself.</summary>
+    // localized lookup. falls back to English, then to the key itself
     public string this[string key]
     {
         get
@@ -48,7 +46,7 @@ public sealed class Loc : INotifyPropertyChanged
         }
     }
 
-    /// <summary>Direct (non-binding) lookup helper for code-behind / view-models.</summary>
+    // direct (non-binding) lookup helper for code-behind / view-models
     public string T(string key) => this[key];
 
     private static readonly Dictionary<string, string> Tr = new()

@@ -9,11 +9,8 @@ namespace Vanish.Services;
 
 public enum ToastKind { Info, Success, Warning, Error }
 
-/// <summary>
-/// Small notification that slides up at the bottom of the window and fades away
-/// ("3 items removed · 1.2 GB freed"). Replaces status text and message boxes for
-/// results that need no answer.
-/// </summary>
+// small toast that slides up at the bottom and fades out ("3 items removed · 1.2 GB freed").
+// used instead of status text / message boxes for results that need no answer
 public sealed class ToastService
 {
     private Border? _host;
@@ -24,7 +21,7 @@ public sealed class ToastService
 
     public ToastService() => _timer.Tick += (_, _) => Hide();
 
-    /// <summary>Last message shown (used by the self-test report).</summary>
+    // last message shown (used by the self-test report)
     public string? LastMessage { get; private set; }
 
     public void Attach(Border host, System.Windows.Controls.TextBlock text, SymbolIcon icon, Border badge)

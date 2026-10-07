@@ -3,10 +3,8 @@ using System.Text;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// Writes unexpected errors to %LOCALAPPDATA%\Oblivion\crash.log so problems can be
-/// reported and diagnosed. In self-test mode it also records progress markers.
-/// </summary>
+// writes unexpected errors to %LOCALAPPDATA%\Oblivion\crash.log.
+// in self-test mode it also writes progress markers
 public static class CrashLog
 {
     private static readonly object Gate = new();
@@ -14,7 +12,7 @@ public static class CrashLog
     public static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Oblivion", "crash.log");
 
-    /// <summary>Self-test progress file (set by the snapshot runner), or null.</summary>
+    // self-test progress file (set by the snapshot runner), or null
     public static string? ProgressFile { get; set; }
 
     public static void Write(string where, Exception ex)

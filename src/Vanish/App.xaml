@@ -10,7 +10,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemesDictionary Theme="Dark" />
                 <ui:ControlsDictionary />
-                <!-- Swapped at runtime by ThemeService (Palette.Dark / Palette.Light). -->
+                <!-- ThemeService swaps this at runtime (Palette.Dark / Palette.Light) -->
                 <ResourceDictionary Source="pack://application:,,,/Oblivion;component/Themes/Palette.Dark.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/Oblivion;component/Themes/Styles.xaml" />
             </ResourceDictionary.MergedDictionaries>

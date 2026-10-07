@@ -7,10 +7,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Live system monitor: CPU, memory, temperature, drives, network, battery and the
-/// busiest processes. Samples every second only while the page is open.
-/// </summary>
+// system monitor page, samples every second only while the page is open
 public sealed partial class SystemMonitorViewModel : PageViewModel
 {
     private static readonly HashSet<string> Critical = new(StringComparer.OrdinalIgnoreCase)
@@ -27,7 +24,7 @@ public sealed partial class SystemMonitorViewModel : PageViewModel
 
     public SystemMonitorViewModel(SystemMonitorService monitor) => _monitor = monitor;
 
-    // ---- static ---------------------------------------------------------------
+    // static
     [ObservableProperty] private string _cpuName = "—";
     [ObservableProperty] private string _cpuDetail = "";
     [ObservableProperty] private string _osName = "—";
@@ -36,7 +33,7 @@ public sealed partial class SystemMonitorViewModel : PageViewModel
     [ObservableProperty] private string _totalRamText = "—";
     [ObservableProperty] private string _uptimeText = "—";
 
-    // ---- live -----------------------------------------------------------------
+    // live
     [ObservableProperty] private double _cpu;
     [ObservableProperty] private double _cpuPercent = double.NaN;
     [ObservableProperty] private IReadOnlyList<double>? _cpuHistory;

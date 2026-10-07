@@ -18,16 +18,14 @@ public sealed record RegistryBackupInfo(string FilePath, string KeyPath, DateTim
     public string SizeText => Helpers.ByteSize.Humanize(SizeBytes);
 }
 
-/// <summary>
-/// System Restore points (Checkpoint-Computer) and .reg backups of registry keys
-/// taken before Oblivion deletes anything; also lists and restores them (Backup manager).
-/// </summary>
+// restore points (Checkpoint-Computer) + .reg backups taken before we delete anything.
+// also lists and restores them (backup manager)
 public sealed class SystemRestoreService : ISystemRestoreService
 {
-    /// <summary>Where new backups go.</summary>
+    // where new backups go
     public static readonly string BackupDir = Path.Combine(SettingsService.DataDir, "Backups");
 
-    /// <summary>Backups made by Oblivion 1.x/2.x (still listed and restorable).</summary>
+    // backups made by Oblivion 1.x/2.x (still listed and restorable)
     private static readonly string LegacyBackupDir = Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Vanish", "Backups");
 
@@ -36,8 +34,8 @@ public sealed class SystemRestoreService : ISystemRestoreService
 
     public async Task<bool> CreateRestorePointAsync(string description, CancellationToken ct = default)
     {
-        // Windows only allows one restore point per 24 h by default. Lift that limit
-        // just for this call and put the original setting back afterwards.
+        // windows allows only one restore point per 24h by default, lift that for this call
+        // and put the old value back after
         object? previous = null;
         bool changed = false;
         try
@@ -110,7 +108,7 @@ public sealed class SystemRestoreService : ISystemRestoreService
         return list.OrderByDescending(b => b.Created).ToList();
     });
 
-    /// <summary>The first "[HKEY_...]" line of a .reg file.</summary>
+    // the first "[HKEY_...]" line of a .reg file
     private static string? ReadKeyPath(string file)
     {
         try

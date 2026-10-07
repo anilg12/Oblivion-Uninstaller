@@ -30,7 +30,7 @@
             </StackPanel>
         </c:PageHeader>
 
-        <!-- ================= summary ================= -->
+        <!-- summary -->
         <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="18,16" Margin="0,0,0,12" c:Reveal.Enabled="True">
             <StackPanel>
                 <Grid>
@@ -85,7 +85,7 @@
             </StackPanel>
         </Border>
 
-        <!-- ================= categories ================= -->
+        <!-- categories -->
         <ScrollViewer x:Name="Scroller" Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" PanningMode="VerticalOnly">
             <ItemsControl ItemsSource="{Binding Categories}" Margin="0,0,6,0">
                 <ItemsControl.ItemTemplate>

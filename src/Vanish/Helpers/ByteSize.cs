@@ -2,7 +2,7 @@
 
 namespace Vanish.Helpers;
 
-/// <summary>Formats byte counts as human-readable strings (KB, MB, GB…).</summary>
+// bytes -> KB/MB/GB string
 public static class ByteSize
 {
     private static readonly string[] Units = { "B", "KB", "MB", "GB", "TB", "PB" };
@@ -19,12 +19,12 @@ public static class ByteSize
             unit++;
         }
 
-        // No decimals for bytes/KB, one decimal beyond that.
+        // no decimals for B/KB, one after that
         string format = unit <= 1 ? "0" : "0.0";
         return string.Create(CultureInfo.InvariantCulture, $"{size.ToString(format, CultureInfo.InvariantCulture)} {Units[unit]}");
     }
 
-    /// <summary>Transfer rate, e.g. "1.4 MB/s".</summary>
+    // e.g. "1.4 MB/s"
     public static string Rate(double bytesPerSecond)
     {
         if (double.IsNaN(bytesPerSecond) || bytesPerSecond < 1) return "0 KB/s";

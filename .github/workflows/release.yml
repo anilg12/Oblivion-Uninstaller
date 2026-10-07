@@ -1,12 +1,12 @@
 name: Release
 
-# Pushing a tag such as v3.1.0 builds every download and publishes it as the only release:
-#   Oblivion-<version>-Windows-Setup.exe      installer (Windows 10 1809+ / 11, x64)
+# push a tag like v3.1.0 -> builds everything and publishes it as the only release:
+#   Oblivion-<version>-Windows-Setup.exe      installer (win10 1809+ / 11, x64)
 #   Oblivion-<version>-Windows-Portable.exe   single file, no install
 #   Oblivion-<version>-macOS-AppleSilicon.dmg
 #   Oblivion-<version>-macOS-Intel.dmg
 #   Oblivion-<version>-macOS-Universal.dmg
-# Older releases (and their tags) and the CI screenshot branches are removed.
+# old releases (+ their tags) and the ci screenshot branches get deleted
 
 on:
   push:
@@ -193,8 +193,7 @@ jobs:
             git push origin --delete "$b" 2>/dev/null && echo "deleted $b" || true
           done
 
-  # Downloads what was just published (not the build artifacts) and checks that the Setup
-  # installs this version and that the portable exe is this version too.
+  # download the published files (not the artifacts) and check that setup and portable are this version
   verify-windows:
     needs: publish
     runs-on: windows-latest

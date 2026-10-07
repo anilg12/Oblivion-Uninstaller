@@ -4,7 +4,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels;
 
-/// <summary>Base for page view models: shared services, page show/hide hooks and text refresh.</summary>
+// base for page view models: shared services, page show/hide hooks and text refresh
 public abstract class PageViewModel : ObservableObject, IPageAware, ILocalizable
 {
     protected static DialogService Dialogs => Ioc.Resolve<DialogService>();
@@ -13,14 +13,14 @@ public abstract class PageViewModel : ObservableObject, IPageAware, ILocalizable
     protected static NavigationService Navigation => Ioc.Resolve<NavigationService>();
     protected static AppSettings Settings => Ioc.Resolve<SettingsService>().Current;
 
-    /// <summary>True while the page is on screen.</summary>
+    // true while the page is on screen
     public bool IsShown { get; private set; }
 
     public virtual void OnShown() => IsShown = true;
 
     public virtual void OnHidden() => IsShown = false;
 
-    /// <summary>Re-raise computed, localized properties after a language switch.</summary>
+    // re-raise computed, localized properties after a language switch
     public virtual void RefreshTexts() { }
 
     protected static string T(string key) => Loc.I[key];

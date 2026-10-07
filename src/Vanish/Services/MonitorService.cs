@@ -17,11 +17,8 @@ internal sealed class MonitorSnapshot
 [JsonSerializable(typeof(MonitorSnapshot))]
 internal sealed partial class MonitorJsonContext : JsonSerializerContext { }
 
-/// <summary>
-/// Install monitor (baseline / compare). Take a baseline before installing something,
-/// run the installer, then compare to see which programs, folders and autostart
-/// entries were added — and remove them if wanted. Nothing is pre-selected.
-/// </summary>
+// install monitor: take a baseline, run the installer, compare to see what programs,
+// folders and autostart entries got added, remove them if you want. nothing pre-selected
 public sealed class MonitorService
 {
     private static readonly string BaselineFile = Path.Combine(SettingsService.DataDir, "baseline.json");
@@ -51,7 +48,7 @@ public sealed class MonitorService
 
             foreach (var p in current.Programs.Except(baseline.Programs, StringComparer.OrdinalIgnoreCase))
                 changes.Add(new MonitorChange { Kind = "Program", Value = p });
-            // Baselines from older versions covered fewer roots: only compare roots they knew.
+            // older baselines had fewer roots, only compare the ones they have
             var baselineRoots = new HashSet<string>(
                 baseline.Folders.Select(f => Path.GetDirectoryName(f) ?? "").Where(r => r.Length > 0),
                 StringComparer.OrdinalIgnoreCase);
@@ -81,7 +78,7 @@ public sealed class MonitorService
                 .ToList();
         }, ct);
 
-    /// <summary>Removes folders (to the Recycle Bin) and autostart values. Programs must be uninstalled.</summary>
+    // removes folders (to the Recycle Bin) and autostart values. programs must be uninstalled
     public Task<int> RemoveAsync(IReadOnlyList<MonitorChange> changes, ISystemRestoreService restore, CancellationToken ct = default)
         => Task.Run(async () =>
         {

@@ -8,7 +8,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>Microsoft Store / MSIX apps. System frameworks are hidden unless asked for.</summary>
+// Microsoft Store / MSIX apps. System frameworks are hidden unless asked for
 public sealed partial class WindowsAppsViewModel : PageViewModel
 {
     private readonly IWindowsAppsService _service;

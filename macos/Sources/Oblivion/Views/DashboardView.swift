@@ -204,7 +204,7 @@ struct FullDiskAccessBanner: View {
     }
 }
 
-/// Live CPU / memory / temperature / network summary with a link to the system monitor.
+// live cpu/mem/temp/net summary, links to the system monitor
 struct HealthCard: View {
     @EnvironmentObject private var monitor: SystemMonitor
     @EnvironmentObject private var state: AppState

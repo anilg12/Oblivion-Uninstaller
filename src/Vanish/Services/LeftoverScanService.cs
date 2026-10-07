@@ -7,23 +7,20 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Finds what an application left behind — safely.
-///
-/// Matching is based on the product (its exact name, its install folder, its exe
-/// names), never on the publisher alone. Publisher/vendor folders such as
-/// "%LOCALAPPDATA%\Google" or "HKCU\Software\Microsoft" are only searched INSIDE for
-/// the product's own subfolder/key ("Google\Chrome", "Microsoft\Teams"); the vendor
-/// folder itself is never offered. A protection list blocks Windows, system and
-/// shared locations both when scanning and again right before deleting.
-/// </summary>
+// finds the leftovers of an app, carefully.
+//
+// matching is by product (exact name, install folder, exe names), never by publisher alone.
+// vendor folders like %LOCALAPPDATA%\Google or HKCU\Software\Microsoft are only searched
+// INSIDE for the product's own subfolder/key (Google\Chrome, Microsoft\Teams), the vendor
+// folder itself is never offered. a protection list blocks windows/system/shared locations
+// both while scanning and again right before deleting
 public sealed partial class LeftoverScanService : ILeftoverScanService
 {
     private readonly ISystemRestoreService _restore;
 
     public LeftoverScanService(ISystemRestoreService restore) => _restore = restore;
 
-    // ---- keys -------------------------------------------------------------------
+    // keys
 
     private static readonly HashSet<string> GenericFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -40,7 +37,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         "app", "main", "start", "run", "browser", "host", "daemon", "tray", "monitor"
     };
 
-    /// <summary>Folder names that are never offered and never treated as a product.</summary>
+    // folder names that are never offered and never treated as a product
     private static readonly HashSet<string> ProtectedFolderNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "microsoft", "windows", "packages", "temp", "tmp", "programs", "common files", "windowsapps", "modifiablewindowsapps",
@@ -58,7 +55,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         ".azure", ".kube", ".docker", ".config", ".local", ".cache", "ntuser", "appdata"
     };
 
-    /// <summary>Top-level registry keys under SOFTWARE that are never offered as a whole.</summary>
+    // top-level registry keys under SOFTWARE that are never offered as a whole
     private static readonly HashSet<string> ProtectedRegistryNames = new(StringComparer.OrdinalIgnoreCase)
     {
         "classes", "clients", "policies", "microsoft", "windows", "wow6432node", "registeredapplications", "odbc", "intel",
@@ -84,7 +81,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
     [GeneratedRegex(@"\b(x64|x86|64-bit|32-bit|64 bit|32 bit|amd64|arm64)\b", RegexOptions.IgnoreCase)]
     private static partial Regex ArchWords();
 
-    /// <summary>"7-Zip 23.01 (x64)" -> "7-Zip".</summary>
+    // "7-Zip 23.01 (x64)" -> "7-Zip"
     private static string CleanName(string name)
     {
         var s = Bracketed().Replace(name, " ");
@@ -131,7 +128,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             UninstallKeyPath = fp.UninstallKeyPath
         };
 
-        // Vendor = publisher's first meaningful word(s), and the first word of a multi-word name.
+        // vendor = first meaningful word(s) of the publisher + first word of a multi-word name
         if (!string.IsNullOrWhiteSpace(fp.Publisher))
         {
             var pubWords = Bracketed().Replace(fp.Publisher, " ")
@@ -153,7 +150,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         }
         keys.Vendors.Remove(keys.Name); // "Spotify" by "Spotify AB": the folder IS the product
 
-        // Install folder: leaf, or its parent when the leaf is generic ("...\Chrome\Application").
+        // install folder: the last part, or its parent if that one is generic ("...\Chrome\Application")
         if (keys.InstallLocation is { } loc)
         {
             var leaf = Path.GetFileName(loc);
@@ -171,8 +168,8 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             if (k.Length >= 3) keys.Exes.Add(k);
         }
 
-        // A word that is also the product's folder/exe name is the product, not a vendor
-        // ("VLC media player" -> "vlc" is the app itself).
+        // if the word is also the folder/exe name it's the product, not a vendor
+        // ("VLC media player" -> "vlc" is the app)
         keys.Vendors.ExceptWith(keys.Folders);
         keys.Vendors.ExceptWith(keys.Exes);
         return keys;
@@ -187,7 +184,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
 
     private static bool IsVersionLike(string s) => Regex.IsMatch(s, @"^[vV]?\d+([._-]\d+)*$");
 
-    // ---- fingerprint (before the uninstaller runs) -------------------------------
+    // fingerprint (before the uninstaller runs)
 
     public AppFingerprint CaptureFingerprint(InstalledProgram program)
     {
@@ -220,7 +217,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         };
     }
 
-    /// <summary>When InstallLocation is empty, derive it from DisplayIcon / UninstallString.</summary>
+    // when InstallLocation is empty, derive it from DisplayIcon / UninstallString
     public static string? GuessInstallFolder(InstalledProgram program)
     {
         foreach (var raw in new[] { program.DisplayIcon, program.UninstallString })
@@ -249,7 +246,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         return null;
     }
 
-    // ---- scan -----------------------------------------------------------------------
+    // scan
 
     public Task<IReadOnlyList<LeftoverItem>> ScanAsync(AppFingerprint fp,
         IReadOnlyList<string> otherInstallLocations, IProgress<string>? progress = null, CancellationToken ct = default)
@@ -290,12 +287,12 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
                 });
             }
 
-            // 1) The install folder, if the uninstaller left it behind.
+            // 1) install folder, if the uninstaller left it
             progress?.Report("Work_InstallFolder");
             if (keys.InstallLocation is { } loc && Directory.Exists(loc) && !IsProtectedPath(loc))
                 Add(LeftoverKind.Folder, loc, MatchConfidence.High, "Reason_InstallFolder");
 
-            // 2) Program and data folders.
+            // 2) program + data folders
             progress?.Report("Work_Folders");
             foreach (var root in DataRoots())
             {
@@ -303,11 +300,11 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
                 ScanFolderRoot(root, keys, Add, ct);
             }
 
-            // 3) Shortcuts (Start menu, desktop).
+            // 3) shortcuts (start menu, desktop)
             progress?.Report("Work_Shortcuts");
             ScanShortcuts(keys, Add);
 
-            // 4) Registry.
+            // 4) registry
             progress?.Report("Work_Registry");
             ScanRegistry(keys, Add, ct);
 
@@ -355,7 +352,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             if (k.Length < 2) continue;
             bool productFolder = k == keys.Name || (keys.Folders.Contains(k) && keys.Exes.Contains(k));
 
-            // Vendor folders (Google, Mozilla, Microsoft…) are only searched inside.
+            // vendor folders (google, mozilla, microsoft...) are only searched inside
             if (!productFolder && keys.Vendors.Contains(k))
             {
                 if (!isProfile && !isDocuments) ScanVendorFolder(dir, keys, add, ct);
@@ -363,7 +360,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             }
             if (ProtectedFolderNames.Contains(name) || ProtectedFolderNames.Contains(name.TrimStart('.'))) continue;
 
-            // User profile / Documents may hold the user's own files: never pre-selected.
+            // user profile / documents can have the user's own files, never pre-selected
             if (isProfile || isDocuments)
             {
                 if (productFolder) add(LeftoverKind.Folder, dir, MatchConfidence.Low, "Reason_Name");
@@ -383,12 +380,9 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         }
     }
 
-    /// <summary>
-    /// A folder is "shared" when another installed program lives inside it, or when it is
-    /// a parent of this app's install folder that also holds other things (e.g.
-    /// "...\Programs\Python" holding several Python versions). Shared folders are never
-    /// pre-selected.
-    /// </summary>
+    // "shared" = another installed program lives inside it, or it's a parent of this app's
+    // install folder that also has other stuff (e.g. ...\Programs\Python with several versions).
+    // shared folders are never pre-selected
     private static bool IsShared(string path, Keys keys, List<string> others)
     {
         var full = path.TrimEnd('\\');
@@ -419,7 +413,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         "windows sidebar", "windows mail", "office", "edge", "onedrive", "teams"
     };
 
-    /// <summary>Inside a vendor folder, offer only the product's own subfolder(s).</summary>
+    // inside a vendor folder, offer only the product's own subfolder(s)
     private static void ScanVendorFolder(string vendorDir, Keys keys, AddFn add, CancellationToken ct)
     {
         bool isMicrosoft = Norm(Path.GetFileName(vendorDir)) == "microsoft";
@@ -510,7 +504,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
                 }
                 else if (keys.Vendors.Contains(k))
                 {
-                    // Vendor key: look inside for the product's own key only.
+                    // vendor key: only the product's own key inside
                     using var vendorKey = SafeOpen(key, sub);
                     if (vendorKey is null) continue;
                     bool isMicrosoft = k == "microsoft";
@@ -531,7 +525,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             }
         }
 
-        // Orphaned uninstall entry (the uninstaller didn't remove its own registration).
+        // orphaned uninstall entry (the uninstaller didn't clean up its own registration)
         if (keys.UninstallKeyPath is { } uk)
         {
             var (hive, sub) = SplitRegistryPath(uk.Replace("HKEY_LOCAL_MACHINE", "HKLM").Replace("HKEY_CURRENT_USER", "HKCU"));
@@ -541,7 +535,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
                     MatchConfidence.High, "Reason_UninstallEntry");
         }
 
-        // Autostart values that point into the (removed) install folder.
+        // autostart values pointing into the removed install folder
         if (keys.InstallLocation is { } loc)
         {
             foreach (var (hive, hiveName, path) in new[]
@@ -561,7 +555,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             }
         }
 
-        // App Paths registrations for the product's exe(s).
+        // App Paths entries for the product exe(s)
         foreach (var exe in keys.Exes)
         {
             foreach (var (hive, hiveName) in new[] { (Registry.LocalMachine, "HKLM"), (Registry.CurrentUser, "HKCU") })
@@ -582,7 +576,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         }
     }
 
-    // ---- protection --------------------------------------------------------------------
+    // protection
 
     private static bool IsProgramFilesRoot(string root)
     {
@@ -593,11 +587,8 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         return local is not null && string.Equals(root.TrimEnd('\\'), Path.Combine(local, "Programs"), StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// True for paths that must never be deleted: drive roots, Windows, the Program
-    /// Files / ProgramData / AppData roots themselves, the user's library folders and
-    /// anything under Windows or a protected vendor folder.
-    /// </summary>
+    // paths that must never be deleted: drive roots, Windows, the Program Files / ProgramData /
+    // AppData roots themselves, user library folders, and anything under Windows or a protected vendor folder
     public static bool IsProtectedPath(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) return true;
@@ -637,14 +628,14 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
             if (!string.IsNullOrEmpty(p) && full.Equals(p.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
                 return true;
 
-        // A protected folder name directly under a data root (e.g. %APPDATA%\Microsoft) is protected as a whole.
+        // protected name directly under a data root (e.g. %APPDATA%\Microsoft) -> whole folder is protected
         var name = Path.GetFileName(full);
         var parent = Path.GetDirectoryName(full)?.TrimEnd('\\');
         if (parent is not null && exactProtected.Any(p => !string.IsNullOrEmpty(p) && parent.Equals(p.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase))
             && ProtectedFolderNames.Contains(name))
             return true;
 
-        // Common Files and WindowsApps are always shared.
+        // Common Files and WindowsApps are always shared
         if (full.Contains(@"\Common Files", StringComparison.OrdinalIgnoreCase) ||
             full.Contains(@"\WindowsApps", StringComparison.OrdinalIgnoreCase) ||
             full.Contains(@"\Microsoft\Windows\", StringComparison.OrdinalIgnoreCase) && !full.Contains(@"\Start Menu\Programs\", StringComparison.OrdinalIgnoreCase))
@@ -667,7 +658,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         {
             if (depth < 2) return true;
             var second = parts[i + 1];
-            // Allowed: SOFTWARE\Microsoft\<Product> (not Windows), App Paths entries, Run values.
+            // allowed: SOFTWARE\Microsoft\<Product> (not Windows), App Paths, Run values
             if (second.Equals("Windows", StringComparison.OrdinalIgnoreCase))
             {
                 var joined = string.Join('\\', parts.Skip(i));
@@ -685,7 +676,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         return false;
     }
 
-    // ---- deletion ------------------------------------------------------------------------
+    // deletion
 
     public Task<(int Removed, long Freed, int Failed)> DeleteAsync(IReadOnlyList<LeftoverItem> items, bool useRecycleBin,
         IProgress<string>? progress = null, CancellationToken ct = default)
@@ -763,7 +754,7 @@ public sealed partial class LeftoverScanService : ILeftoverScanService
         return (hive, sub);
     }
 
-    // ---- helpers -------------------------------------------------------------------------
+    // helpers
 
     private static RegistryKey? SafeOpen(RegistryKey parent, string sub)
     {

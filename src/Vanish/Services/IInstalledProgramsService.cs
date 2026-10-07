@@ -4,18 +4,13 @@ namespace Vanish.Services;
 
 public interface IInstalledProgramsService
 {
-    /// <summary>
-    /// Enumerates classic (MSI/EXE) installed applications from every uninstall hive.
-    /// Filters out OS updates, system components and orphaned entries.
-    /// </summary>
+    // classic (MSI/EXE) apps from all uninstall keys, without os updates, system components
+    // and orphaned entries
     Task<IReadOnlyList<InstalledProgram>> GetInstalledProgramsAsync(CancellationToken ct = default);
 
-    /// <summary>
-    /// Deletes the program's own uninstall registry entry (used by "Remove entry"
-    /// for broken/orphaned items). Does not touch the program's files.
-    /// </summary>
+    // deletes only the uninstall registry entry ("Remove entry" for broken ones), files stay
     void RemoveUninstallEntry(InstalledProgram program);
 
-    /// <summary>True while the program's uninstall entry still exists (e.g. the uninstaller was cancelled).</summary>
+    // true while the program's uninstall entry still exists (e.g. the uninstaller was cancelled)
     bool StillInstalled(InstalledProgram program);
 }

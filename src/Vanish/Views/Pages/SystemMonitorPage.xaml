@@ -38,7 +38,7 @@
                 </StackPanel>
             </c:PageHeader>
 
-            <!-- ============ gauges ============ -->
+            <!-- gauges -->
             <UniformGrid Columns="4" Margin="-6,0,-6,0">
                 <!-- CPU -->
                 <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True">
@@ -74,7 +74,7 @@
                         <TextBlock Style="{StaticResource OB.FaintText}"><Run Text="{h:L SysMon_Total}" /><Run Text=": " /><Run Text="{Binding TotalRamText, Mode=OneWay}" /></TextBlock>
                     </StackPanel>
                 </Border>
-                <!-- Temperature -->
+                <!-- temperature -->
                 <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="100">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -90,7 +90,7 @@
                         <TextBlock Text="{h:L SysMon_TempNote}" Style="{StaticResource OB.FaintText}" TextWrapping="Wrap" TextTrimming="None" Margin="0,4,0,0" />
                     </StackPanel>
                 </Border>
-                <!-- Network -->
+                <!-- network -->
                 <Border Style="{StaticResource OB.CardBox}" Margin="6" CornerRadius="12" Padding="16" c:Reveal.Enabled="True" c:Reveal.Delay="150">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
@@ -117,7 +117,7 @@
                 </Border>
             </UniformGrid>
 
-            <!-- ============ processes + system ============ -->
+            <!-- processes + system -->
             <Grid Margin="0,6,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*" />

@@ -57,12 +57,9 @@ public sealed class StaticSystemInfo
     public ulong TotalRam { get; init; }
 }
 
-/// <summary>
-/// Live system statistics. Sampling runs on a background timer only while something
-/// is subscribed (the right panel and/or the System Monitor page), so it costs
-/// nothing when the window is hidden. Expensive readings (temperature, processes,
-/// drives) run at a lower rate.
-/// </summary>
+// live system stats. sampling runs on a background timer only while something is subscribed
+// (right panel and/or the system monitor page), so nothing runs when the window is hidden.
+// the expensive ones (temperature, processes, drives) update less often
 public sealed class SystemMonitorService
 {
     private const int HistoryLength = 60;
@@ -91,7 +88,7 @@ public sealed class SystemMonitorService
 
     public SystemSnapshot? Last { get; private set; }
 
-    /// <summary>Hardware/OS facts that never change while running (computed once, in the background).</summary>
+    // hardware/OS facts that never change while running (computed once, in the background)
     public Task<StaticSystemInfo> GetStaticInfoAsync() => _static ??= Task.Run(ReadStaticInfo);
 
     private sealed class Subscription : IDisposable
@@ -103,10 +100,8 @@ public sealed class SystemMonitorService
         public void Dispose() => Owner.Unsubscribe(this);
     }
 
-    /// <summary>
-    /// Receive snapshots on the calling (UI) thread. <paramref name="detailed"/> adds the
-    /// per-process lists and a 1 s refresh rate; otherwise every 2 s.
-    /// </summary>
+    // snapshots arrive on the calling (ui) thread. detailed adds the per-process lists and a 1s refresh,
+    // otherwise every 2s
     public IDisposable Subscribe(Action<SystemSnapshot> callback, bool detailed)
     {
         var sub = new Subscription { Owner = this, Callback = callback, Dispatcher = Dispatcher.CurrentDispatcher, Detailed = detailed };
@@ -467,7 +462,7 @@ public sealed class SystemMonitorService
         };
     }
 
-    /// <summary>"Windows 11 Pro 24H2 (26100.2033)". ProductName still says "Windows 10" on 11.</summary>
+    // "Windows 11 Pro 24H2 (26100.2033)". ProductName still says "Windows 10" on 11
     public static string OsDescription()
     {
         try

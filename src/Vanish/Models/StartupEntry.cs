@@ -3,22 +3,22 @@ using Vanish.Helpers;
 
 namespace Vanish.Models;
 
-/// <summary>An auto-start program (Run key value or Startup-folder shortcut).</summary>
+// an auto-start program (Run key value or Startup-folder shortcut)
 public sealed partial class StartupEntry : ObservableObject
 {
     public required string Name { get; init; }
     public required string Command { get; init; }
     public required StartupLocation Location { get; init; }
 
-    /// <summary>The registry path (HKCU\…\Run) or folder the entry was found in.</summary>
+    // the registry path (HKCU\...\Run) or folder the entry was found in
     public required string Source { get; init; }
 
-    /// <summary>Executable parsed from the command (for the icon and "open location").</summary>
+    // executable parsed from the command (for the icon and "open location")
     public string? ExecutablePath { get; init; }
 
     [ObservableProperty] private bool _isEnabled = true;
 
-    /// <summary>RunOnce entries can only be deleted, not toggled.</summary>
+    // RunOnce entries can only be deleted, not toggled
     public bool CanToggle => Location is not (StartupLocation.HklmRunOnce or StartupLocation.HkcuRunOnce);
 
     public bool IsMachineWide => Location is StartupLocation.HklmRun or StartupLocation.HklmRun32

@@ -10,7 +10,7 @@ using EnumerationOptions = System.IO.EnumerationOptions;
 
 namespace Vanish.Services;
 
-// ============================== Large files ==============================
+// --- large files ---
 
 public sealed partial class LargeFile : ObservableObject
 {
@@ -25,10 +25,8 @@ public sealed partial class LargeFile : ObservableObject
     public string DateText => Modified.ToString("dd.MM.yyyy");
 }
 
-/// <summary>
-/// Finds the largest files under a folder or drive. Windows, program folders, AppData and
-/// other system locations are skipped entirely, so only the user's own files are offered.
-/// </summary>
+// biggest files under a folder/drive. windows, program folders, AppData and other system
+// places are skipped completely, only the user's own files
 public sealed class LargeFilesService
 {
     private static readonly string[] SkipNames =
@@ -92,7 +90,7 @@ public sealed class LargeFilesService
             return found.OrderByDescending(f => f.SizeBytes).Take(300).ToList();
         }, ct);
 
-    /// <summary>Moves files to the Recycle Bin. Returns (moved, bytes).</summary>
+    // moves files to the Recycle Bin. returns (moved, bytes)
     public Task<(int Moved, long Bytes)> RecycleAsync(IReadOnlyList<LargeFile> files) => Task.Run(() =>
     {
         int moved = 0;
@@ -112,12 +110,10 @@ public sealed class LargeFilesService
     });
 }
 
-// ============================== Shredder ==============================
+// --- shredder ---
 
-/// <summary>
-/// Overwrites files with random data (1 or 3 passes), renames them to random names
-/// and deletes them, so they can't be recovered with undelete tools.
-/// </summary>
+// overwrite with random data (1 or 3 passes), rename to random names, delete,
+// so undelete tools can't get them back
 public sealed class ShredderService
 {
     public Task<(int Shredded, int Failed)> ShredAsync(IReadOnlyList<string> paths, int passes, IProgress<double>? progress, CancellationToken ct)
@@ -194,7 +190,7 @@ public sealed class ShredderService
             }
             fs.SetLength(0);
         }
-        // Hide the original name before deleting.
+        // hide the original name before deleting
         var dir = Path.GetDirectoryName(path)!;
         var renamed = Path.Combine(dir, Path.GetRandomFileName());
         File.Move(path, renamed);
@@ -202,7 +198,7 @@ public sealed class ShredderService
     }
 }
 
-// ============================== History & privacy ==============================
+// --- history & privacy ---
 
 public sealed partial class PrivacyItem : ObservableObject
 {
@@ -220,7 +216,7 @@ public sealed partial class PrivacyItem : ObservableObject
     partial void OnCountChanged(int value) => OnPropertyChanged(nameof(CountText));
 }
 
-/// <summary>Clears Windows usage traces. Nothing is selected by default.</summary>
+// clears Windows usage traces. nothing is selected by default
 public sealed class HistoryCleanerService
 {
     private const string Explorer = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer";
@@ -271,7 +267,7 @@ public sealed class HistoryCleanerService
         catch { return 0; }
     }
 
-    /// <summary>Clears the given items (clipboard must be cleared by the caller on the UI thread).</summary>
+    // clears the given items (clipboard must be cleared by the caller on the UI thread)
     public Task<int> CleanAsync(IReadOnlyList<PrivacyItem> items) => Task.Run(() =>
     {
         int cleared = 0;
@@ -337,7 +333,7 @@ public sealed class HistoryCleanerService
     }
 }
 
-// ============================== Evidence remover ==============================
+// --- evidence remover ---
 
 public sealed record DriveChoice(string Root, string Label, long Free, long Total, bool IsSsd)
 {
@@ -346,10 +342,8 @@ public sealed record DriveChoice(string Root, string Label, long Free, long Tota
     public string Detail => $"{ByteSize.Humanize(Free)} / {ByteSize.Humanize(Total)}";
 }
 
-/// <summary>
-/// Wipes a drive's free space with Windows' own <c>cipher /w</c> (zeros, ones, random),
-/// so files deleted earlier can no longer be recovered.
-/// </summary>
+// wipes free space with windows' own cipher /w (zeros, ones, random) so files deleted
+// earlier can't be recovered
 public sealed class EvidenceService
 {
     public Task<IReadOnlyList<DriveChoice>> GetDrivesAsync() => Task.Run<IReadOnlyList<DriveChoice>>(() =>
@@ -368,7 +362,7 @@ public sealed class EvidenceService
         return list;
     });
 
-    /// <summary>Drive letters that sit on an SSD (MSFT_PhysicalDisk.MediaType = 4).</summary>
+    // drive letters that sit on an SSD (MSFT_PhysicalDisk.MediaType = 4)
     private static HashSet<char> SsdLetters()
     {
         var result = new HashSet<char>();
@@ -392,7 +386,7 @@ public sealed class EvidenceService
         return result;
     }
 
-    /// <summary>Runs cipher /w; reports the pass (1..3). Cancel stops it and removes its temp folder.</summary>
+    // runs cipher /w, reports the pass (1..3). cancel stops it and removes its temp folder
     public async Task<bool> WipeFreeSpaceAsync(string root, IProgress<int> pass, CancellationToken ct)
     {
         var psi = new ProcessStartInfo

@@ -5,11 +5,8 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Auto-start programs from the Run/RunOnce keys (HKLM, HKLM 32-bit, HKCU) and the
-/// Startup folders. Entries can be switched off the same way Task Manager does it
-/// (StartupApproved), so nothing is lost; deleting is also possible.
-/// </summary>
+// autostart programs from Run/RunOnce (HKLM, HKLM 32-bit, HKCU) and the Startup folders.
+// can be disabled the way task manager does it (StartupApproved) so nothing is lost, or deleted
 public sealed class StartupService : IStartupService
 {
     private const string Run = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
@@ -152,7 +149,7 @@ public sealed class StartupService : IStartupService
         catch { /* ignore */ }
     }
 
-    /// <summary>"\"C:\App\app.exe\" --tray" -> C:\App\app.exe</summary>
+    // "\"C:\App\app.exe\" --tray" -> C:\App\app.exe
     public static string? ParseExecutable(string command)
     {
         if (string.IsNullOrWhiteSpace(command)) return null;

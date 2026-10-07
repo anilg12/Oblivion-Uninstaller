@@ -5,12 +5,10 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Reads installed programs from the three Windows uninstall locations:
-///   • HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall            (64-bit)
-///   • HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall (32-bit)
-///   • HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall            (per-user)
-/// </summary>
+// installed programs from the three uninstall keys:
+//   HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall             (64-bit)
+//   HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall (32-bit)
+//   HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall             (per user)
 public sealed class InstalledProgramsService : IInstalledProgramsService
 {
     private const string UninstallSubKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
@@ -18,8 +16,7 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
     public Task<IReadOnlyList<InstalledProgram>> GetInstalledProgramsAsync(CancellationToken ct = default)
         => Task.Run<IReadOnlyList<InstalledProgram>>(() =>
         {
-            // De-duplicate by (name + version): the same app often appears in both
-            // the 32-bit and 64-bit views or as both per-machine and per-user.
+            // dedupe by name + version, the same app often shows up in both 32/64-bit views or per-machine + per-user
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var results = new List<InstalledProgram>();
 
@@ -77,15 +74,14 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
         if (string.IsNullOrWhiteSpace(displayName))
             return null; // entries without a name are not user-visible
 
-        // Skip OS updates, hotfixes and hidden system components — matches what
-        // "Apps & features" and Revo exclude from the default list.
+        // skip os updates, hotfixes, hidden system components (same as Apps & features and revo do)
         if (IsSystemComponentOrUpdate(entry))
             return null;
 
         var uninstallString = entry.GetValue("UninstallString") as string;
         var quietUninstall = entry.GetValue("QuietUninstallString") as string;
 
-        // An entry with no way to uninstall is usually a leftover registration; skip.
+        // no uninstall command -> probably a leftover registration, skip
         if (string.IsNullOrWhiteSpace(uninstallString) && string.IsNullOrWhiteSpace(quietUninstall))
             return null;
 
@@ -139,10 +135,8 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
         }
     }
 
-    /// <summary>
-    /// Picks the icon to show: DisplayIcon when it points at a real file, the MSI
-    /// product icon, or the main executable inside the install folder.
-    /// </summary>
+    // icon: DisplayIcon if it points to a real file, else the MSI product icon, else the main exe
+    // in the install folder
     private static string? ResolveIcon(string? displayIcon, string? installLocation, string displayName, string? productCode)
     {
         if (!string.IsNullOrWhiteSpace(displayIcon))
@@ -198,7 +192,7 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
         try { return new FileInfo(file).Length; } catch { return 0; }
     }
 
-    /// <summary>HKCR\Installer\Products\{packed GUID}\ProductIcon, used by MSI-installed apps.</summary>
+    // HKCR\Installer\Products\{packed GUID}\ProductIcon, used by MSI-installed apps
     private static string? MsiProductIcon(string productCode)
     {
         try
@@ -226,14 +220,13 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
         if (entry.GetValue("SystemComponent") is int sys && sys == 1)
             return true;
 
-        // ReleaseType of "Security Update", "Update", "Hotfix" -> Windows/Office patches.
+        // ReleaseType of "Security Update", "Update", "Hotfix" -> Windows/Office patches
         if (entry.GetValue("ReleaseType") is string releaseType &&
             (releaseType.Contains("Update", StringComparison.OrdinalIgnoreCase) ||
              releaseType.Equals("Hotfix", StringComparison.OrdinalIgnoreCase)))
             return true;
 
-        // Entries that are children of another product (ParentKeyName/ParentDisplayName)
-        // are components, not standalone apps.
+        // entries with ParentKeyName/ParentDisplayName are components of another product
         if (entry.GetValue("ParentKeyName") is string pk && !string.IsNullOrWhiteSpace(pk))
             return true;
 
@@ -242,7 +235,7 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
 
     private static (bool isMsi, string? productCode) ParseMsi(string? uninstallString, string subKeyName)
     {
-        // MSI products use msiexec and the sub-key name is the product GUID, e.g.
+        // msi: msiexec + the subkey name is the product guid, e.g.
         // "MsiExec.exe /I{90160000-008C-0000-1000-0000000FF1CE}"
         bool looksMsi = uninstallString is not null &&
                         uninstallString.Contains("msiexec", StringComparison.OrdinalIgnoreCase);
@@ -255,7 +248,7 @@ public sealed class InstalledProgramsService : IInstalledProgramsService
 
     private static DateOnly? ParseInstallDate(string? raw)
     {
-        // InstallDate is typically "yyyyMMdd".
+        // InstallDate is usually yyyyMMdd
         if (string.IsNullOrWhiteSpace(raw)) return null;
         if (DateOnly.TryParseExact(raw, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var d))
             return d;

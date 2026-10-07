@@ -7,10 +7,8 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Install monitor: snapshot before installing something, compare afterwards to see
-/// exactly what the installer added, and remove it if wanted (nothing pre-selected).
-/// </summary>
+// install monitor: snapshot before installing, compare after to see what got added,
+// remove it if you want (nothing pre-selected)
 public sealed partial class MonitoredViewModel : PageViewModel
 {
     private readonly MonitorService _monitor;
@@ -142,7 +140,7 @@ public sealed partial class MonitoredViewModel : PageViewModel
         }
     }
 
-    /// <summary>Programs can't just be deleted: open them in All applications to uninstall properly.</summary>
+    // programs can't just be deleted: open them in All applications to uninstall properly
     [RelayCommand]
     private async Task UninstallProgramAsync(MonitorChange? change)
     {

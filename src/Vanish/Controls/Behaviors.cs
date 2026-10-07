@@ -8,11 +8,8 @@ using Vanish.Helpers;
 
 namespace Vanish.Controls;
 
-/// <summary>
-/// Fade + slide-up entrance. With <c>Stagger</c> on, items inside an ItemsControl
-/// enter one after another (only the first few, so scrolling never animates).
-/// Animations finish and release themselves; nothing keeps ticking afterwards.
-/// </summary>
+// fade + slide up on load. with Stagger, items in an ItemsControl come in one by one
+// (only the first few so scrolling doesn't animate). nothing keeps ticking after
 public static class Reveal
 {
     public static readonly DependencyProperty EnabledProperty = DependencyProperty.RegisterAttached(
@@ -34,7 +31,7 @@ public static class Reveal
     public static bool GetStagger(DependencyObject d) => (bool)d.GetValue(StaggerProperty);
     public static void SetStagger(DependencyObject d, bool v) => d.SetValue(StaggerProperty, v);
 
-    /// <summary>Set to false (e.g. by the snapshot runner) to show everything instantly.</summary>
+    // false = no animations (the snapshot runner uses this)
     public static bool AnimationsEnabled { get; set; } = true;
 
     private static void OnEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
@@ -102,10 +99,8 @@ public static class Reveal
     }
 }
 
-/// <summary>
-/// Loads an icon (exe/dll "path,index" or an image file) on a background thread and
-/// fades it in. Keeps the UI thread free while long app lists scroll.
-/// </summary>
+// loads an icon (exe/dll "path,index" or an image) in the background and fades it in,
+// so long lists still scroll smoothly
 public static class IconLoader
 {
     public static readonly DependencyProperty PathProperty = DependencyProperty.RegisterAttached(
@@ -153,10 +148,8 @@ public static class IconLoader
     }
 }
 
-/// <summary>
-/// For a scrollable list nested inside a scrolling page: once the inner list reaches
-/// its top/bottom, the mouse wheel scrolls the page instead of getting stuck.
-/// </summary>
+// nested scrollable list inside a scrolling page: when the inner list hits top/bottom,
+// pass the wheel to the page instead of getting stuck
 public static class ScrollBubble
 {
     public static readonly DependencyProperty EnabledProperty = DependencyProperty.RegisterAttached(
@@ -206,11 +199,8 @@ public static class ScrollBubble
     }
 }
 
-/// <summary>
-/// "Live" indicator: a small dot with a soft halo. Deliberately static — an endlessly
-/// repeating animation keeps the window repainting, which on variable-refresh displays
-/// can make the whole screen flicker while Oblivion has focus.
-/// </summary>
+// live dot with a halo. static on purpose: an endless animation keeps the window repainting,
+// which made the whole screen flicker on VRR displays
 public sealed class PulseDot : FrameworkElement
 {
     public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
@@ -235,7 +225,7 @@ public sealed class PulseDot : FrameworkElement
     }
 }
 
-/// <summary>Springy scale-in each time the element becomes visible (result badges, empty states).</summary>
+// springy scale in whenever it becomes visible (result badges, empty states)
 public static class PopIn
 {
     public static readonly DependencyProperty EnabledProperty = DependencyProperty.RegisterAttached(
@@ -267,7 +257,7 @@ public static class PopIn
     }
 }
 
-/// <summary>Short fade + slide-down each time the element becomes visible (expanding sections).</summary>
+// fade + slide down whenever it becomes visible (expanding sections)
 public static class SlideIn
 {
     public static readonly DependencyProperty EnabledProperty = DependencyProperty.RegisterAttached(

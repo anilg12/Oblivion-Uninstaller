@@ -6,9 +6,9 @@ public interface IStartupService
 {
     Task<IReadOnlyList<StartupEntry>> GetStartupEntriesAsync(CancellationToken ct = default);
 
-    /// <summary>Enables or disables an entry the way Task Manager does (StartupApproved), without deleting it.</summary>
+    // enables or disables an entry the way Task Manager does (StartupApproved), without deleting it
     Task SetEnabledAsync(StartupEntry entry, bool enabled, CancellationToken ct = default);
 
-    /// <summary>Removes an auto-start entry entirely (registry value backed up first).</summary>
+    // removes an auto-start entry entirely (registry value backed up first)
     Task DeleteAsync(StartupEntry entry, CancellationToken ct = default);
 }

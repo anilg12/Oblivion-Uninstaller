@@ -4,11 +4,8 @@ namespace Vanish.Services;
 
 public interface IUninstallService
 {
-    /// <summary>
-    /// Runs the application's own uninstaller. When <paramref name="silent"/> is true
-    /// and a quiet uninstall command is available, it runs without UI.
-    /// Progress messages are reported through <paramref name="progress"/>.
-    /// </summary>
+    // runs the app's own uninstaller. silent + a quiet command available -> no ui.
+    // progress messages go through progress
     Task<UninstallResult> RunUninstallerAsync(
         InstalledProgram program,
         bool silent,

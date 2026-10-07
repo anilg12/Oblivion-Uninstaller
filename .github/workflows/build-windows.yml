@@ -54,7 +54,7 @@ jobs:
       - name: Stage portable exe
         run: copy dist\portable\Oblivion.exe dist\Oblivion.exe
 
-      # ---------------------------------------------------------------- self-tests
+      # --- self-tests ---
       - name: Self-test helper
         shell: pwsh
         run: |
@@ -155,7 +155,7 @@ jobs:
           name: Oblivion-Windows-selftest
           path: snap/
 
-      # ---------------------------------------------------------------- installer
+      # --- installer ---
       - name: Install Inno Setup
         run: choco install innosetup --no-progress -y
 
@@ -166,7 +166,7 @@ jobs:
           & "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe" "/DMyAppVersion=$version" installer\Vanish.iss
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed" }
 
-      # The recommended install path: `irm …/install.ps1 | iex` (no SmartScreen prompt).
+      # the irm .../install.ps1 | iex way (no smartscreen prompt)
       - name: One-line installer - install this build, run it, uninstall
         shell: pwsh
         run: |
@@ -216,7 +216,7 @@ jobs:
           path: dist/OblivionSetup.exe
 
       - name: Push screenshots to the ci-snapshots-win branch
-        # Only when asked for on a manual run (the release workflow removes this branch again).
+        # only on manual runs, release.yml deletes this branch again
         if: always() && inputs.snapshots
         shell: pwsh
         run: |

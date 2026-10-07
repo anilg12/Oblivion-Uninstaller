@@ -17,7 +17,7 @@ namespace Vanish;
 
 public partial class App : Application
 {
-    /// <summary>Process start, for the startup-time measurement in the self-test.</summary>
+    // for the startup time measurement in the self-test
     public static readonly Stopwatch Clock = Stopwatch.StartNew();
 
     private ServiceProvider? _services;
@@ -44,13 +44,11 @@ public partial class App : Application
         try
         {
             CrashLog.Mark("startup: begin");
-            // Animations never need more than 60 fps; on 120/144 Hz screens this halves the
-            // render work. Without GPU acceleration (or when the user asks), entrance
-            // animations are skipped entirely.
+            // 60 fps is enough for the animations, halves the work on 120/144 Hz screens.
+            // no gpu acceleration (or turned off in settings) -> no entrance animations at all
             Timeline.DesiredFrameRateProperty.OverrideMetadata(typeof(Timeline), new FrameworkPropertyMetadata { DefaultValue = 60 });
-            // Draw on the CPU instead of through a Direct3D surface. The UI is mostly static, so this
-            // costs next to nothing, and it stops the GPU overlay / variable-refresh switching that made
-            // the desktop and other windows flash while Oblivion had focus on some displays.
+            // software rendering instead of d3d. the ui is mostly static so it costs almost nothing, and it
+            // fixes the desktop / other windows flickering on some displays (gpu overlay / VRR switching)
             RenderOptions.ProcessRenderMode = System.Windows.Interop.RenderMode.SoftwareOnly;
 
             _services = ConfigureServices();
@@ -61,7 +59,7 @@ public partial class App : Application
             Loc.I.Language = settings.Current.Language;
             _services.GetRequiredService<ThemeService>().Apply();
             CrashLog.Mark("startup: theme applied");
-            // Read the activity log in the background, before any page needs it.
+            // load the activity log in the background early
             _ = _services.GetRequiredService<OperationLogService>().WarmUpAsync();
 
             var window = _services.GetRequiredService<MainWindow>();
@@ -90,7 +88,7 @@ public partial class App : Application
     {
         var s = new ServiceCollection();
 
-        // Engine
+        // engine
         s.AddSingleton<SettingsService>();
         s.AddSingleton<ThemeService>();
         s.AddSingleton<DialogService>();
@@ -113,7 +111,7 @@ public partial class App : Application
         s.AddSingleton<HistoryCleanerService>();
         s.AddSingleton<EvidenceService>();
 
-        // View models
+        // view models
         s.AddSingleton<MainWindowViewModel>();
         s.AddSingleton<LiveStatsViewModel>();
         s.AddSingleton<DashboardViewModel>();
@@ -134,7 +132,7 @@ public partial class App : Application
         s.AddSingleton<LogsViewModel>();
         s.AddSingleton<SettingsViewModel>();
 
-        // Views (pages are created on first visit and then kept)
+        // views (pages get created on first visit, then kept)
         s.AddSingleton<MainWindow>();
         s.AddSingleton<DashboardPage>();
         s.AddSingleton<UninstallerPage>();
@@ -183,7 +181,7 @@ public partial class App : Application
     }
 }
 
-/// <summary>Minimal service locator for code that is not created through DI.</summary>
+// tiny service locator for things not created through DI
 public static class Ioc
 {
     private static IServiceProvider? _provider;

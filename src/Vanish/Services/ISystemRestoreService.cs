@@ -2,10 +2,10 @@ namespace Vanish.Services;
 
 public interface ISystemRestoreService
 {
-    /// <summary>Creates a System Restore point (best effort; false when System Restore is off).</summary>
+    // creates a System Restore point (best effort, false when System Restore is off)
     Task<bool> CreateRestorePointAsync(string description, CancellationToken ct = default);
 
-    /// <summary>Exports a registry key to a .reg file in the backup folder; returns its path or null.</summary>
+    // exports a registry key to a .reg file in the backup folder, returns its path or null
     Task<string?> BackupRegistryKeyAsync(string registryPath, CancellationToken ct = default);
 
     Task<IReadOnlyList<RegistryBackupInfo>> ListRegistryBackupsAsync();

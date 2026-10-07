@@ -5,7 +5,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Models;
 
-/// <summary>A browser extension / add-on discovered on disk.</summary>
+// a browser extension / add-on discovered on disk
 public sealed partial class BrowserExtension : ObservableObject
 {
     [ObservableProperty] private bool _isSelected;
@@ -16,16 +16,16 @@ public sealed partial class BrowserExtension : ObservableObject
     public string? Version { get; init; }
     public string? Profile { get; init; }
 
-    /// <summary>Browser executable (used for the browser icon), if known.</summary>
+    // browser executable (used for the browser icon), if known
     public string? BrowserIcon { get; init; }
 
-    /// <summary>Folder (Chromium) or .xpi file (Firefox) to remove.</summary>
+    // folder (Chromium) or .xpi file (Firefox) to remove
     public required string Path { get; init; }
 
     public string Subtitle => string.Join(" · ", new[] { Version, Profile }.Where(s => !string.IsNullOrWhiteSpace(s)));
 }
 
-/// <summary>A running application with a visible window (Hunter mode target).</summary>
+// a running application with a visible window (Hunter mode target)
 public sealed class RunningApp
 {
     public required int ProcessId { get; init; }
@@ -35,15 +35,15 @@ public sealed class RunningApp
     public string PidText => $"PID {ProcessId}";
 }
 
-/// <summary>One recorded action in the activity log (Logs database).</summary>
+// one recorded action in the activity log (Logs database)
 public sealed class LogEntry
 {
     public DateTime Timestamp { get; set; }
 
-    /// <summary>Localization key of the action (e.g. "Log_Uninstalled").</summary>
+    // localization key of the action (e.g. "Log_Uninstalled")
     public string ActionKey { get; set; } = "";
 
-    /// <summary>Plain action text written by Oblivion 1.x/2.x (kept for old entries).</summary>
+    // plain action text written by Oblivion 1.x/2.x (kept for old entries)
     public string Action { get; set; } = "";
 
     public string Detail { get; set; } = "";
@@ -74,13 +74,13 @@ public sealed class LogEntry
     };
 }
 
-/// <summary>A change detected by the install monitor (added program / folder / run key).</summary>
+// a change detected by the install monitor (added program / folder / run key)
 public sealed partial class MonitorChange : ObservableObject
 {
     public required string Kind { get; init; }   // "Program" | "Folder" | "Registry"
     public required string Value { get; init; }
 
-    /// <summary>For registry run values: the key path and value name.</summary>
+    // for registry run values: the key path and value name
     public string? RegistryKey { get; init; }
     public string? RegistryValue { get; init; }
 

@@ -1,4 +1,4 @@
-# Build output
+# build output
 dist/
 snap/
 .dotnet/
@@ -33,3 +33,6 @@ packages/
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# python
+__pycache__/

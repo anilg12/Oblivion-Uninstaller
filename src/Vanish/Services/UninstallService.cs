@@ -5,11 +5,9 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Launches a program's native uninstaller (MSI or EXE) and waits until it has really
-/// finished — many uninstallers copy themselves to %TEMP%, relaunch from there and
-/// exit immediately, so we also wait for those child processes before scanning.
-/// </summary>
+// starts the program's own uninstaller (MSI or EXE) and waits until it's really done.
+// lots of uninstallers copy themselves to %TEMP%, relaunch from there and exit right away,
+// so we wait for those child processes too before scanning
 public sealed class UninstallService : IUninstallService
 {
     private static readonly HashSet<string> IgnoredChildren = new(StringComparer.OrdinalIgnoreCase)
@@ -50,7 +48,7 @@ public sealed class UninstallService : IUninstallService
             progress?.Report("Work_WaitUninstaller");
             await WaitForChildUninstallersAsync(rootPid, program.InstallLocation, ct);
 
-            // msiexec: 0 success, 3010 success+reboot, 1605 already removed.
+            // msiexec: 0 success, 3010 success+reboot, 1605 already removed
             bool ok = code is 0 or 3010 or 1605 or 1641;
             return new UninstallResult(ok, code, ok ? null : string.Format(Loc.I["Uninst_ExitCodeFmt"], code));
         }
@@ -68,11 +66,9 @@ public sealed class UninstallService : IUninstallService
         }
     }
 
-    /// <summary>
-    /// Waits while descendants of the uninstaller that look like uninstaller stages
-    /// (copies in %TEMP%, msiexec, files in the install folder, "unins*/Au_/Un_A") are running.
-    /// Browsers opened for "sorry to see you go" pages are ignored.
-    /// </summary>
+    // wait while child processes that look like uninstaller stages are running (copies in %TEMP%,
+    // msiexec, files in the install folder, unins*/Au_/Un_A). browsers opened for "sorry to see
+    // you go" pages are ignored
     private static async Task WaitForChildUninstallersAsync(int rootPid, string? installLocation, CancellationToken ct)
     {
         var tracked = new HashSet<int> { rootPid };
@@ -102,7 +98,7 @@ public sealed class UninstallService : IUninstallService
 
             if (!waiting)
             {
-                // A stage may start a moment after the first process exits; require a few quiet checks.
+                // the next stage can start a bit after the first process exits, so wait for a few quiet checks
                 if (++quietRounds >= 3) return;
             }
             else quietRounds = 0;
@@ -124,10 +120,7 @@ public sealed class UninstallService : IUninstallService
                path.StartsWith(installLocation!.TrimEnd('\\') + "\\", StringComparison.OrdinalIgnoreCase);
     }
 
-    /// <summary>
-    /// Produces the (executable, arguments) pair to launch, normalising MSI commands
-    /// to a clean uninstall (/x) and appending quiet switches when requested.
-    /// </summary>
+    // (exe, args) to run. MSI commands get normalized to /x, quiet switches added if requested
     private static (string FileName, string Arguments)? ResolveCommand(InstalledProgram program, bool silent)
     {
         if (program.IsMsi && !string.IsNullOrWhiteSpace(program.ProductCode))
@@ -147,10 +140,8 @@ public sealed class UninstallService : IUninstallService
         return SplitCommandLine(raw!);
     }
 
-    /// <summary>
-    /// Splits a raw command line into executable + arguments, respecting quotes.
-    /// e.g. <c>"C:\App\unins000.exe" /SILENT</c> -> ("C:\App\unins000.exe", "/SILENT").
-    /// </summary>
+    // split a command line into exe + args, respecting quotes.
+    // "C:\App\unins000.exe" /SILENT -> ("C:\App\unins000.exe", "/SILENT")
     private static (string FileName, string Arguments) SplitCommandLine(string commandLine)
     {
         commandLine = Environment.ExpandEnvironmentVariables(commandLine.Trim());

@@ -36,20 +36,20 @@ enum Fmt {
 
     static func dateTime(_ date: Date) -> String { dateTimeFormatter.string(from: date) }
 
-    /// "%42" in Turkish, "42%" in English.
+    // "%42" in TR, "42%" in EN
     static func percent(_ value: Double, _ loc: Loc) -> String {
         let n = Int((value.isFinite ? value : 0).rounded())
         return loc.isTurkish ? "%\(n)" : "\(n)%"
     }
 
-    /// Transfer speed, e.g. "1.2 MB/s".
+    // e.g. "1.2 MB/s"
     static func rate(_ bytesPerSecond: Double) -> String {
         let v = bytesPerSecond.isFinite ? max(0, bytesPerSecond) : 0
         if v < 1000 { return "\(Int(v)) B/s" }
         return byteFormatter.string(fromByteCount: Int64(v)) + "/s"
     }
 
-    /// Compact duration: "3 gün 4 sa" / "3d 4h", "2 sa 5 dk" / "2h 5m", "7 dk" / "7m".
+    // short duration: "3 gün 4 sa" / "3d 4h", "2 sa 5 dk" / "2h 5m", "7 dk" / "7m"
     static func duration(_ seconds: TimeInterval, _ loc: Loc) -> String {
         let total = Int(max(0, seconds.isFinite ? seconds : 0)) / 60
         let days = total / 1440, hours = (total % 1440) / 60, minutes = total % 60
@@ -62,8 +62,8 @@ enum Fmt {
 
 // MARK: - Graphics
 
-/// GPU-heavy flourishes (symbol bounces, particle bursts) are skipped on Intel virtual machines,
-/// whose virtual graphics adapter has no usable Metal device. Real Macs always keep them.
+// skip the gpu heavy effects (symbol bounces, particles) on intel VMs, their virtual gpu
+// has no usable Metal device. real macs always get them
 enum GraphicsSupport {
     static let richEffects: Bool = {
         #if arch(x86_64)
@@ -81,7 +81,7 @@ enum AppPaths {
     static var home: URL { FileManager.default.homeDirectoryForCurrentUser }
     static var library: URL { home.appendingPathComponent("Library") }
 
-    /// ~/Library/Application Support/Oblivion (created on demand).
+    // ~/Library/Application Support/Oblivion, created if missing
     static var support: URL {
         let url = library.appendingPathComponent("Application Support/Oblivion")
         try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
@@ -120,12 +120,12 @@ enum Shell {
                            err: String(decoding: errData, as: UTF8.self))
     }
 
-    /// Escapes a string for use inside an AppleScript double-quoted literal.
+    // escape for an applescript "..." string
     static func asEscape(_ s: String) -> String {
         s.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
     }
 
-    /// Single-quotes a string for /bin/sh.
+    // single quote for /bin/sh
     static func shQuote(_ s: String) -> String {
         "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
@@ -137,7 +137,7 @@ enum Shell {
         return run("/usr/bin/osascript", args)
     }
 
-    /// Runs a shell command with an administrator password prompt.
+    // run with the admin password prompt
     @discardableResult
     static func admin(_ command: String) -> Bool {
         osascript(["do shell script \"\(asEscape(command))\" with administrator privileges"]).status == 0
@@ -147,9 +147,8 @@ enum Shell {
 // MARK: - Trash
 
 enum Trash {
-    /// Moves items to the Trash. Items the user can't move (root-owned apps,
-    /// /Library files…) are handed to Finder, which asks for the admin password.
-    /// Returns how many items are gone afterwards.
+    // move to trash. things we can't move ourselves (root-owned apps, /Library files...)
+    // go through Finder, which asks for the admin password. returns how many are gone after
     @discardableResult
     static func move(_ urls: [URL]) -> Int {
         let fm = FileManager.default
@@ -289,7 +288,7 @@ enum SystemInfo {
         return (values?.volumeAvailableCapacityForImportantUsage ?? 0, Int64(values?.volumeTotalCapacity ?? 0))
     }
 
-    /// Full Disk Access check: these folders are TCC-protected without it.
+    // full disk access check, these folders are TCC protected without it
     static var hasFullDiskAccess: Bool {
         let probes = [
             AppPaths.library.appendingPathComponent("Safari"),

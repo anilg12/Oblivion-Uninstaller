@@ -9,7 +9,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Controls;
 
-/// <summary>Arc geometry helper (angles in degrees, 0 = 3 o'clock, clockwise).</summary>
+// arc geometry, degrees, 0 = 3 o'clock, clockwise
 internal static class Arcs
 {
     public static Geometry Make(Point center, double radius, double startDeg, double sweepDeg)
@@ -29,21 +29,21 @@ internal static class Arcs
     }
 }
 
-/// <summary>The single accent colour used by the hand-drawn controls.</summary>
+// accent color for the custom controls
 internal static class Accent
 {
     public static readonly Color Color = Color.FromRgb(0x4F, 0x6B, 0xED);
     public static readonly Brush Brush = Frozen(new SolidColorBrush(Color));
     public static readonly Brush Faded = Frozen(new SolidColorBrush(Color.FromArgb(0x33, 0x4F, 0x6B, 0xED)));
 
-    /// <summary>A caller-chosen colour, except the legacy violets which map to the accent.</summary>
+    // given color, except the old violets which become the accent
     public static Brush For(Color c) =>
         c == Color || (c.R == 0x6E && c.G == 0x5B) || (c.R == 0x7C && c.G == 0x6C) ? Brush : Frozen(new SolidColorBrush(c));
 
     private static T Frozen<T>(T f) where T : Freezable { f.Freeze(); return f; }
 }
 
-/// <summary>Attached "active" flag used by the rail and navigation button styles.</summary>
+// attached IsActive for the rail / nav button styles
 public static class Nav
 {
     public static readonly DependencyProperty IsActiveProperty = DependencyProperty.RegisterAttached(
@@ -53,7 +53,7 @@ public static class Nav
     public static void SetIsActive(DependencyObject d, bool value) => d.SetValue(IsActiveProperty, value);
 }
 
-/// <summary>Small rounded label tinted with a colour ("Kesin", "App Store", …).</summary>
+// small colored chip ("Kesin", "App Store", ...)
 public sealed class Chip : Border
 {
     private readonly System.Windows.Controls.TextBlock _text = new()
@@ -93,11 +93,8 @@ public sealed class Chip : Border
     private static T Freeze<T>(T f) where T : Freezable { f.Freeze(); return f; }
 }
 
-/// <summary>
-/// Quiet rounded-square icon tile (tools, stats, quick actions): a neutral surface with a
-/// monochrome icon. <see cref="From"/>/<see cref="To"/> are kept for compatibility; a red
-/// <see cref="From"/> marks a destructive tool and tints the icon.
-/// </summary>
+// icon tile (tools, stats, quick actions), neutral background + monochrome icon.
+// From/To only stay for compatibility, a red From means destructive (red icon)
 public sealed class GradientBadge : Border
 {
     private readonly SymbolIcon _icon = new() { HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center };
@@ -150,11 +147,8 @@ public sealed class GradientBadge : Border
     }
 }
 
-/// <summary>
-/// Indeterminate spinner that only animates while visible. (The WPF-UI ProgressRing
-/// keeps an endless storyboard running even when hidden, which slowly piles up and
-/// makes every other animation stutter.)
-/// </summary>
+// spinner that only animates while visible. the WPF-UI ProgressRing keeps its storyboard
+// running even when hidden, they pile up and everything else starts to stutter
 public sealed class Spinner : FrameworkElement
 {
     private readonly RotateTransform _rotate = new();
@@ -214,10 +208,8 @@ public sealed class Spinner : FrameworkElement
     }
 }
 
-/// <summary>
-/// Circular gauge (0..1). The first value eases in; live updates after that are drawn directly,
-/// so a once-a-second sample costs one frame instead of a continuous animation.
-/// </summary>
+// circular gauge 0..1. first value eases in, after that live updates are drawn directly
+// (one frame per sample instead of a running animation)
 public sealed class RingGauge : FrameworkElement
 {
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
@@ -287,7 +279,7 @@ public sealed class RingGauge : FrameworkElement
     }
 }
 
-/// <summary>Tiny area chart for a rolling history of values.</summary>
+// tiny area chart
 public sealed class Sparkline : FrameworkElement
 {
     public static readonly DependencyProperty ValuesProperty = DependencyProperty.Register(
@@ -301,7 +293,7 @@ public sealed class Sparkline : FrameworkElement
 
     public IReadOnlyList<double>? Values { get => (IReadOnlyList<double>?)GetValue(ValuesProperty); set => SetValue(ValuesProperty, value); }
 
-    /// <summary>Fixed maximum (e.g. 100 for percentages); 0 = auto scale.</summary>
+    // fixed max (100 for %), 0 = auto
     public double Maximum { get => (double)GetValue(MaximumProperty); set => SetValue(MaximumProperty, value); }
     public Color Color { get => (Color)GetValue(ColorProperty); set => SetValue(ColorProperty, value); }
 
@@ -345,10 +337,7 @@ public sealed class Sparkline : FrameworkElement
     }
 }
 
-/// <summary>
-/// Progress bar (solid accent on a quiet track). Value in 0..1; a negative value shows an indeterminate sweep
-/// that only animates while the bar is visible.
-/// </summary>
+// progress bar, value 0..1. negative = indeterminate, only animates while visible
 public sealed class GradientBar : FrameworkElement
 {
     private static readonly DependencyProperty PhaseProperty = DependencyProperty.Register(
@@ -422,13 +411,10 @@ public sealed class GradientBar : FrameworkElement
     }
 }
 
-/// <summary>Display modes for <see cref="CountUpText"/>.</summary>
+// CountUpText formats
 public enum CountMode { Number, Bytes, Percent }
 
-/// <summary>
-/// TextBlock whose number rolls up the first time it gets a value; later updates (live data)
-/// are written directly so they cost a single frame.
-/// </summary>
+// number rolls up the first time it gets a value, later (live) updates are set directly
 public sealed class CountUpText : System.Windows.Controls.TextBlock
 {
     public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(
@@ -483,7 +469,7 @@ public sealed class CountUpText : System.Windows.Controls.TextBlock
     }
 }
 
-/// <summary>Page title row: title and subtitle, with optional actions on the right. (Symbol/From/To are kept for compatibility.)</summary>
+// page title + subtitle, optional actions on the right. Symbol/From/To are leftovers, kept for compatibility
 [System.Windows.Markup.ContentProperty(nameof(Actions))]
 public sealed class PageHeader : Grid
 {
@@ -547,7 +533,7 @@ public sealed class PageHeader : Grid
     }
 }
 
-/// <summary>Centered "nothing here" placeholder with an icon and a message.</summary>
+// empty state: icon + message
 public sealed class EmptyState : StackPanel
 {
     private readonly SymbolIcon _icon = new() { FontSize = 24, HorizontalAlignment = HorizontalAlignment.Center };
@@ -592,7 +578,7 @@ public sealed class EmptyState : StackPanel
     }
 }
 
-/// <summary>Progress step marker: ring (to do), spinner (now), green check (done).</summary>
+// step marker: ring = todo, spinner = running, green check = done
 public sealed class StepDot : Grid
 {
     private readonly Ellipse _ring = new() { StrokeThickness = 2 };

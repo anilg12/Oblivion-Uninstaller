@@ -2,7 +2,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
-    <!-- Oblivion "Graphite" — dark. Neutral greys, one indigo accent. Swapped at runtime for the light one. -->
+    <!-- Graphite, dark -->
     <SolidColorBrush x:Key="OB.Window" Color="#141416" />
     <SolidColorBrush x:Key="OB.Glow1" Color="Transparent" />
     <SolidColorBrush x:Key="OB.Glow2" Color="Transparent" />
@@ -36,7 +36,7 @@
     <SolidColorBrush x:Key="OB.HoverOverlay" Color="#FFFFFF" />
     <SolidColorBrush x:Key="OB.Shadow" Color="#59000000" />
 
-    <!-- Accent tones that depend on the background. -->
+    <!-- accent tones that depend on the background -->
     <SolidColorBrush x:Key="OB.AccentText" Color="#A3B4FF" />
     <SolidColorBrush x:Key="OB.AccentSoft" Color="#2B4F6BED" />
     <SolidColorBrush x:Key="OB.DangerSoft" Color="#2BE5484D" />

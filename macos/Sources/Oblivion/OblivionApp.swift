@@ -53,7 +53,7 @@ struct OblivionApp: App {
         .defaultSize(width: 1380, height: 860)
         .commands {
             CommandGroup(replacing: .newItem) {}
-            // "About Oblivion" in the app menu opens Oblivion's own About sheet.
+            // "About Oblivion" in the app menu -> our own about sheet
             CommandGroup(replacing: .appInfo) {
                 Button(loc["rail.about"]) { state.showAbout = true }
             }

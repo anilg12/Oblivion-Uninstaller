@@ -1,9 +1,9 @@
-"""Generates the README artwork in docs/assets (run from the repository root):
+"""README artwork for docs/assets. run from the repo root:
 
     python docs/assets/make_assets.py
 
-Everything follows the app's "Graphite" look: warm dark greys, one indigo accent,
-hairline borders and the broken-ring mark from the app icon.
+same "Graphite" look as the app: dark greys, one indigo accent, thin borders and the
+broken ring mark from the icon.
 """
 import math
 import os
@@ -49,7 +49,7 @@ def polar(cx, cy, r, deg):
     return cx + r * math.cos(a), cy + r * math.sin(a)
 
 
-# --------------------------------------------------------------------------- hero
+# hero
 
 def hero():
     W, H = 1200, 420
@@ -58,7 +58,7 @@ def hero():
     cx, cy = tx + ts / 2, ty + ts / 2
     R, sw = ts * 0.265, ts * 0.098
 
-    # Particles drifting out of the ring's opening, on a loop.
+    # particles coming out of the ring opening (looped)
     parts = []
     for i, (deg, size, dur, delay) in enumerate([(-46, 7.5, 3.6, 0), (-40, 5, 3.6, 1.2), (-34, 3.4, 3.6, 2.4),
                                                  (-50, 2.6, 4.8, 0.6), (-30, 2.2, 4.8, 3.0)]):
@@ -72,7 +72,7 @@ def hero():
             f'<animate attributeName="r" values="{size};{size * 0.35:.2f}" dur="{dur}s" begin="{delay}s" repeatCount="indefinite"/>'
             f'</circle>')
 
-    # A very large, faint copy of the mark that slowly turns at the right edge.
+    # big faint copy of the mark slowly rotating on the right
     big_r = 250
     bx, by = 1080, 210
     gx0, gy0 = polar(bx, by, big_r, -26)
@@ -146,7 +146,7 @@ def hero():
 '''
 
 
-# --------------------------------------------------------------------------- download buttons
+# download buttons
 
 WIN_GLYPH = '''<g fill="{c}"><rect x="0" y="0" width="12" height="12" rx="1.5"/><rect x="14" y="0" width="12" height="12" rx="1.5"/><rect x="0" y="14" width="12" height="12" rx="1.5"/><rect x="14" y="14" width="12" height="12" rx="1.5"/></g>'''
 GLOBE_GLYPH = '''<g fill="none" stroke="{c}" stroke-width="2" stroke-linecap="round"><circle cx="13" cy="13" r="11"/><path d="M2 13h22M13 2c3.2 3.2 4.6 6.8 4.6 11S16.2 20.8 13 24M13 2C9.8 5.2 8.4 8.8 8.4 13s1.4 7.8 4.6 11"/></g>'''
@@ -190,7 +190,7 @@ def button(name, glyph, title, detail, primary, external=False):
 '''
 
 
-# --------------------------------------------------------------------------- feature cards
+# feature cards
 
 ICONS = {
     # 24x24 line icons
@@ -258,7 +258,7 @@ def cards(name, items, cols=3, label="Oblivion"):
 '''
 
 
-# --------------------------------------------------------------------------- section title
+# section title
 
 def section(name, number, title, subtitle):
     W, H = 1200, 84

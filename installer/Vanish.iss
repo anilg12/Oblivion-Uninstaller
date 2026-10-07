@@ -1,6 +1,6 @@
-﻿; Inno Setup script for Oblivion — produces dist\OblivionSetup.exe
-; Build with:  iscc installer\Vanish.iss        (run build.ps1 first: it creates dist\app)
-; The version can be overridden:  iscc /DMyAppVersion=3.0.1 installer\Vanish.iss
+﻿; inno setup script -> dist\OblivionSetup.exe
+; iscc installer\Vanish.iss   (run build.ps1 first, it creates dist\app)
+; other version: iscc /DMyAppVersion=3.0.1 installer\Vanish.iss
 
 #ifndef MyAppVersion
   #define MyAppVersion "3.1.0"
@@ -11,7 +11,7 @@
 #define MyAppExeName "Oblivion.exe"
 
 [Setup]
-; Same AppId as 1.x/2.x, so installing 3.0 upgrades the existing copy in place.
+; same AppId as 1.x/2.x so it upgrades in place
 AppId={{B7E1A3D2-1C4E-4F5A-9D2B-3E6F7A8B9C01}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
@@ -39,10 +39,9 @@ WizardStyle=modern
 WizardImageFile=art\wizard-large100.bmp,art\wizard-large150.bmp,art\wizard-large200.bmp
 WizardSmallImageFile=art\wizard-small100.bmp,art\wizard-small150.bmp,art\wizard-small200.bmp
 WizardImageStretch=no
-; Ask Windows to refresh its icon cache after installing, so shortcuts show the current icon
-; instead of one cached from an earlier version.
+; refresh the icon cache after install, otherwise shortcuts can keep an old cached icon
 ChangesAssociations=yes
-; Oblivion needs admin to read HKLM and run uninstallers
+; needs admin to read HKLM and run uninstallers
 PrivilegesRequired=admin
 ArchitecturesInstallIn64BitMode=x64compatible
 ArchitecturesAllowed=x64compatible
@@ -58,7 +57,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-; Self-contained, ReadyToRun build (no single-file extraction = fastest start).
+; self-contained ReadyToRun build (no single-file extraction, starts faster)
 Source: "..\dist\app\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]

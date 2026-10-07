@@ -3,10 +3,8 @@ using System.IO;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// Opens URLs, folders and files through Explorer. Oblivion runs elevated, so links are
-/// handed to the (non-elevated) Explorer instead of starting the browser as admin.
-/// </summary>
+// open urls/folders/files through explorer. we run elevated, so links go through the
+// non-elevated explorer instead of starting the browser as admin
 public static class Shell
 {
     public static void OpenUrl(string url)
@@ -23,7 +21,7 @@ public static class Shell
         if (Directory.Exists(folder)) Start("explorer.exe", $"\"{folder}\"");
     }
 
-    /// <summary>Opens Explorer with the file or folder selected (or its nearest existing parent).</summary>
+    // opens Explorer with the file or folder selected (or its nearest existing parent)
     public static void Reveal(string path)
     {
         if (string.IsNullOrWhiteSpace(path)) return;
@@ -38,7 +36,7 @@ public static class Shell
         if (!string.IsNullOrEmpty(dir)) OpenFolder(dir);
     }
 
-    /// <summary>Opens regedit at the given key (regedit reopens at its LastKey value).</summary>
+    // opens regedit at the given key (regedit reopens at its LastKey value)
     public static void OpenRegistry(string keyPath)
     {
         var full = keyPath
@@ -51,7 +49,7 @@ public static class Shell
             key?.SetValue("LastKey", @"Computer\" + full);
         }
         catch { /* best effort */ }
-        // -m opens a new window even when regedit is already running, so LastKey applies.
+        // -m = new window even if regedit is already open, so LastKey is used
         Start("regedit.exe", "-m");
     }
 

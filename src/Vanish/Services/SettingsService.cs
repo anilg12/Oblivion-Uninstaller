@@ -5,12 +5,12 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Vanish.Services;
 
-/// <summary>User preferences, persisted to %LOCALAPPDATA%\Oblivion\settings.json.</summary>
+// user preferences, persisted to %LOCALAPPDATA%\Oblivion\settings.json
 public sealed partial class AppSettings : ObservableObject
 {
-    /// <summary>"dark", "light" or "system".</summary>
+    // "dark", "light" or "system"
     [ObservableProperty] private string _theme = "dark";
-    /// <summary>"tr" or "en".</summary>
+    // "tr" or "en"
     [ObservableProperty] private string _language = "tr";
     [ObservableProperty] private bool _createRestorePoint = true;
     [ObservableProperty] private bool _silentUninstall;

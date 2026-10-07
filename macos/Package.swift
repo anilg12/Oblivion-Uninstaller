@@ -1,8 +1,8 @@
 // swift-tools-version:5.9
 import PackageDescription
 
-// Oblivion for macOS — native SwiftUI app (Apple Silicon + Intel universal).
-// Built into a signed .app bundle and DMG by build-mac.sh.
+// macOS version (SwiftUI), universal arm64 + x86_64.
+// build-mac.sh turns it into a signed .app + dmg
 let package = Package(
     name: "Oblivion",
     platforms: [.macOS(.v14)],

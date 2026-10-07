@@ -1,8 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// Live system monitor: CPU, memory, temperature, network, top processes, this Mac,
-/// disks and battery. Samples every second only while the page is open.
+// system monitor page, samples every second only while the page is open
 struct SystemMonitorView: View {
     @EnvironmentObject private var monitor: SystemMonitor
     @EnvironmentObject private var state: AppState
@@ -75,7 +74,7 @@ struct SystemMonitorView: View {
 
     private func gaugeCard<Extra: View>(title: String, symbol: String, colors: [UInt32], value: Double, center: String,
                                         p: Palette, @ViewBuilder extra: () -> Extra) -> some View {
-        // GlassCard keeps its content closure, so the extra view is built up front.
+        // GlassCard keeps the content closure, so build the extra view first
         let details = extra()
         return GlassCard(padding: 16) {
             VStack(alignment: .leading, spacing: 10) {
@@ -335,7 +334,7 @@ extension ProcessInfo.ThermalState {
         }
     }
 
-    /// Gauge fill used when no temperature sensor can be read.
+    // gauge fill when there's no temperature sensor
     var fraction: Double {
         switch self {
         case .nominal: return 0.25

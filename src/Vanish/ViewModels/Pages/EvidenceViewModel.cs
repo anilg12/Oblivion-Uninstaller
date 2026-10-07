@@ -6,10 +6,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Evidence remover: wipes a drive's free space so files deleted in the past can't be
-/// recovered. Existing files are never touched.
-/// </summary>
+// evidence remover: wipes free space so old deleted files can't be recovered. existing files aren't touched
 public sealed partial class EvidenceViewModel : PageViewModel
 {
     private readonly EvidenceService _service;

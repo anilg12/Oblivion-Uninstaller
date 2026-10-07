@@ -5,23 +5,23 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Models;
 
-/// <summary>A single remnant (file, folder, registry key/value or shortcut) found after an uninstall.</summary>
+// a single remnant (file, folder, registry key/value or shortcut) found after an uninstall
 public sealed partial class LeftoverItem : ObservableObject
 {
     public required LeftoverKind Kind { get; init; }
 
-    /// <summary>Full filesystem path or registry key path (HKCU\…, HKLM\…).</summary>
+    // full filesystem path or registry key path (HKCU\..., HKLM\...)
     public required string Path { get; init; }
 
-    /// <summary>For <see cref="LeftoverKind.RegistryValue"/>: the value name inside <see cref="Path"/>.</summary>
+    // for LeftoverKind.RegistryValue: the value name inside Path
     public string? ValueName { get; init; }
 
-    /// <summary>Size in bytes for files/folders; 0 for registry items.</summary>
+    // size in bytes for files/folders, 0 for registry items
     public long SizeBytes { get; init; }
 
     public required MatchConfidence Confidence { get; init; }
 
-    /// <summary>Localization key explaining why this item matched.</summary>
+    // localization key explaining why this item matched
     public string ReasonKey { get; init; } = "Reason_Name";
 
     [ObservableProperty] private bool _isSelected;
@@ -74,20 +74,18 @@ public enum LeftoverKind
 
 public enum MatchConfidence
 {
-    /// <summary>Exact product-name match, install folder or orphaned uninstall entry.</summary>
+    // exact product-name match, install folder or orphaned uninstall entry
     High,
 
-    /// <summary>Strong but indirect match (exe name, install folder name elsewhere).</summary>
+    // strong but indirect match (exe name, install folder name elsewhere)
     Medium,
 
-    /// <summary>Only a loose name match, or a folder shared with other software — review carefully.</summary>
+    // loose name match or a folder shared with other software, check carefully
     Low
 }
 
-/// <summary>
-/// What we know about an app before its uninstaller runs (the install folder may be
-/// gone afterwards), used to find what it left behind.
-/// </summary>
+// info about the app taken before its uninstaller runs (the install folder may be gone after),
+// used to find the leftovers
 public sealed class AppFingerprint
 {
     public required string DisplayName { get; init; }

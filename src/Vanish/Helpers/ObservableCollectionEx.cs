@@ -2,10 +2,7 @@ using System.Collections.ObjectModel;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// An <see cref="ObservableCollection{T}"/> with a bulk <see cref="Reset"/> that
-/// replaces all items, raising a single reset notification.
-/// </summary>
+// ObservableCollection with a Reset() that swaps all items with a single notification
 public sealed class ObservableCollectionEx<T> : ObservableCollection<T>
 {
     public ObservableCollectionEx() { }

@@ -6,10 +6,8 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Hunter mode: drag the crosshair onto any window (or pick a running app) to see which
-/// program it is, then uninstall it, end it or open its folder.
-/// </summary>
+// hunter mode: drag the crosshair onto a window (or pick a running app) to see what program it is,
+// then uninstall it, end it or open its folder
 public sealed partial class HunterViewModel : PageViewModel
 {
     private readonly HunterService _hunter;
@@ -58,7 +56,7 @@ public sealed partial class HunterViewModel : PageViewModel
         }
     }
 
-    /// <summary>Called by the page while the crosshair is dragged / when it is dropped.</summary>
+    // called by the page while the crosshair is dragged / when it is dropped
     public RunningApp? Peek() => _hunter.AppUnderCursor();
 
     public void SetTarget(RunningApp? app)

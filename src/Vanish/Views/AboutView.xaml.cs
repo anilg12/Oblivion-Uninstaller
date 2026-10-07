@@ -8,7 +8,7 @@ using Vanish.ViewModels;
 
 namespace Vanish.Views;
 
-/// <summary>About Oblivion: who made it, links and what's new. Opened from the ⓘ button.</summary>
+// about dialog (i button)
 public partial class AboutView : UserControl
 {
     public AboutView()
@@ -23,7 +23,7 @@ public partial class AboutView : UserControl
     {
         if (!Reveal.AnimationsEnabled) return;
 
-        // The signature "writes" itself from left to right.
+        // signature draws itself left to right
         InkStop1.Offset = 0;
         InkStop2.Offset = 0.06;
         var ease = new CubicEase { EasingMode = EasingMode.EaseInOut };

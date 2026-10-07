@@ -4,13 +4,9 @@
     xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
     xmlns:c="clr-namespace:Vanish.Controls">
 
-    <!--
-        Oblivion "Graphite" design system.
-        Neutral surfaces, hairline borders, one indigo accent, semantic colours only where they mean something.
-        Theme-dependent tones (surfaces, text, soft tints) live in Palette.Dark / Palette.Light.
-    -->
+    <!-- Graphite styles. theme dependent colors are in Palette.Dark / Palette.Light -->
 
-    <!-- ===================== Shared colours (same in both themes) ===================== -->
+    <!-- shared colours (same in both themes) -->
     <Color x:Key="OB.AccentColor">#4F6BED</Color>
     <Color x:Key="OB.Accent2Color">#4F6BED</Color>
     <SolidColorBrush x:Key="OB.Accent" Color="#4F6BED" />
@@ -21,7 +17,7 @@
     <SolidColorBrush x:Key="OB.Info" Color="#4F6BED" />
     <SolidColorBrush x:Key="OB.White" Color="#FFFFFF" />
 
-    <!-- Kept for existing references: solid now, no gradients. -->
+    <!-- old references still use these, solid now -->
     <SolidColorBrush x:Key="OB.Brand" Color="#4F6BED" />
     <SolidColorBrush x:Key="OB.BrandH" Color="#4F6BED" />
     <SolidColorBrush x:Key="OB.DangerGradient" Color="#E5484D" />
@@ -31,7 +27,7 @@
     <FontFamily x:Key="OB.DisplayFont">Segoe UI Variable Display, Segoe UI</FontFamily>
     <FontFamily x:Key="OB.ScriptFont">Segoe UI Variable Display, Segoe UI</FontFamily>
 
-    <!-- ===================== Text ===================== -->
+    <!-- text -->
     <Style x:Key="OB.Title" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource OB.DisplayFont}" />
         <Setter Property="FontSize" Value="26" />
@@ -76,7 +72,7 @@
         <Setter Property="Foreground" Value="{DynamicResource OB.Text}" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
     </Style>
-    <!-- Small upper-case group label (sidebar sections, card eyebrows). -->
+    <!-- small uppercase label (sidebar sections, card headers) -->
     <Style x:Key="OB.Eyebrow" TargetType="TextBlock">
         <Setter Property="FontSize" Value="11" />
         <Setter Property="FontWeight" Value="SemiBold" />
@@ -84,7 +80,7 @@
         <Setter Property="Margin" Value="12,18,0,6" />
     </Style>
 
-    <!-- ===================== Surfaces ===================== -->
+    <!-- surfaces -->
     <Style x:Key="OB.CardBox" TargetType="Border">
         <Setter Property="Background" Value="{DynamicResource OB.Card}" />
         <Setter Property="BorderBrush" Value="{DynamicResource OB.Stroke}" />
@@ -118,8 +114,8 @@
         <Setter Property="Margin" Value="0,16" />
     </Style>
 
-    <!-- ===================== Buttons ===================== -->
-    <!-- Flat buttons: colour change on hover, slight dim on press. No scaling, no glow. -->
+    <!-- buttons -->
+    <!-- flat buttons: color change on hover, a bit darker on press -->
     <Style x:Key="OB.BtnBase" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource OB.Font}" />
         <Setter Property="FontSize" Value="13" />
@@ -201,7 +197,7 @@
         <Setter Property="Padding" Value="0" />
     </Style>
 
-    <!-- Card-like clickable tile (tools hub, quick actions). Hover: border and surface brighten. -->
+    <!-- clickable tile (tools hub, quick actions) -->
     <Style x:Key="OB.Tile" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -235,7 +231,7 @@
         </Setter>
     </Style>
 
-    <!-- Compact square button (sidebar footer). Active state comes from c:Nav.IsActive. -->
+    <!-- small square button (sidebar footer), active state from c:Nav.IsActive -->
     <Style x:Key="OB.RailBtn" TargetType="Button">
         <Setter Property="Width" Value="34" />
         <Setter Property="Height" Value="34" />
@@ -266,7 +262,7 @@
         </Setter>
     </Style>
 
-    <!-- Sidebar navigation row -->
+    <!-- sidebar nav row -->
     <Style x:Key="OB.NavRow" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -298,7 +294,7 @@
         </Setter>
     </Style>
 
-    <!-- Rotating chevron toggle (expanders) -->
+    <!-- chevron toggle (expanders) -->
     <Style x:Key="OB.ChevronToggle" TargetType="ToggleButton">
         <Setter Property="Width" Value="28" />
         <Setter Property="Height" Value="28" />
@@ -346,7 +342,7 @@
         </Setter>
     </Style>
 
-    <!-- Segmented choice (RadioButton): the selected segment is a raised surface, like a native segmented control. -->
+    <!-- segmented control (RadioButton) -->
     <Style x:Key="OB.Segment" TargetType="RadioButton">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -383,7 +379,7 @@
         <Setter Property="HorizontalAlignment" Value="Left" />
     </Style>
 
-    <!-- Selectable list rows (application lists) -->
+    <!-- list rows (app lists) -->
     <Style x:Key="OB.ListItem" TargetType="ListBoxItem">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -441,7 +437,7 @@
         </Setter>
     </Style>
 
-    <!-- Plain header button for sortable list columns -->
+    <!-- sortable column header button -->
     <Style x:Key="OB.ColumnHeader" TargetType="Button">
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -467,7 +463,7 @@
         </Setter>
     </Style>
 
-    <!-- Icon text -->
+    <!-- icon text -->
     <Style x:Key="OB.Icon" TargetType="ui:SymbolIcon">
         <Setter Property="FontSize" Value="16" />
         <Setter Property="Foreground" Value="{DynamicResource OB.Subtext}" />

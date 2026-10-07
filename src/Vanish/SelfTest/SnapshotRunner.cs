@@ -16,15 +16,11 @@ using Vanish.Views;
 
 namespace Vanish.SelfTest;
 
-/// <summary>
-/// CI self-test, only active when OBLIVION_SNAPSHOT_DIR is set.
-/// <list type="bullet">
-/// <item><c>OBLIVION_SELFTEST_MODE=perf</c>: measures start-up and page-switch times, then exits.</item>
-/// <item>default (<c>full</c>): screenshots of every page (dark/light, TR/EN), the About dialog,
-/// the junk cleaner with a category opened, and a leftover-scan safety check on a fixture app.</item>
-/// </list>
-/// Everything is written to report.json in that folder.
-/// </summary>
+// CI self-test, only when OBLIVION_SNAPSHOT_DIR is set.
+//   OBLIVION_SELFTEST_MODE=perf: startup + page switch times, then exit
+//   default (full): screenshots of every page (dark/light, TR/EN), the about dialog, the junk
+//   cleaner with a category open, and a leftover scan safety check on a fixture app
+// everything goes to report.json in that folder
 public static class SnapshotRunner
 {
     private static readonly string[] Pages =
@@ -35,7 +31,7 @@ public static class SnapshotRunner
 
     private static readonly BindingErrorListener BindingErrors = new();
 
-    /// <summary>Called before the main window is created so binding errors of the first page are caught too.</summary>
+    // called before the main window is created so binding errors of the first page are caught too
     public static void Prepare(string dir)
     {
         Directory.CreateDirectory(dir);
@@ -58,7 +54,7 @@ public static class SnapshotRunner
         }
     }
 
-    /// <summary>Writes a report for a crash that stopped the self-test.</summary>
+    // writes a report for a crash that stopped the self-test
     public static void WriteFailure(string dir, Exception ex)
     {
         try
@@ -115,11 +111,11 @@ public static class SnapshotRunner
         }
     }
 
-    // ----------------------------------------------------------------- perf
+    // perf
 
     private static async Task PerfAsync(MainWindow window, Dictionary<string, object?> report)
     {
-        // Let the dashboard finish its background loads first.
+        // let the dashboard finish its background loads first
         await Task.Delay(2500);
         var nav = new Dictionary<string, long>();
         foreach (var tag in Pages)
@@ -134,7 +130,7 @@ public static class SnapshotRunner
         report["navigationMs"] = nav;
         report["navigationMaxMs"] = nav.Values.Max();
 
-        // Frames rendered while switching pages (animation smoothness).
+        // frames rendered while switching pages (animation smoothness)
         int frames = 0;
         void OnFrame(object? s, EventArgs e) => frames++;
         CompositionTarget.Rendering += OnFrame;
@@ -150,7 +146,7 @@ public static class SnapshotRunner
         report["workingSetMb"] = Environment.WorkingSet / 1024 / 1024;
     }
 
-    // ----------------------------------------------------------------- full
+    // full
 
     private static async Task FullAsync(MainWindow window, string dir, Dictionary<string, object?> report, List<string> errors)
     {
@@ -158,7 +154,7 @@ public static class SnapshotRunner
         var main = Ioc.Resolve<MainWindowViewModel>();
         Reveal.AnimationsEnabled = false;
 
-        // Make sure the slower lists are loaded before the screenshots.
+        // make sure the slower lists are loaded before the screenshots
         await Ioc.Resolve<UninstallerViewModel>().EnsureLoadedAsync(false);
         try { await Ioc.Resolve<WindowsAppsViewModel>().EnsureLoadedAsync(false); } catch (Exception ex) { errors.Add("store: " + ex.Message); }
 
@@ -185,7 +181,7 @@ public static class SnapshotRunner
             }
         }
 
-        // The junk cleaner with its first non-empty category opened (nothing ticked).
+        // the junk cleaner with its first non-empty category opened (nothing ticked)
         settings.Theme = "dark";
         Loc.I.Language = "tr";
         settings.Language = "tr";
@@ -205,7 +201,7 @@ public static class SnapshotRunner
             cat.IsExpanded = false;
         }
 
-        // About dialog.
+        // about dialog
         window.NavigateTo("Dashboard");
         await Idle();
         _ = main.ShowAboutCommand.ExecuteAsync(null);
@@ -215,7 +211,7 @@ public static class SnapshotRunner
         Ioc.Resolve<DialogService>().Close(false);
         await Task.Delay(300);
 
-        // Leftover safety check on the CI fixture (if the workflow installed one).
+        // leftover safety check on the CI fixture (if the workflow installed one)
         await LeftoverCheckAsync(window, dir, report, errors, shots);
 
         report["screenshots"] = shots;
@@ -250,7 +246,7 @@ public static class SnapshotRunner
             if (f.Kind == LeftoverKind.RegistryKey && LeftoverScanService.IsProtectedRegistryPath(f.Path)) errors.Add($"Protected key offered: {f.Path}");
         }
 
-        // Screenshot of the review screen with these results (nothing is deleted).
+        // screenshot of the review screen with these results (nothing is deleted)
         window.NavigateTo("Uninstaller");
         apps.ShowReviewForSelfTest(program, found);
         await Idle();
@@ -259,15 +255,13 @@ public static class SnapshotRunner
         apps.BackToListCommand.Execute(null);
     }
 
-    // ----------------------------------------------------------------- helpers
+    // helpers
 
     private static Task Idle() =>
         Application.Current.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle).Task;
 
-    /// <summary>
-    /// WPF-UI draws a symbol as a single UTF-16 char, so icons whose code point is above U+FFFF
-    /// come out as a stray accent ("˘"). Reports every such icon on screen.
-    /// </summary>
+    // WPF-UI draws a symbol as one UTF-16 char, so icons above U+FFFF show up as a stray
+    // accent ("˘"). report all of those that are on screen
     private static void CheckSymbols(DependencyObject root, string page, List<string> errors)
     {
         var stack = new Stack<DependencyObject>();

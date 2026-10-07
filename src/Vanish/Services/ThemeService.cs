@@ -5,7 +5,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Services;
 
-/// <summary>Applies the Oblivion palette (dark / light / follow Windows) plus WPF-UI's theme.</summary>
+// applies the Oblivion palette (dark / light / follow Windows) plus WPF-UI's theme
 public sealed class ThemeService
 {
     private const string PaletteMarker = "/Themes/Palette.";

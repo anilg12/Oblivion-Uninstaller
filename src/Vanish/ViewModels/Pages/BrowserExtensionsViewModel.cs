@@ -9,7 +9,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>Browser filter chip ("All", "Google Chrome", …).</summary>
+// browser filter chip ("All", "Google Chrome", ...)
 public sealed partial class BrowserChoice : ObservableObject
 {
     public required string Key { get; init; }
@@ -18,7 +18,7 @@ public sealed partial class BrowserChoice : ObservableObject
     public string? Icon { get; init; }
 }
 
-/// <summary>Extensions of every installed browser. Nothing is selected by default; removal asks first.</summary>
+// extensions of every installed browser. nothing is selected by default, removal asks first
 public sealed partial class BrowserExtensionsViewModel : PageViewModel
 {
     private readonly BrowserExtensionsService _service;

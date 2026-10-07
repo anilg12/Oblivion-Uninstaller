@@ -3,10 +3,10 @@ using System.Text;
 
 namespace Vanish.Helpers;
 
-/// <summary>Win32 APIs used by the system monitor, Hunter mode and the cleaners.</summary>
+// Win32 APIs used by the system monitor, Hunter mode and the cleaners
 internal static class Native
 {
-    // ---- CPU / memory / power -------------------------------------------------
+    // cpu / memory / power
 
     [StructLayout(LayoutKind.Sequential)]
     public struct FILETIME
@@ -66,7 +66,7 @@ internal static class Native
     public static extern uint CallNtPowerInformation(int informationLevel, IntPtr inputBuffer, uint inputBufferSize,
         [Out] PROCESSOR_POWER_INFORMATION[] outputBuffer, uint outputBufferSize);
 
-    // ---- processes -----------------------------------------------------------
+    // processes
 
     public const uint PROCESS_QUERY_LIMITED_INFORMATION = 0x1000;
 
@@ -79,7 +79,7 @@ internal static class Native
     [DllImport("kernel32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
     public static extern bool QueryFullProcessImageName(IntPtr process, int flags, StringBuilder exeName, ref int size);
 
-    /// <summary>Full image path of a process, or null (fast; no module enumeration).</summary>
+    // full image path of a process, or null (fast, no module enumeration)
     public static string? ProcessPath(int pid)
     {
         var h = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, pid);
@@ -120,7 +120,7 @@ internal static class Native
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
     public static extern bool Process32Next(IntPtr snapshot, ref PROCESSENTRY32 entry);
 
-    /// <summary>(pid, parent pid, exe name) for every running process.</summary>
+    // (pid, parent pid, exe name) for every running process
     public static List<(int Pid, int ParentPid, string Exe)> ProcessTree()
     {
         var list = new List<(int, int, string)>();
@@ -137,7 +137,7 @@ internal static class Native
         return list;
     }
 
-    // ---- windows (Hunter) ----------------------------------------------------
+    // windows (hunter)
 
     [StructLayout(LayoutKind.Sequential)]
     public struct POINT { public int X; public int Y; }
@@ -159,9 +159,9 @@ internal static class Native
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     public static extern int GetWindowText(IntPtr hwnd, StringBuilder text, int max);
 
-    // ---- recycle bin / dns ---------------------------------------------------
+    // recycle bin / dns
 
-    // 64-bit build: default (8-byte) packing, matching shellapi.h on Win64.
+    // x64: default 8 byte packing, same as shellapi.h
     [StructLayout(LayoutKind.Sequential)]
     public struct SHQUERYRBINFO
     {
@@ -181,16 +181,16 @@ internal static class Native
     [DllImport("dnsapi.dll", EntryPoint = "DnsFlushResolverCache")]
     public static extern uint DnsFlushResolverCache();
 
-    // ---- shell refresh (after clearing recent files) --------------------------
+    // shell refresh (after clearing recent files)
 
     [DllImport("shell32.dll")]
     public static extern void SHChangeNotify(int eventId, uint flags, IntPtr item1, IntPtr item2);
 
     public const int SHCNE_ASSOCCHANGED = 0x08000000;
 
-    // ---- drag & drop from Explorer into an elevated window ---------------------
-    // Explorer runs without admin rights, so Windows blocks normal (OLE) drag & drop
-    // into Oblivion. Classic WM_DROPFILES works once those messages are allowed through.
+    // drag & drop from explorer into an elevated window.
+    // explorer isn't elevated so windows blocks OLE drag & drop into us,
+    // old school WM_DROPFILES works once those messages are allowed
 
     public const int WM_DROPFILES = 0x0233;
     private const uint MSGFLT_ALLOW = 1;

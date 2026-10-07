@@ -15,7 +15,7 @@ public partial class UninstallerPage : UserControl
         DataContext = viewModel;
         InitializeComponent();
 
-        // Ctrl+F jumps to the search box; Delete starts the uninstall.
+        // ctrl+f -> search box, delete -> uninstall
         PreviewKeyDown += (_, e) =>
         {
             if (!_vm.IsBrowsing) return;

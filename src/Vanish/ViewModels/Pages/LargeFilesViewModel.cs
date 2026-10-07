@@ -8,10 +8,10 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>A place to search for large files (user folder, a drive or a custom folder).</summary>
+// a place to search for large files (user folder, a drive or a custom folder)
 public sealed record ScanRoot(string Path, string Title, string Detail);
 
-/// <summary>Finds the biggest files in the user's own folders. Nothing is selected; removal goes to the Recycle Bin.</summary>
+// finds the biggest files in the user's own folders. nothing is selected, removal goes to the Recycle Bin
 public sealed partial class LargeFilesViewModel : PageViewModel
 {
     private readonly LargeFilesService _service;

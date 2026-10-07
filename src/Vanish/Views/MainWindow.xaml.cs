@@ -54,13 +54,13 @@ public partial class MainWindow : FluentWindow
         };
     }
 
-    /// <summary>Tag of the page currently shown.</summary>
+    // tag of the page currently shown
     public string CurrentTag { get; private set; } = "";
 
-    /// <summary>Milliseconds from process start to the first composed frame (self-test).</summary>
+    // milliseconds from process start to the first composed frame (self-test)
     public static long FirstRenderMs { get; private set; }
 
-    // ContentRendered is not raised for this window, so the first composition frame is used instead.
+    // ContentRendered doesn't fire for this window, use the first composition frame instead
     private static void OnFirstFrame(object? sender, EventArgs e)
     {
         CompositionTarget.Rendering -= OnFirstFrame;
@@ -87,7 +87,7 @@ public partial class MainWindow : FluentWindow
         catch { /* drag & drop is a convenience only */ }
     }
 
-    /// <summary>Files dropped from Explorer go to the shredder queue (only while that page is open).</summary>
+    // files dropped from Explorer go to the shredder queue (only while that page is open)
     private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
     {
         if (msg != Native.WM_DROPFILES) return IntPtr.Zero;
@@ -97,7 +97,7 @@ public partial class MainWindow : FluentWindow
         return IntPtr.Zero;
     }
 
-    /// <summary>The live panel is shown on wide windows only, and sampling stops while it is hidden or minimized.</summary>
+    // live panel only on wide windows, sampling stops when it's hidden or minimized
     private void UpdateRightPanel()
     {
         bool show = _settings.Current.ShowLivePanel && ActualWidth >= RightPanelMinWindowWidth;
@@ -136,7 +136,7 @@ public partial class MainWindow : FluentWindow
         _ => null
     };
 
-    /// <summary>Which rail icon / sidebar row lights up for a page (tool pages belong to Tools).</summary>
+    // which sidebar item to highlight (tool pages -> Tools)
     private static string RailGroup(string tag) => tag switch
     {
         "Monitored" or "Hunter" => "Uninstaller",

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Builds Oblivion.app for macOS and packages three drag-to-install DMGs:
-#   Oblivion-<version>-macOS-AppleSilicon.dmg   (arm64 only — M1 and newer)
+# builds Oblivion.app and 3 dmgs:
+#   Oblivion-<version>-macOS-AppleSilicon.dmg   (arm64 only, M1+)
 #   Oblivion-<version>-macOS-Intel.dmg          (x86_64 only)
-#   Oblivion-<version>-macOS-Universal.dmg      (both, runs everywhere)
-# Run on macOS with Xcode / Command Line Tools:
+#   Oblivion-<version>-macOS-Universal.dmg      (both)
+# needs xcode or the command line tools:
 #     cd macos && ./build-mac.sh
 set -euo pipefail
 cd "$(dirname "$0")"
@@ -39,9 +39,9 @@ done
 iconutil -c icns "$ICONSET" -o "$OUT/AppIcon.icns"
 
 # make_app <destination .app> <executable>
-# Signing: with a Developer ID (env DEVELOPER_ID, e.g. "Developer ID Application: Anil Gul (TEAMID)")
-# the app is signed with the hardened runtime and later notarized, so it opens with no
-# Gatekeeper warning. Without it, an ad-hoc signature is used (needed to run on Apple Silicon).
+# with DEVELOPER_ID set (e.g. "Developer ID Application: Anil Gul (TEAMID)") it signs with the
+# hardened runtime and gets notarized later, so no gatekeeper warning. otherwise ad-hoc
+# (apple silicon needs at least that to run anything)
 make_app() {
   local app="$1" exe="$2"
   mkdir -p "$app/Contents/MacOS" "$app/Contents/Resources"
@@ -69,8 +69,7 @@ make_dmg() {
   hdiutil create -volname "$APP_NAME" -srcfolder "$root" -ov -format UDZO "$OUT/$name"
   rm -rf "$root"
 
-  # Notarization (only when Apple credentials are provided): Apple scans the DMG and
-  # the ticket is stapled to it, so it opens directly even offline.
+  # notarize (only if the apple credentials are set), the ticket is stapled so it opens offline too
   if [ -n "${DEVELOPER_ID:-}" ] && [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ] && [ -n "${APPLE_APP_PASSWORD:-}" ]; then
     echo "==> Sign + notarize $name"
     codesign --force --timestamp --sign "$DEVELOPER_ID" "$OUT/$name"

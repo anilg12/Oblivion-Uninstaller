@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-/// A .app bundle installed in /Applications or ~/Applications.
+// an .app in /Applications or ~/Applications
 struct InstalledApp: Identifiable, Hashable {
     enum Arch: String {
         case universal, appleSilicon, intel, unknown
@@ -19,7 +19,7 @@ struct InstalledApp: Identifiable, Hashable {
     var lastUsed: Date? = nil
     var sizeBytes: Int64 = -1
 
-    // Sort keys used by the table columns (all non-optional & Comparable).
+    // sort keys for the table columns (non-optional, Comparable)
     var sizeSort: Int64 { sizeBytes }
     var installSort: Date { installDate ?? .distantPast }
     var lastUsedSort: Date { lastUsed ?? .distantPast }
@@ -27,7 +27,7 @@ struct InstalledApp: Identifiable, Hashable {
     var sourceSort: String { isAppStore ? "0" : "1" }
 }
 
-/// A remnant left behind by an app (file, folder, preference, launch item, receipt…).
+// something an app left behind (file, folder, plist, launch item, receipt...)
 struct Leftover: Identifiable, Hashable {
     enum Kind: String {
         case folder, file, preferences, container, launchItem, receipt
@@ -59,13 +59,13 @@ struct LaunchItem: Identifiable, Hashable {
     let scope: Scope
     let runAtLoad: Bool
     let disabled: Bool
-    /// Not disabled in its plist nor with `launchctl disable` (user agents can be switched).
+    // not disabled in its plist or with launchctl disable (user agents can be toggled)
     var enabled: Bool = true
 
     var canToggle: Bool { scope == .userAgent }
 }
 
-/// One removable file or folder inside a junk category. Never pre-selected.
+// one file/folder in a junk category, never pre-selected
 struct JunkItem: Identifiable, Hashable {
     var id: String { url.path }
     let url: URL
@@ -75,8 +75,8 @@ struct JunkItem: Identifiable, Hashable {
     var selected = false
 }
 
-/// A junk category. Nothing is selected for the user: the category expands to show
-/// exactly which files and folders would go, and only ticked items are removed.
+// junk category. nothing selected by default, it expands to show exactly what
+// would be deleted and only ticked items are removed
 struct JunkCategory: Identifiable, Hashable {
     enum Mode: Hashable {
         case contents, installers, trash
@@ -96,14 +96,14 @@ struct JunkCategory: Identifiable, Hashable {
     var scanned = false
     var scanning = false
     var expanded = false
-    /// Contents could not be listed (e.g. the Trash without Full Disk Access).
+    // couldn't list the contents (e.g. the Trash without full disk access)
     var unreadable = false
 
     var selectedItems: [JunkItem] { items.filter(\.selected) }
     var selectedSize: Int64 { selectedItems.reduce(Int64(0)) { $0 + $1.size } }
     var selectedCount: Int { selectedItems.count }
 
-    /// true = all, false = none, nil = some.
+    // true = all, false = none, nil = some
     var selectionState: Bool? {
         let n = selectedCount
         if n == 0 { return false }
@@ -119,7 +119,7 @@ struct JunkCategory: Identifiable, Hashable {
     }
 }
 
-/// Outcome of a junk clean (unique per run, so its effects replay every time).
+// result of a clean, unique per run so the effect plays every time
 struct JunkResult: Hashable {
     let id = UUID()
     let count: Int

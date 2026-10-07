@@ -6,10 +6,8 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels;
 
-/// <summary>
-/// Live CPU / RAM / temperature / disk / network figures for the right-hand panel.
-/// Sampling only runs while the panel is visible and the window is not minimized.
-/// </summary>
+// cpu/ram/temp/disk/net numbers for the right panel. only samples while the panel is visible
+// and the window isn't minimized
 public sealed partial class LiveStatsViewModel : ObservableObject
 {
     private readonly SystemMonitorService _monitor;

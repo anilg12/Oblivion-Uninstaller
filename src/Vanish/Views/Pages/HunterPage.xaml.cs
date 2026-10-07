@@ -8,7 +8,7 @@ using Vanish.ViewModels.Pages;
 
 namespace Vanish.Views.Pages;
 
-/// <summary>Crosshair: press on the target, drag over any window, release to pick its program.</summary>
+// crosshair: press on the target, drag over any window, release to pick its program
 public partial class HunterPage : UserControl
 {
     private readonly HunterViewModel _vm;

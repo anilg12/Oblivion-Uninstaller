@@ -6,21 +6,18 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.Models;
 
-/// <summary>How a junk category gets cleaned.</summary>
+// how a junk category gets cleaned
 public enum JunkMode
 {
-    /// <summary>Regenerable data (temp files, caches): deleted permanently, locked files skipped.</summary>
+    // regenerable data (temp files, caches): deleted permanently, locked files skipped
     Delete,
-    /// <summary>Personal files (old installers in Downloads): moved to the Recycle Bin.</summary>
+    // personal files (old installers in Downloads): moved to the Recycle Bin
     Recycle,
-    /// <summary>The Recycle Bin itself: emptied.</summary>
+    // the Recycle Bin itself: emptied
     EmptyRecycleBin
 }
 
-/// <summary>
-/// A category of removable junk. Nothing is selected by default; the user expands a
-/// category to see exactly which files/folders will be removed and ticks them.
-/// </summary>
+// junk category. nothing selected by default, expand it to see exactly what gets removed and tick it
 public sealed partial class JunkCategory : ObservableObject
 {
     public required string Id { get; init; }
@@ -57,7 +54,7 @@ public sealed partial class JunkCategory : ObservableObject
         : (IsScanning ? Loc.I["Junk_Scanning"] : "");
     public string SelectedText => SelectedCount == 0 ? "" : string.Format(Loc.I["Junk_SelectedFmt"], ByteSize.Humanize(SelectedBytes));
 
-    /// <summary>Tri-state: true = all, false = none, null = some.</summary>
+    // tri-state: true = all, false = none, null = some
     public bool? SelectionState
     {
         get
@@ -124,18 +121,18 @@ public sealed partial class JunkCategory : ObservableObject
     }
 }
 
-/// <summary>One removable file/folder (or a group of many small ones) inside a category.</summary>
+// one removable file/folder (or a group of many small ones) inside a category
 public sealed partial class JunkEntry : ObservableObject
 {
     public required string Name { get; init; }
     public required string Location { get; init; }
 
-    /// <summary>Paths removed when this entry is cleaned (one, or many for a group).</summary>
+    // paths removed when this entry is cleaned (one, or many for a group)
     public required IReadOnlyList<string> Paths { get; init; }
 
     public long SizeBytes { get; init; }
 
-    /// <summary>Number of files this entry stands for (shown in totals).</summary>
+    // number of files this entry stands for (shown in totals)
     public int Count { get; init; } = 1;
 
     public DateTime? Modified { get; init; }

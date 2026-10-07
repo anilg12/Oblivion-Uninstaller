@@ -188,7 +188,7 @@ struct SourceBadge: View {
     }
 }
 
-/// Revo's "Description panel" for the selected app.
+// like revo's description panel, for the selected app
 struct DescriptionPanel: View {
     let app: InstalledApp?
     @EnvironmentObject private var loc: Loc

@@ -3,10 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// Sends files/folders to the Recycle Bin using the shell file operation API,
-/// so deletions are recoverable.
-/// </summary>
+// send files/folders to the recycle bin (shell file operation) so it can be undone
 public static class RecycleBin
 {
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -31,13 +28,13 @@ public static class RecycleBin
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern int SHFileOperation(ref SHFILEOPSTRUCT lpFileOp);
 
-    /// <summary>Moves a single path to the Recycle Bin. Throws on failure.</summary>
+    // moves a single path to the Recycle Bin. throws on failure
     public static void Delete(string path)
     {
         var op = new SHFILEOPSTRUCT
         {
             wFunc = FO_DELETE,
-            // pFrom must be double-null terminated.
+            // pFrom must be double-null terminated
             pFrom = path + '\0' + '\0',
             fFlags = FOF_ALLOWUNDO | FOF_NOCONFIRMATION | FOF_SILENT | FOF_NOERRORUI
         };

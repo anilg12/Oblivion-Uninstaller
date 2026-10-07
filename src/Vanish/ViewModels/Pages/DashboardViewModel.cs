@@ -8,7 +8,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>One suggestion on the dashboard ("Drive C: is almost full" + a button).</summary>
+// one suggestion on the dashboard ("Drive C: is almost full" + a button)
 public sealed class HealthTip
 {
     public required string Text { get; init; }
@@ -47,7 +47,7 @@ public sealed partial class DashboardViewModel : PageViewModel
         _ => T("Dash_GreetEvening")
     };
 
-    // ---- stats -----------------------------------------------------------------
+    // stats
 
     [ObservableProperty] private double _programCount = double.NaN;
     [ObservableProperty] private string _programSizeText = "";
@@ -57,7 +57,7 @@ public sealed partial class DashboardViewModel : PageViewModel
     [ObservableProperty] private double _extensionCount = double.NaN;
     [ObservableProperty] private string _extensionDetail = "";
 
-    // ---- health ----------------------------------------------------------------
+    // health
 
     [ObservableProperty] private double _healthScore = double.NaN;
     [ObservableProperty] private double _healthFraction;
@@ -107,7 +107,7 @@ public sealed partial class DashboardViewModel : PageViewModel
         UpdateStats();
         UpdateHealth();
 
-        // The Store app list comes from PowerShell; give the UI a moment first.
+        // the store app list comes from powershell, let the ui settle first
         await Task.Delay(force ? 0 : 1500);
         try { await _storeApps.EnsureLoadedAsync(force); } catch { /* ignore */ }
         UpdateStats();
@@ -133,7 +133,7 @@ public sealed partial class DashboardViewModel : PageViewModel
         }
     }
 
-    /// <summary>Simple, explainable score: points off for a full system drive, high memory use, heat and many startup apps.</summary>
+    // simple score: minus points for a full system drive, high memory use, heat and too many startup apps
     private void UpdateHealth()
     {
         var s = _lastSnapshot;

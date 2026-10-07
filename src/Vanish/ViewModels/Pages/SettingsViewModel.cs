@@ -25,7 +25,7 @@ public sealed partial class SettingsViewModel : PageViewModel
 
     public string VersionText => "v" + AppInfo.Version;
 
-    /// <summary>Entrance animations are off when the user asks for it or there is no GPU acceleration.</summary>
+    // entrance animations are off when the user asks for it or there is no GPU acceleration
     public static void ApplyAnimationSetting(AppSettings s) =>
         Reveal.AnimationsEnabled = !s.ReduceAnimations && (RenderCapability.Tier >> 16) > 0;
 

@@ -5,7 +5,7 @@ using System.Windows.Media;
 
 namespace Vanish.Helpers.Converters;
 
-/// <summary>true -> Visible. ConverterParameter "invert" flips it.</summary>
+// true -> Visible. ConverterParameter "invert" flips it
 public sealed class BoolToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -28,7 +28,7 @@ public sealed class InverseBoolConverter : IValueConverter
         => value is not true;
 }
 
-/// <summary>Non-null (and non-empty string) -> Visible. ConverterParameter "invert" flips it.</summary>
+// non-null (and non-empty string) -> Visible. ConverterParameter "invert" flips it
 public sealed class NullToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -43,7 +43,7 @@ public sealed class NullToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>Shows an element only when a count is zero (e.g. an "empty" message). "invert" = when non-zero.</summary>
+// shows an element only when a count is zero (e.g. an "empty" message). "invert" = when non-zero
 public sealed class ZeroCountToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -57,7 +57,7 @@ public sealed class ZeroCountToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>"tr"/"en" -> "TR"/"EN" for the language toggle button.</summary>
+// "tr"/"en" -> "TR"/"EN" for the language toggle button
 public sealed class LangCodeUpperConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -67,7 +67,7 @@ public sealed class LangCodeUpperConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>Colour -> frozen SolidColorBrush (optionally with a hex alpha given as the parameter, e.g. "40").</summary>
+// colour -> frozen SolidColorBrush (optionally with a hex alpha given as the parameter, e.g. "40")
 public sealed class ColorToBrushConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -84,7 +84,7 @@ public sealed class ColorToBrushConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>Equality with the ConverterParameter (segmented RadioButtons bound to a string or enum).</summary>
+// equality with the ConverterParameter (segmented RadioButtons bound to a string or enum)
 public sealed class EqualsConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -98,7 +98,7 @@ public sealed class EqualsConverter : IValueConverter
     }
 }
 
-/// <summary>Number greater than zero -> Visible ("invert" flips it).</summary>
+// number greater than zero -> Visible ("invert" flips it)
 public sealed class PositiveToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -118,7 +118,7 @@ public sealed class PositiveToVisibilityConverter : IValueConverter
         => throw new NotSupportedException();
 }
 
-/// <summary>Visible when the value equals the ConverterParameter.</summary>
+// visible when the value equals the ConverterParameter
 public sealed class EqualsToVisibilityConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)

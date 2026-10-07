@@ -11,7 +11,7 @@ enum AppInfo {
     static let releases = URL(string: "https://github.com/anilg12/Oblivion-Uninstaller/releases")!
 }
 
-/// About Oblivion: who made it, links and what's new. Opened from the ⓘ button or the app menu.
+// about sheet (i button or the app menu)
 struct AboutView: View {
     @EnvironmentObject private var loc: Loc
     @EnvironmentObject private var prefs: Prefs

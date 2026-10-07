@@ -9,11 +9,8 @@ namespace Vanish.Services;
 [JsonSerializable(typeof(LogEntry))]
 internal sealed partial class LogJsonContext : JsonSerializerContext { }
 
-/// <summary>
-/// The activity log ("Logs database"): one JSON object per line in
-/// %LOCALAPPDATA%\Oblivion\activity.log. The file is read once (in the background)
-/// and kept in memory, so navigating never re-parses it on the UI thread.
-/// </summary>
+// activity log ("Logs database"), one json object per line in %LOCALAPPDATA%\Oblivion\activity.log.
+// read once in the background and kept in memory so navigating never parses it on the ui thread
 public sealed class OperationLogService
 {
     private static readonly string LogFile = Path.Combine(SettingsService.DataDir, "activity.log");
@@ -23,10 +20,10 @@ public sealed class OperationLogService
     private List<LogEntry>? _entries; // newest first
     private Task? _loading;
 
-    /// <summary>Raised (on any thread) after an entry is appended or the log is cleared.</summary>
+    // raised (on any thread) after an entry is appended or the log is cleared
     public event Action? Changed;
 
-    /// <summary>Starts reading the log file in the background (call once at startup).</summary>
+    // starts reading the log file in the background (call once at startup)
     public Task WarmUpAsync() => _loading ??= Task.Run(EnsureLoaded);
 
     public void Append(string actionKey, string detail)

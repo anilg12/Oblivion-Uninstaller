@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
-# Oblivion — one-line installer for macOS.
+# Oblivion one-line installer for macOS
 #   curl -fsSL https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/macos/install-mac.sh | bash
 #
-# Picks the build for this Mac (Apple Silicon or Intel) from the latest GitHub release,
-# copies Oblivion.app to /Applications and opens it. Files fetched with curl are not
-# tagged as "downloaded from the internet", so macOS opens the app without the
-# "Apple could not verify…" prompt.
+# picks the right build (apple silicon / intel) from the latest release, copies it to
+# /Applications and opens it. curl doesn't set the quarantine flag so there's no
+# "Apple could not verify..." prompt
 set -euo pipefail
 
 REPO="anilg12/Oblivion-Uninstaller"
@@ -14,7 +13,7 @@ TMP="$(mktemp -d)"
 MNT="$TMP/mnt"
 trap 'hdiutil detach -quiet "$MNT" >/dev/null 2>&1 || true; rm -rf "$TMP"' EXIT
 
-# hw.optional.arm64 is 1 on Apple Silicon even when this shell runs under Rosetta.
+# hw.optional.arm64 is 1 on apple silicon even when running under rosetta
 if [ "$(sysctl -n hw.optional.arm64 2>/dev/null || echo 0)" = "1" ]; then
   ARCH="AppleSilicon"
 else

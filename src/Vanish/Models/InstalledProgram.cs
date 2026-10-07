@@ -2,16 +2,13 @@
 
 namespace Vanish.Models;
 
-/// <summary>
-/// A classic (MSI / EXE) application discovered through the Windows
-/// "Uninstall" registry hives.
-/// </summary>
+// classic (MSI/EXE) app from the Uninstall registry keys
 public sealed class InstalledProgram
 {
-    /// <summary>The registry sub-key name (often a product GUID or short id).</summary>
+    // the registry sub-key name (often a product GUID or short id)
     public required string RegistryKeyName { get; init; }
 
-    /// <summary>Which hive/view the entry was found in (used to re-open it).</summary>
+    // which hive/view the entry was found in (used to re-open it)
     public required RegistryRoot Root { get; init; }
 
     public required string DisplayName { get; init; }
@@ -21,21 +18,21 @@ public sealed class InstalledProgram
     public string? UninstallString { get; init; }
     public string? QuietUninstallString { get; init; }
 
-    /// <summary>Raw DisplayIcon value (may be "path,index").</summary>
+    // raw DisplayIcon value (may be "path,index")
     public string? DisplayIcon { get; init; }
 
-    /// <summary>Best icon source for the list ("path,index", .exe or .ico), resolved in the background.</summary>
+    // best icon source for the list ("path,index", .exe or .ico), resolved in the background
     public string? IconPath { get; init; }
 
-    /// <summary>Estimated install size in bytes (EstimatedSize * 1024).</summary>
+    // estimated install size in bytes (EstimatedSize * 1024)
     public long EstimatedSizeBytes { get; init; }
 
     public DateOnly? InstallDate { get; init; }
 
-    /// <summary>True when the entry is an MSI product (UninstallString uses msiexec).</summary>
+    // true when the entry is an MSI product (UninstallString uses msiexec)
     public bool IsMsi { get; init; }
 
-    /// <summary>The Windows Installer product code (GUID) when <see cref="IsMsi"/>.</summary>
+    // the Windows Installer product code (GUID) when IsMsi
     public string? ProductCode { get; init; }
 
     public string? UrlInfoAbout { get; init; }
@@ -50,7 +47,7 @@ public sealed class InstalledProgram
 
     public string VersionText => string.IsNullOrWhiteSpace(DisplayVersion) ? "—" : DisplayVersion!;
 
-    /// <summary>One or two letters shown while (or instead of) the icon loading.</summary>
+    // one or two letters shown while (or instead of) the icon loading
     public string Initials
     {
         get
@@ -64,7 +61,7 @@ public sealed class InstalledProgram
         }
     }
 
-    /// <summary>Architecture label derived from which hive/view the entry lives in.</summary>
+    // architecture label derived from which hive/view the entry lives in
     public string Architecture => Root switch
     {
         RegistryRoot.LocalMachine64 => "64-bit",
@@ -73,7 +70,7 @@ public sealed class InstalledProgram
         _ => ""
     };
 
-    /// <summary>Full registry path of the uninstall entry (for regedit / deletion).</summary>
+    // full registry path of the uninstall entry (for regedit / deletion)
     public string UninstallRegistryPath => Root switch
     {
         RegistryRoot.LocalMachine64 =>
@@ -85,15 +82,15 @@ public sealed class InstalledProgram
     };
 }
 
-/// <summary>Identifies the registry hive and bitness view an entry lives in.</summary>
+// identifies the registry hive and bitness view an entry lives in
 public enum RegistryRoot
 {
-    /// <summary>HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall (64-bit view).</summary>
+    // HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall (64-bit view)
     LocalMachine64,
 
-    /// <summary>HKLM\SOFTWARE\WOW6432Node\...\Uninstall (32-bit view).</summary>
+    // HKLM\SOFTWARE\WOW6432Node\...\Uninstall (32-bit view)
     LocalMachine32,
 
-    /// <summary>HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall.</summary>
+    // HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall
     CurrentUser
 }

@@ -9,7 +9,7 @@ using Vanish.Views;
 
 namespace Vanish.ViewModels;
 
-/// <summary>Implemented by view models whose computed texts must be re-read after a language switch.</summary>
+// implemented by view models whose computed texts must be re-read after a language switch
 public interface ILocalizable
 {
     void RefreshTexts();
@@ -39,7 +39,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         _ = LoadActivityAsync();
     }
 
-    /// <summary>Shared with the All-applications page so the sidebar buttons act on its selection.</summary>
+    // shared with the All-applications page so the sidebar buttons act on its selection
     public UninstallerViewModel Uninstaller { get; }
 
     public LiveStatsViewModel Live { get; }
@@ -71,7 +71,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
         RefreshAllTexts();
     }
 
-    /// <summary>Re-reads localized texts that are computed in code (lists, chips, counts).</summary>
+    // re-reads localized texts that are computed in code (lists, chips, counts)
     public void RefreshAllTexts()
     {
         RefreshActivity();
@@ -95,7 +95,7 @@ public sealed partial class MainWindowViewModel : ObservableObject
     private void Navigate(string tag) => _navigation.Navigate(tag);
 }
 
-/// <summary>Version and links shown in the About dialog and the sidebar.</summary>
+// version and links shown in the About dialog and the sidebar
 public static class AppInfo
 {
     public static string Version =>

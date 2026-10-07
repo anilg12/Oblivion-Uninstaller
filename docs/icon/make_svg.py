@@ -4,14 +4,14 @@ def polar(cx, cy, r, deg):
     return cx + r*math.cos(a), cy + r*math.sin(a)
 
 def mark(cx, cy, R, stroke, small=False, ring="url(#ring)", dot="#8EA2FF"):
-    # Ring with a gap at the upper right (angles in SVG space: 0 = right, negative = up).
+    # ring with a gap top right (svg angles: 0 = right, negative = up)
     gap_from, gap_to = -66, -26          # the opening
     x0, y0 = polar(cx, cy, R, gap_to)     # arc starts after the gap, runs clockwise round to gap_from
     x1, y1 = polar(cx, cy, R, gap_from + 360)
     sweep = (gap_from + 360) - gap_to
     large = 1 if sweep > 180 else 0
     out = [f'<path d="M {x0:.2f} {y0:.2f} A {R} {R} 0 {large} 1 {x1:.2f} {y1:.2f}" fill="none" stroke="{ring}" stroke-width="{stroke}" stroke-linecap="round"/>']
-    # Particles leaving through the opening.
+    # particles leaving through the gap
     if small:
         dots = [(-50, R + stroke*0.05, stroke*0.42, 1.0), (-40, R + stroke*1.25, stroke*0.27, 0.8)]
     else:
@@ -49,7 +49,7 @@ def tile_svg(size, mac=False, small=False):
 </svg>'''
 
 def glyph_svg(size, color_ring, color_dot):
-    # Mark only, transparent (for in-app use on any background).
+    # just the mark, transparent background (used inside the app)
     W = 1024
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" viewBox="0 0 {W} {W}">
 {mark(W/2, W/2+20, 300, 120, ring=color_ring, dot=color_dot)}

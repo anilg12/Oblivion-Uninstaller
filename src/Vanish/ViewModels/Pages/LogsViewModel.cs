@@ -10,7 +10,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>Logs database: everything Oblivion removed or changed, newest first.</summary>
+// logs database: everything Oblivion removed or changed, newest first
 public sealed partial class LogsViewModel : PageViewModel
 {
     private readonly ObservableCollectionEx<LogEntry> _items = new();

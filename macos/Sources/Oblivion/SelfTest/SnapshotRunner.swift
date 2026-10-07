@@ -1,11 +1,10 @@
 import AppKit
 import SwiftUI
 
-/// CI self-test. Only active when the OBLIVION_SNAPSHOT_DIR environment variable is set
-/// (see ci-smoke-test.sh): walks every page, saves a PNG of the window for each, checks that
-/// nothing is ever pre-selected, switches a startup item off and on, runs a normal and a
-/// forced uninstall on fixture apps, writes report.txt and quits.
-/// Lines starting with "!! " in the report are failures.
+// CI self-test, only runs when OBLIVION_SNAPSHOT_DIR is set (see ci-smoke-test.sh).
+// goes through every page and saves a png of each, checks nothing is pre-selected,
+// toggles a startup item off and on, does a normal and a forced uninstall on the fixture apps,
+// writes report.txt and quits. lines starting with "!! " are failures
 @MainActor
 enum SnapshotRunner {
     private static var started = false
@@ -13,7 +12,7 @@ enum SnapshotRunner {
     private static weak var startup: StartupModel?
     private static weak var system: SystemMonitor?
 
-    /// Models the self-test drives directly (set by the app before the first page appears).
+    // set by the app before the first page shows up
     static func register(junk: JunkModel, startup: StartupModel, system: SystemMonitor) {
         self.junk = junk
         self.startup = startup
@@ -35,7 +34,7 @@ enum SnapshotRunner {
         prefs.reduceMotion = false
         loc.lang = "tr"
         await wait(2)
-        // Roughly a 13" MacBook Air window (the CI screen itself is smaller).
+        // about a 13" macbook air window (the ci screen is smaller)
         mainWindow?.setFrame(NSRect(x: 0, y: 0, width: 1440, height: 880), display: true)
         await wait(1)
         await waitWhile(timeout: 30) { state.isLoadingApps }
@@ -57,7 +56,7 @@ enum SnapshotRunner {
             capture(dir, String(format: "%02d-", index + 1) + page.rawValue + "-dark")
         }
 
-        // Live monitor values (the sampler has been running on the pages above).
+        // live monitor values (sampler was running during the pages above)
         if let s = system?.snapshot {
             report.append(String(format: "monitor: cpu %.1f%%  memory %.1f%%  temperature %@  thermal %ld  drives %ld  battery %@",
                                  s.cpu, s.memPercent, s.temperature.map { String(format: "%.1f °C", $0) } ?? "n/a",
@@ -66,7 +65,7 @@ enum SnapshotRunner {
             if let info = system?.info { report.append("this Mac: \(info.modelName) \(info.modelID) · \(info.chip) · \(info.cores) · \(info.architecture)") }
         }
 
-        // About sheet.
+        // about sheet
         state.navigate(.dashboard)
         state.showAbout = true
         await wait(2.2)
@@ -92,7 +91,7 @@ enum SnapshotRunner {
         await junkCheck(dir: dir, state: state, loc: loc, report: &report)
         await startupCheck(state: state, report: &report)
 
-        // Normal uninstall of the fixture app.
+        // normal uninstall of the fixture app
         state.navigate(.apps)
         await wait(1)
         if let app = state.apps.first(where: { $0.bundleID == "com.oblivion.testapp" }) {
@@ -109,7 +108,7 @@ enum SnapshotRunner {
             report.append("")
             report.append("== Uninstall com.oblivion.testapp → stage \(state.stage), app removed: \(state.appRemoved)")
             listLeftovers(state, &report)
-            // What a user would do: select everything offered, confirm, delete.
+            // like a user would: select everything, confirm, delete
             state.setAllLeftovers(true)
             await wait(0.6)
             capture(dir, "flow-3b-all-selected")
@@ -142,7 +141,7 @@ enum SnapshotRunner {
             report.append("!! fixture app com.oblivion.testapp NOT found in the list")
         }
 
-        // Chrome-style app with data inside a vendor folder.
+        // chrome-like app with its data inside a vendor folder
         if let app = state.apps.first(where: { $0.bundleID == "com.acme.browser" }) {
             state.uninstall(app)
             await waitWhile(timeout: 40) { state.stage == .working }
@@ -163,7 +162,7 @@ enum SnapshotRunner {
             report.append("!! fixture app com.acme.browser NOT found in the list")
         }
 
-        // Dry run (nothing removed): what would a real browser uninstall find on this Mac?
+        // dry run, nothing removed: what would a real browser uninstall find on this mac
         for bundleID in ["com.google.Chrome", "org.mozilla.firefox", "com.microsoft.edgemac"] {
             guard let app = state.apps.first(where: { $0.bundleID == bundleID }) else { continue }
             let found = LeftoverScanner.scan(name: app.name, bundleID: app.bundleID)
@@ -173,14 +172,14 @@ enum SnapshotRunner {
                 report.append("  [\(item.confidence)] \(item.selected ? "x" : " ") \(item.path)")
             }
             if found.contains(where: \.selected) { report.append("!! dry run pre-selected items") }
-            // A whole vendor folder (Application Support/Google, …/Microsoft) must never be offered.
+            // a whole vendor folder (Application Support/Google, .../Microsoft) must never show up
             let vendors: Set<String> = ["google", "microsoft", "mozilla", "adobe", "apple"]
             for item in found where vendors.contains(URL(fileURLWithPath: item.path).lastPathComponent.lowercased()) {
                 report.append("!! vendor folder offered: \(item.path)")
             }
         }
 
-        // Force uninstall of an app that is already gone (only leftovers remain).
+        // force uninstall of an app that's already deleted (only leftovers left)
         state.forceQuery = "com.oblivion.ghost"
         state.showForceSheet = true
         await wait(1.5)
@@ -204,7 +203,7 @@ enum SnapshotRunner {
         await wait(1.5)
         capture(dir, "zz-logs-after")
 
-        // Narrowest allowed window: the live panel should step aside.
+        // narrowest window, the live panel should hide
         mainWindow?.setFrame(NSRect(x: 0, y: 0, width: 1180, height: 740), display: true)
         state.navigate(.dashboard)
         await wait(2)
@@ -225,8 +224,8 @@ enum SnapshotRunner {
         if state.leftovers.contains(where: \.selected) { report.append("!! leftovers were pre-selected") }
     }
 
-    /// The junk cleaner must list everything and tick nothing; shows a category opened and the
-    /// confirmation (cancelled — nothing is deleted on the CI machine).
+    // junk cleaner has to list everything and tick nothing. opens a category and the
+    // confirmation, then cancels (nothing gets deleted on the ci machine)
     private static func junkCheck(dir: URL, state: AppState, loc: Loc, report: inout [String]) async {
         guard let junk else {
             report.append("!! junk model not registered")
@@ -269,7 +268,7 @@ enum SnapshotRunner {
         }
     }
 
-    /// Switches the fixture's user launch agent off and back on with launchctl.
+    // fixture launch agent off and on again with launchctl
     private static func startupCheck(state: AppState, report: inout [String]) async {
         guard let startup else { return }
         state.navigate(.startup)
@@ -290,7 +289,7 @@ enum SnapshotRunner {
         await wait(2)
         let on = !LaunchItemsService.disabledLabels().contains(label)
         report.append("== Startup toggle \(label): off \(off ? "ok" : "FAILED") · back on \(on ? "ok" : "FAILED")")
-        // Not fatal: CI runners may have no usable GUI launchd domain.
+        // not fatal, ci runners might not have a usable gui launchd domain
         if !off || !on { report.append("?? startup toggle did not work on this runner") }
     }
 

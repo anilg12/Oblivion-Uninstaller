@@ -8,7 +8,7 @@ using Wpf.Ui.Controls;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>A file or folder queued for shredding.</summary>
+// a file or folder queued for shredding
 public sealed class ShredItem
 {
     public required string Path { get; init; }
@@ -19,7 +19,7 @@ public sealed class ShredItem
     public SymbolRegular Symbol => IsFolder ? SymbolRegular.Folder24 : SymbolRegular.Document24;
 }
 
-/// <summary>Unrecoverable delete: overwrite, rename, delete. Protected system locations are refused.</summary>
+// unrecoverable delete: overwrite, rename, delete. protected system locations are refused
 public sealed partial class ShredderViewModel : PageViewModel
 {
     private readonly ShredderService _service;
@@ -48,7 +48,7 @@ public sealed partial class ShredderViewModel : PageViewModel
         if (dialog.ShowDialog() == true) Add(new[] { dialog.FolderName });
     }
 
-    /// <summary>Also used for drag &amp; drop onto the page.</summary>
+    // also used for drag & drop onto the page
     public void Add(IEnumerable<string> paths)
     {
         int refused = 0;

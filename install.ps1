@@ -1,19 +1,18 @@
-# Oblivion - one-line installer for Windows 10 / 11.
+# Oblivion one-line installer for windows 10/11
 #
 #   irm https://raw.githubusercontent.com/anilg12/Oblivion-Uninstaller/main/install.ps1 | iex
 #
-# Downloads the latest Oblivion setup from GitHub Releases and runs it. Files that
-# PowerShell downloads are not marked as "downloaded from the internet", so Microsoft
-# Defender SmartScreen does not stop the setup or the installed app.
+# downloads the latest setup from github releases and runs it. files downloaded by powershell
+# don't get the mark-of-the-web, so smartscreen doesn't block the setup or the app.
 #
-# Optional environment variables (used by CI):
-#   OBLIVION_SETUP          path of a local setup to install instead of downloading
-#   OBLIVION_SILENT=1       install without the wizard
-#   OBLIVION_DOWNLOAD_ONLY  download the setup to this path and stop
-#   OBLIVION_SKIP_API=1     find the release without the GitHub API (tests the fallback)
+# env vars (used by ci):
+#   OBLIVION_SETUP          local setup path, skips the download
+#   OBLIVION_SILENT=1       silent install
+#   OBLIVION_DOWNLOAD_ONLY  only download the setup to this path
+#   OBLIVION_SKIP_API=1     don't use the github api (tests the fallback)
 
 $ErrorActionPreference = 'Stop'
-$ProgressPreference = 'SilentlyContinue'   # Invoke-WebRequest is far faster without its progress bar
+$ProgressPreference = 'SilentlyContinue'   # iwr is way faster without the progress bar
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
 $repo = 'anilg12/Oblivion-Uninstaller'
@@ -31,8 +30,7 @@ if (-not $setup) {
         $asset = $release.assets | Where-Object { $_.name -like '*-Windows-Setup.exe' } | Select-Object -First 1
         if ($asset) { $tag = $release.tag_name; $name = $asset.name; $url = $asset.browser_download_url }
     } catch {
-        # The GitHub API allows 60 anonymous requests an hour per address; fall back to the
-        # release page redirect, which has no such limit.
+        # github api = 60 anonymous requests/hour per ip, fall back to the releases/latest redirect
         $request = [Net.WebRequest]::Create("https://github.com/$repo/releases/latest")
         $request.AllowAutoRedirect = $false
         $request.UserAgent = 'Oblivion-Installer'
@@ -58,7 +56,7 @@ if (-not $setup) {
     }
 }
 
-# Belt and braces: drop any "downloaded from the internet" mark the file might carry.
+# just in case, remove the mark-of-the-web if it's there
 Unblock-File -Path $setup -ErrorAction SilentlyContinue
 
 Write-Host '    Kurulum sihirbazi aciliyor (yonetici izni istenecek) / starting setup (asks for admin rights)...'

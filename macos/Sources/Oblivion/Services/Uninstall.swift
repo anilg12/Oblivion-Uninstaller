@@ -1,14 +1,14 @@
 import AppKit
 import Foundation
 
-/// Finds what an app leaves behind in the macOS Library folders.
-///
-/// Matching mirrors how macOS apps store data:
-///   • High   — names built from the bundle identifier (com.vendor.app, com.vendor.app.plist,
-///              TEAMID.com.vendor.app, com.vendor.app.savedState …)
-///   • Medium — a folder named exactly like the app (Application Support/Spotify)
-///   • Low    — looser name matches
-/// Nothing is ever pre-selected: the user reviews the list and ticks what goes.
+// finds what an app leaves behind in the Library folders.
+//
+// matching:
+//   high   - names made from the bundle id (com.vendor.app, com.vendor.app.plist,
+//            TEAMID.com.vendor.app, com.vendor.app.savedState ...)
+//   medium - folder with exactly the app's name (Application Support/Spotify)
+//   low    - looser name matches
+// nothing is pre-selected, the user ticks what goes
 enum LeftoverScanner {
     private struct Root {
         let url: URL
@@ -54,9 +54,9 @@ enum LeftoverScanner {
         let firstWord = normalize(name.split(separator: " ").first.map(String.init) ?? name)
         let bid = bundleID?.lowercased()
 
-        // Many apps keep data one level down, inside a vendor folder:
+        // lots of apps keep data one level down in a vendor folder:
         //   Application Support/Google/Chrome, Caches/Google/Chrome, Application Support/Adobe/Photoshop 2025
-        // Vendor = first word of a multi-word name ("Google") or the bundle-id company ("com.google.Chrome").
+        // vendor = first word of a multi-word name ("Google") or the company part of the bundle id ("com.google.Chrome")
         let words = name.split(separator: " ").map(String.init)
         let restKey = words.count > 1 ? normalize(words.dropFirst().joined()) : ""
         var vendorKeys = Set<String>()
@@ -86,8 +86,8 @@ enum LeftoverScanner {
                 let compact = normalize(child)
                 var confidence: Leftover.Confidence?
 
-                // Vendor folder (Application Support/Google, …/Microsoft): only this app's own
-                // subfolders are offered — the vendor folder itself never is, it holds other apps' data.
+                // vendor folder (Application Support/Google, .../Microsoft): only offer this app's own subfolders,
+                // never the vendor folder itself since other apps keep data there too
                 if vendorKeys.contains(compact), compact != nameKey {
                     let nested = nestedMatches(in: root.url.appendingPathComponent(child),
                                                nameKey: nameKey, restKey: restKey, bid: bid)
@@ -110,7 +110,7 @@ enum LeftoverScanner {
             }
         }
 
-        // Installer receipts (pkgutil database).
+        // installer receipts (pkgutil)
         let pkgs = Shell.run("/usr/sbin/pkgutil", ["--pkgs"]).out
             .split(separator: "\n").map(String.init)
         for pkg in pkgs {
@@ -132,7 +132,7 @@ enum LeftoverScanner {
         }
     }
 
-    /// Children of a vendor folder that belong to this app.
+    // subfolders of a vendor folder that belong to this app
     private static func nestedMatches(in dir: URL, nameKey: String, restKey: String,
                                       bid: String?) -> [(URL, Leftover.Confidence)] {
         guard let kids = try? FileManager.default.contentsOfDirectory(atPath: dir.path) else { return [] }
@@ -168,7 +168,7 @@ enum LeftoverScanner {
 }
 
 enum Uninstaller {
-    /// Asks the app to quit, then force-quits it after a short grace period.
+    // normal quit first, force quit after a short wait
     static func quitApp(bundleID: String?) {
         guard let bundleID else { return }
         let running = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
@@ -192,7 +192,7 @@ enum LeftoverRemover {
         let fm = FileManager.default
         let files = items.filter { $0.kind != .receipt }
 
-        // Stop user launch agents before trashing their plists.
+        // stop user launch agents before trashing their plists
         for item in files where item.kind == .launchItem && !item.isSystem {
             Shell.run("/bin/launchctl", ["bootout", "gui/\(getuid())", item.path])
         }

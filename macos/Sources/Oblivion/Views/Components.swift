@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: - Window chrome (blur / translucency)
 
-/// AppKit vibrancy view — gives the window its frosted-glass look.
+// appkit vibrancy view (frosted glass look)
 struct VisualEffectView: NSViewRepresentable {
     var material: NSVisualEffectView.Material
     var blending: NSVisualEffectView.BlendingMode = .behindWindow
@@ -22,7 +22,7 @@ struct VisualEffectView: NSViewRepresentable {
     }
 }
 
-/// Makes the hosting window translucent and draggable by its background.
+// makes the window translucent and draggable from the background
 struct WindowConfigurator: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
@@ -139,7 +139,7 @@ private struct OBButtonBody: View {
 
 struct LogoMark: View {
     var size: CGFloat = 42
-    /// Kept for existing call sites; the mark no longer animates.
+    // left for old call sites, the mark doesn't animate anymore
     var glow = true
 
     var body: some View {
@@ -155,7 +155,7 @@ struct LogoMark: View {
     }
 }
 
-/// The ring-and-particles mark on its own (no tile).
+// just the ring + particles mark, no tile
 struct OblivionGlyph: View {
     private struct Particle {
         let deg: Double
@@ -164,7 +164,7 @@ struct OblivionGlyph: View {
         let opacity: Double
     }
 
-    /// Angle, distance past the ring (in line widths), radius (in line widths), opacity.
+    // angle, distance from the ring (line widths), radius (line widths), opacity
     private static let particles = [
         Particle(deg: -46, out: 0.10, size: 0.36, opacity: 1.0),
         Particle(deg: -39, out: 1.15, size: 0.24, opacity: 0.8),
@@ -181,7 +181,7 @@ struct OblivionGlyph: View {
             let r = d / 2
             let c = CGPoint(x: geo.size.width / 2, y: geo.size.height / 2)
             ZStack {
-                // Opening from -66° to -26° (clockwise from 3 o'clock, y down): the arc covers the other 320°.
+                // gap from -66 to -26 deg (clockwise from 3 o'clock, y down), the arc is the other 320
                 Circle()
                     .trim(from: 0, to: 320.0 / 360.0)
                     .stroke(ring, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
@@ -201,7 +201,7 @@ struct OblivionGlyph: View {
     }
 }
 
-/// Round "i" button that opens About.
+// round i button -> about
 struct InfoButton: View {
     let help: String
     let action: () -> Void
@@ -251,8 +251,7 @@ struct AppIconView: View {
     }
 }
 
-/// Quiet icon tile used for tools and stats. `colors` only decides whether the tool is
-/// destructive (red icon); everything else is monochrome.
+// icon tile for tools/stats. colors only matters for red (destructive), the rest is monochrome
 struct GradientBadge: View {
     let symbol: String
     let colors: [UInt32]
@@ -386,7 +385,7 @@ struct LoadingView: View {
     }
 }
 
-/// Stat tile with an animated (rolling) number.
+// stat tile with a rolling number
 struct StatCard: View {
     let symbol: String
     let colors: [UInt32]
@@ -415,9 +414,8 @@ struct StatCard: View {
     }
 }
 
-/// Gradient progress bar. `value == nil` shows an indeterminate sweep.
-/// Driven by TimelineView rather than repeating animations, so it never
-/// interferes with view transitions.
+// progress bar, value == nil -> indeterminate.
+// uses TimelineView instead of repeating animations so it doesn't mess with transitions
 struct GradientProgressBar: View {
     var value: Double? = nil
     var height: CGFloat = 6
@@ -451,7 +449,7 @@ struct GradientProgressBar: View {
     }
 }
 
-/// Quiet hover feedback for clickable cards: a slightly stronger outline and shadow, no scaling.
+// hover for clickable cards: stronger border + shadow, no scaling
 struct HoverLift: ViewModifier {
     @State private var hover = false
     @Environment(\.colorScheme) private var scheme
@@ -473,7 +471,7 @@ extension View {
 
 // MARK: - Live gauges
 
-/// Circular gauge (0…1) in the accent colour; value changes ease briefly.
+// circular gauge 0...1, short ease on changes
 struct RingGauge: View {
     var value: Double
     var colors: [UInt32] = [0x4F6BED]
@@ -494,7 +492,7 @@ struct RingGauge: View {
     }
 }
 
-/// Compact ring gauge with the value in the middle and a caption below.
+// small ring gauge, value in the middle, caption below
 struct MiniGauge: View {
     let title: String
     let value: Double
@@ -528,8 +526,8 @@ struct MiniGauge: View {
     }
 }
 
-/// A one-off particle burst (about a second) for "done" moments, built from ordinary animated
-/// shapes. Skipped when motion is reduced or the graphics hardware can't do effects.
+// ~1s particle burst when something finishes, just animated shapes.
+// skipped with reduced motion or when the gpu can't do effects
 struct Burst: View {
     var count = 28
     var spread: Double = 90
@@ -570,7 +568,7 @@ struct Burst: View {
     }
 }
 
-/// Small area chart for a rolling history of values.
+// small area chart for recent values
 struct Sparkline: View {
     let values: [Double]
     var maximum: Double? = nil
@@ -603,8 +601,7 @@ struct Sparkline: View {
     }
 }
 
-/// "Live" indicator: a steady dot with a soft halo. It does not pulse, so an idle window
-/// never has to redraw.
+// live dot with a halo. doesn't pulse on purpose so an idle window never redraws
 struct LiveDot: View {
     var color: Color = Palette.success
 
@@ -617,7 +614,7 @@ struct LiveDot: View {
     }
 }
 
-/// Fade + rise entrance, once, when a card first appears.
+// fade + rise the first time a card appears
 struct AppearIn: ViewModifier {
     var delay: Double = 0
     @EnvironmentObject private var prefs: Prefs
@@ -643,7 +640,7 @@ extension View {
 
 // MARK: - Confirmation sheet
 
-/// A destructive action waiting for the user's OK, with the exact list of what it affects.
+// destructive action waiting for confirmation, with the exact list
 struct ConfirmRequest: Identifiable {
     let id = UUID()
     var title: String
@@ -715,7 +712,7 @@ struct ConfirmSheet: View {
     }
 }
 
-/// Tri-state checkbox for "select everything in this group".
+// tri-state "select all in group" checkbox
 struct TriStateCheckbox: View {
     let state: Bool?
     let action: () -> Void

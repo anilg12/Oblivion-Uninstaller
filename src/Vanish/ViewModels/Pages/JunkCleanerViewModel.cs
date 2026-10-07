@@ -6,11 +6,8 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>
-/// Junk cleaner. Categories are scanned automatically (read-only), but NOTHING is ticked
-/// for the user: each category expands to show exactly which files and folders would go,
-/// and cleaning always asks for confirmation with the list.
-/// </summary>
+// junk cleaner. categories get scanned automatically (read only) but NOTHING is ticked,
+// each category shows exactly what would be deleted and cleaning always asks first
 public sealed partial class JunkCleanerViewModel : PageViewModel
 {
     private readonly IJunkCleanerService _service;
@@ -165,7 +162,7 @@ public sealed partial class JunkCleanerViewModel : PageViewModel
             Log.Append("Log_Junk", F("Log_JunkDetailFmt", ByteSize.Humanize(freed), removed));
             Toast.Show(F("Junk_ToastFmt", ByteSize.Humanize(freed)), ToastKind.Success);
 
-            // Show what is left in the cleaned categories (nothing is re-ticked).
+            // show what's left in the cleaned categories (nothing re-ticked)
             foreach (var x in picked) x.Category.IsExpanded = false;
             await Task.WhenAll(picked.Select(x => ScanOneAsync(x.Category, CancellationToken.None)));
         }

@@ -10,7 +10,7 @@ enum Page: String, CaseIterable, Identifiable {
     static let toolPages: [Page] = [.tools, .startup, .junk, .largeFiles, .shredder, .history]
 }
 
-/// User preferences (persisted in UserDefaults).
+// user prefs (UserDefaults)
 final class Prefs: ObservableObject {
     @Published var appearance: String {
         didSet { UserDefaults.standard.set(appearance, forKey: "oblivion.appearance") }
@@ -18,11 +18,11 @@ final class Prefs: ObservableObject {
     @Published var confirmBeforeDelete: Bool {
         didSet { UserDefaults.standard.set(confirmBeforeDelete, forKey: "oblivion.confirm") }
     }
-    /// The live CPU / memory / disk / network panel on the right.
+    // live cpu / memory / disk / network panel on the right
     @Published var showLivePanel: Bool {
         didSet { UserDefaults.standard.set(showLivePanel, forKey: "oblivion.livePanel") }
     }
-    /// Fewer decorative animations (also on when macOS "Reduce motion" is set).
+    // fewer animations (also on if macOS reduce motion is set)
     @Published var reduceMotion: Bool {
         didSet { UserDefaults.standard.set(reduceMotion, forKey: "oblivion.reduceMotion") }
     }
@@ -35,7 +35,7 @@ final class Prefs: ObservableObject {
         reduceMotion = defaults.object(forKey: "oblivion.reduceMotion") as? Bool ?? false
     }
 
-    /// True when decorative, continuously running animations should be skipped.
+    // skip the decorative looping animations
     var calmMotion: Bool {
         reduceMotion || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion
     }
@@ -57,24 +57,24 @@ final class Prefs: ObservableObject {
     }
 }
 
-/// Shared app state: navigation, the installed-app catalog and the uninstall flow.
+// app state: navigation, installed apps, uninstall flow
 @MainActor
 final class AppState: ObservableObject {
     enum Stage: Equatable {
         case browsing, working, review, done
     }
 
-    // Navigation
+    // navigation
     @Published var page: Page = .dashboard
 
-    // Catalog
+    // catalog
     @Published var apps: [InstalledApp] = []
     @Published var isLoadingApps = false
     @Published var sizesPending = 0
     @Published var selectedAppID: InstalledApp.ID?
     @Published var search = ""
 
-    // Uninstall flow
+    // uninstall flow
     @Published var stage: Stage = .browsing
     @Published var workKey = "work.scanning"
     @Published var leftovers: [Leftover] = []
@@ -84,16 +84,16 @@ final class AppState: ObservableObject {
     @Published var removedCount = 0
     @Published var appRemoved = false
 
-    // Dialogs
+    // dialogs
     @Published var showAbout = false
-    /// Pending destructive action, shown as a sheet with the exact list of what it affects.
+    // pending destructive action, shown as a sheet with the exact list
     @Published var confirm: ConfirmRequest?
     @Published var confirmApp: InstalledApp?
     @Published var showForceSheet = false
     @Published var forceQuery = ""
     @Published var errorMessageKey: String?
 
-    // Dashboard / right panel
+    // dashboard / right panel
     @Published var recentActivity: [LogEntry] = []
     @Published var launchItemCount = 0
     @Published var diskFree: Int64 = 0
@@ -102,8 +102,8 @@ final class AppState: ObservableObject {
 
     weak var prefs: Prefs?
 
-    /// When the "working" screen appeared; it stays up for at least `minWorkTime`
-    /// so quick operations don't flash or cut its transition short.
+    // when the working screen showed up. it stays at least minWorkTime so fast operations
+    // don't just flash it
     private var workStartedAt = Date()
     private let minWorkTime: TimeInterval = 0.9
 
@@ -230,8 +230,8 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// "Force uninstall": scans aggressively for an app name / bundle id — even
-    /// for apps that are already gone — and removes the bundle if it still exists.
+    // force uninstall: aggressive scan for a name / bundle id (works for already deleted apps too),
+    // removes the bundle if it's still there
     func forceUninstall() {
         let query = forceQuery.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return }
@@ -321,7 +321,7 @@ final class AppState: ObservableObject {
         for i in leftovers.indices { leftovers[i].selected = value }
     }
 
-    /// Ticks only the exact (bundle-id) matches — a deliberate one-click choice, never automatic.
+    // select only the exact (bundle id) matches. the user has to click this, never automatic
     func selectCertainLeftovers() {
         for i in leftovers.indices { leftovers[i].selected = leftovers[i].confidence == .high }
     }
@@ -378,7 +378,7 @@ final class AppState: ObservableObject {
         }
     }
 
-    /// Used by Hunter mode: uninstall whatever app lives at `url`.
+    // hunter mode: uninstall the app at url
     func uninstallApp(at url: URL) {
         if let app = apps.first(where: { $0.url.standardizedFileURL == url.standardizedFileURL }) ?? AppCatalog.make(url) {
             selectedAppID = app.id

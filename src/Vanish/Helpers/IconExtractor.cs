@@ -8,11 +8,8 @@ using System.Windows.Media.Imaging;
 
 namespace Vanish.Helpers;
 
-/// <summary>
-/// Extracts application icons ("path,index" DisplayIcon values, .exe/.dll/.ico files or
-/// image files) into frozen <see cref="BitmapSource"/>s. Extraction always runs on a
-/// background thread with limited parallelism; results are cached for the session.
-/// </summary>
+// extracts app icons ("path,index" DisplayIcon values, exe/dll/ico or image files) as frozen
+// BitmapSources. always on a background thread with limited parallelism, cached for the session
 public static class IconExtractor
 {
     private static readonly ConcurrentDictionary<string, BitmapSource?> Cache = new(StringComparer.OrdinalIgnoreCase);
@@ -44,12 +41,12 @@ public static class IconExtractor
     [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
     private static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, uint uFlags);
 
-    /// <summary>File types whose icon lives inside the file itself.</summary>
+    // file types whose icon lives inside the file itself
     private static readonly HashSet<string> OwnIcon = new(StringComparer.OrdinalIgnoreCase) { ".exe", ".dll", ".ico", ".cpl", ".scr", ".ocx", ".mui" };
 
     public static bool TryGetCached(string key, out BitmapSource? source) => Cache.TryGetValue(key, out source);
 
-    /// <summary>Loads (or returns the cached) icon for <paramref name="key"/> off the UI thread.</summary>
+    // loads (or returns the cached) icon for key off the UI thread
     public static Task<BitmapSource?> LoadAsync(string key)
     {
         if (Cache.TryGetValue(key, out var cached)) return Task.FromResult(cached);
@@ -108,7 +105,7 @@ public static class IconExtractor
             catch { /* fall through to shell extraction */ }
         }
 
-        // Crisp 48 px icon via the shell; ExtractIconEx (32 px) as a fallback.
+        // 48px icon from the shell, ExtractIconEx (32px) as fallback
         try
         {
             if (SHDefExtractIcon(path, index, 0, out var large, out var small, (16u << 16) | 48u) == 0 && large != IntPtr.Zero)
@@ -137,7 +134,7 @@ public static class IconExtractor
         return null;
     }
 
-    /// <summary>The icon Explorer shows for a file type (videos, archives, documents…), looked up by extension only.</summary>
+    // the icon Explorer shows for a file type (videos, archives, documents...), looked up by extension only
     private static BitmapSource? FileTypeIcon(string ext)
     {
         var key = "*" + ext;
@@ -163,8 +160,7 @@ public static class IconExtractor
     {
         raw = raw.Trim().Trim('"');
         int comma = raw.LastIndexOf(',');
-        // Only treat the trailing token as an index if it parses as an integer,
-        // so paths containing commas are not mangled.
+        // only treat the last part as an index if it's an int, paths can contain commas
         if (comma > 0 && int.TryParse(raw[(comma + 1)..].Trim(), out var index))
             return (raw[..comma].Trim().Trim('"'), index);
         return (raw, 0);

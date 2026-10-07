@@ -6,7 +6,7 @@ using Vanish.Services;
 
 namespace Vanish.ViewModels.Pages;
 
-/// <summary>Backup manager: the .reg backups Oblivion made before deleting registry items, and System Restore points.</summary>
+// backup manager: .reg backups made before deleting registry items + restore points
 public sealed partial class BackupsViewModel : PageViewModel
 {
     private readonly ISystemRestoreService _restore;

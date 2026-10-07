@@ -17,7 +17,7 @@
                 </Button>
             </c:PageHeader>
 
-            <!-- ============ Health ============ -->
+            <!-- health -->
             <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="24" c:Reveal.Enabled="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -61,7 +61,7 @@
                 </Grid>
             </Border>
 
-            <!-- ============ Stats ============ -->
+            <!-- stats -->
             <UniformGrid Columns="4" Margin="-6,14,-6,0" c:Reveal.Enabled="True" c:Reveal.Delay="70">
                 <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16" Command="{Binding GoCommand}" CommandParameter="Uninstaller">
                     <StackPanel>
@@ -97,7 +97,7 @@
                 </Button>
             </UniformGrid>
 
-            <!-- ============ Quick actions ============ -->
+            <!-- quick actions -->
             <TextBlock Text="{h:L Dash_QuickActions}" Style="{StaticResource OB.Section}" Margin="0,18,0,4" />
             <UniformGrid Columns="3" Margin="-6,0,-6,0">
                 <Button Style="{StaticResource OB.Tile}" Margin="6" Padding="16,14" Command="{Binding GoCommand}" CommandParameter="Uninstaller"
@@ -162,7 +162,7 @@
                 </Button>
             </UniformGrid>
 
-            <!-- ============ Recent activity ============ -->
+            <!-- recent activity -->
             <Border Style="{StaticResource OB.CardBox}" CornerRadius="12" Margin="0,14,0,0" c:Reveal.Enabled="True" c:Reveal.Delay="160">
                 <StackPanel>
                     <Grid Margin="0,0,0,10">

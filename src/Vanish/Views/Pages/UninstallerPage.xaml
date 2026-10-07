@@ -25,7 +25,7 @@
             </StackPanel>
         </c:PageHeader>
 
-        <!-- =============================== BROWSING =============================== -->
+        <!-- browsing -->
         <Grid Grid.Row="1" Visibility="{Binding IsBrowsing, Converter={StaticResource BoolToVisibility}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -166,7 +166,7 @@
                           Visibility="{Binding ShowEmpty, Converter={StaticResource BoolToVisibility}}" />
         </Grid>
 
-        <!-- =============================== WORKING =============================== -->
+        <!-- working -->
         <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="28" HorizontalAlignment="Center" VerticalAlignment="Center"
                 Width="520" Visibility="{Binding IsWorking, Converter={StaticResource BoolToVisibility}}" c:PopIn.Enabled="True">
             <StackPanel>
@@ -206,7 +206,7 @@
             </StackPanel>
         </Border>
 
-        <!-- =============================== REVIEW =============================== -->
+        <!-- review -->
         <Grid Grid.Row="1" Visibility="{Binding IsReviewing, Converter={StaticResource BoolToVisibility}}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
@@ -257,7 +257,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <!-- Wraps the selection buttons onto a second line when the window is narrow. -->
+                <!-- selection buttons wrap to a second line on narrow windows -->
                 <WrapPanel Margin="0,0,0,2">
                     <Border Style="{StaticResource OB.SegmentHost}" Margin="0,0,12,6">
                         <StackPanel Orientation="Horizontal">
@@ -351,7 +351,7 @@
             </Border>
         </Grid>
 
-        <!-- =============================== DONE =============================== -->
+        <!-- done -->
         <Border Grid.Row="1" Style="{StaticResource OB.CardBox}" CornerRadius="12" Padding="30" Width="500" HorizontalAlignment="Center"
                 VerticalAlignment="Center" Visibility="{Binding IsDone, Converter={StaticResource BoolToVisibility}}">
             <StackPanel HorizontalAlignment="Center">

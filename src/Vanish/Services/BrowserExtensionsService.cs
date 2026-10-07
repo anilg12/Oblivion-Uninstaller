@@ -5,12 +5,9 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Discovers and removes browser extensions. Chromium browsers (Edge, Chrome, Brave,
-/// Vivaldi, Opera, Opera GX) keep each extension under
-/// <c>&lt;Profile&gt;\Extensions\&lt;id&gt;\&lt;version&gt;\manifest.json</c>;
-/// Firefox lists its add-ons (with real names) in each profile's extensions.json.
-/// </summary>
+// browser extensions. chromium browsers (edge, chrome, brave, vivaldi, opera, opera gx) keep them in
+// <Profile>\Extensions\<id>\<version>\manifest.json, firefox lists add-ons with real names in
+// each profile's extensions.json
 public sealed class BrowserExtensionsService
 {
     private static string Local => Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);

@@ -20,8 +20,8 @@ permissions:
   contents: write
 
 jobs:
-  # Apple Silicon runner: builds all three DMGs, runs the full self-test on the
-  # universal app, checks the thin Apple Silicon app starts, tests the installer.
+  # arm64 runner: builds all 3 dmgs, full self-test on the universal app,
+  # checks that the arm64-only app starts, tests the installer
   build:
     runs-on: macos-15
 
@@ -42,10 +42,9 @@ jobs:
           sw_vers
           uname -m
 
-      # Optional: Apple Developer ID signing + notarization (no Gatekeeper warning).
-      # Add these repository secrets to enable it: MACOS_CERT_P12 (base64 of the
-      # "Developer ID Application" .p12), MACOS_CERT_PASSWORD, APPLE_ID,
-      # APPLE_TEAM_ID, APPLE_APP_PASSWORD (app-specific password).
+      # optional developer id signing + notarization. needs these secrets:
+      # MACOS_CERT_P12 (base64 of the "Developer ID Application" .p12), MACOS_CERT_PASSWORD,
+      # APPLE_ID, APPLE_TEAM_ID, APPLE_APP_PASSWORD (app-specific password)
       - name: Import Developer ID certificate (if configured)
         env:
           MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
@@ -138,7 +137,7 @@ jobs:
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "macOS self-test screenshots"
           git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" ci-snapshots-mac
 
-  # Intel runner: the full self-test on the Intel-only app (SMC temperature path).
+  # intel runner: self-test on the x86_64-only build (SMC temperature path)
   intel:
     runs-on: macos-15-intel
     continue-on-error: true

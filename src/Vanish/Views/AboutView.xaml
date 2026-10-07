@@ -10,7 +10,7 @@
     <Border CornerRadius="16" Background="{DynamicResource OB.DialogBg}" BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1"
             ClipToBounds="True">
         <StackPanel>
-            <!-- ===== Header ===== -->
+            <!-- header -->
             <Grid Margin="28,24,16,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                     <Image Source="pack://application:,,,/Oblivion;component/Assets/OblivionLogo.png" Width="44" Height="44"
@@ -29,7 +29,7 @@
 
             <Border Style="{StaticResource OB.Divider}" Margin="28,20,28,22" />
 
-            <!-- ===== Developer ===== -->
+            <!-- developer -->
             <Grid Margin="28,0,28,0" HorizontalAlignment="Left">
                 <Border Width="56" Height="56" CornerRadius="28" Background="{DynamicResource OB.CardStrong}"
                         BorderBrush="{DynamicResource OB.Stroke}" BorderThickness="1">
@@ -38,7 +38,7 @@
                 </Border>
             </Grid>
 
-            <!-- ===== Signature + role ===== -->
+            <!-- signature + role -->
             <StackPanel Margin="28,14,28,0">
                 <TextBlock x:Name="Signature" Text="Anıl Gül" FontFamily="{StaticResource OB.DisplayFont}" FontSize="24" FontWeight="SemiBold"
                            Foreground="{DynamicResource OB.Text}">
@@ -75,7 +75,7 @@
 
             <Border Style="{StaticResource OB.Divider}" Margin="28,10,28,18" />
 
-            <!-- ===== What's new ===== -->
+            <!-- what's new -->
             <StackPanel Margin="28,0,28,0">
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
                     <ui:SymbolIcon Symbol="Sparkle24" FontSize="16" Foreground="{DynamicResource OB.Subtext}" Margin="0,0,8,0" />

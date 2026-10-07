@@ -12,11 +12,9 @@ namespace Vanish.ViewModels.Pages;
 
 public enum UninstallStage { Browsing, Working, Review, Done }
 
-/// <summary>
-/// All applications: the program list and the uninstall workflow
-/// (restore point → the app's own uninstaller → leftover scan → review → delete).
-/// Leftovers are never pre-selected; the user ticks what goes.
-/// </summary>
+// All applications: program list + uninstall flow
+// (restore point -> app's own uninstaller -> leftover scan -> review -> delete).
+// leftovers are never pre-selected
 public sealed partial class UninstallerViewModel : PageViewModel
 {
     private readonly IInstalledProgramsService _programs;
@@ -51,7 +49,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         };
     }
 
-    // ===================================================================== list
+    // list
 
     public ICollectionView Programs => _view;
 
@@ -70,7 +68,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
     partial void OnFilterChanged(string value) => RefreshView();
     partial void OnSortChanged(string value) => RefreshView();
 
-    /// <summary>"No match" placeholder: only once the list has loaded.</summary>
+    // "No match" placeholder: only once the list has loaded
     public bool ShowEmpty => IsLoaded && !IsLoading && VisibleCount == 0;
 
     partial void OnVisibleCountChanged(int value) => OnPropertyChanged(nameof(ShowEmpty));
@@ -133,7 +131,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         if (Stage == UninstallStage.Done && Target is not null) OnPropertyChanged(nameof(DoneTitle));
     }
 
-    /// <summary>Loads the list once (or again when <paramref name="force"/>); shared with the dashboard.</summary>
+    // loads the list once (or again when force), shared with the dashboard
     public Task EnsureLoadedAsync(bool force)
     {
         if (_loadTask is null || (force && _loadTask.IsCompleted)) _loadTask = LoadCoreAsync();
@@ -167,7 +165,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         }
     }
 
-    /// <summary>Finds the installed program an executable belongs to (Hunter mode).</summary>
+    // finds the installed program an executable belongs to (Hunter mode)
     public InstalledProgram? FindByExecutable(string? exePath)
     {
         if (string.IsNullOrWhiteSpace(exePath)) return null;
@@ -187,7 +185,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         return best;
     }
 
-    /// <summary>Selects a program by name (used by other pages) and opens this page.</summary>
+    // selects a program by name (used by other pages) and opens this page
     public void Reveal(InstalledProgram program)
     {
         SearchText = "";
@@ -199,7 +197,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
     public InstalledProgram? FindByName(string displayName) =>
         _all.FirstOrDefault(p => string.Equals(p.DisplayName, displayName, StringComparison.OrdinalIgnoreCase));
 
-    // ================================================================ selection
+    // selection
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasSelection))]
@@ -218,7 +216,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
 
     public string SelectionHint => SelectedProgram is { } p ? p.DisplayName : T("Apps_SelectHint");
 
-    // ================================================================= workflow
+    // workflow
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsBrowsing))]
@@ -281,7 +279,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         var ct = _cts.Token;
         try
         {
-            // What the app looks like *before* its uninstaller runs (the folder may vanish).
+            // snapshot of the app before the uninstaller runs (the folder might be gone after)
             var fingerprint = await Task.Run(() => _scan.CaptureFingerprint(program), ct);
 
             if (Settings.CreateRestorePoint)
@@ -304,7 +302,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
             bool stillInstalled = _programs.StillInstalled(program) && FolderHasFiles(fingerprint.InstallLocation);
             if (stillInstalled && !force)
             {
-                // The uninstaller was cancelled or failed: scanning now could offer the app's own files.
+                // uninstaller cancelled or failed, scanning now would offer the app's own files
                 bool scanAnyway = await Dialogs.ConfirmAsync(
                     T("Uninst_NotFinishedTitle"),
                     (result?.Message is { Length: > 0 } m ? m + "\n\n" : "") + T("Uninst_NotFinishedText"),
@@ -382,7 +380,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
     [RelayCommand]
     private void Cancel() => _cts?.Cancel();
 
-    // =================================================================== review
+    // review
 
     public ObservableCollectionEx<LeftoverItem> Leftovers { get; } = new();
     public ListCollectionView LeftoverView { get; }
@@ -488,7 +486,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         _ = EnsureLoadedAsync(true);
     }
 
-    /// <summary>Self-test only: shows the review screen for scan results without uninstalling anything.</summary>
+    // self-test only: shows the review screen for scan results without uninstalling anything
     internal void ShowReviewForSelfTest(InstalledProgram program, IReadOnlyList<LeftoverItem> items)
     {
         Target = program;
@@ -505,7 +503,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         _ = EnsureLoadedAsync(true);
     }
 
-    // ===================================================================== done
+    // done
 
     [ObservableProperty] private string _doneText = "";
     [ObservableProperty] private bool _doneHasFailures;
@@ -535,7 +533,7 @@ public sealed partial class UninstallerViewModel : PageViewModel
         Stage = UninstallStage.Browsing;
     }
 
-    // ============================================================ other commands
+    // other commands
 
     [RelayCommand(CanExecute = nameof(HasSelection))]
     private void OpenInstallFolder()

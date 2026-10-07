@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 
-/// Live Turkish / English localization (same model as the Windows version).
+// TR/EN strings, switchable at runtime (same idea as the windows app)
 final class Loc: ObservableObject {
     @Published var lang: String = "tr" {
         didSet { UserDefaults.standard.set(lang, forKey: "oblivion.lang") }
@@ -23,7 +23,7 @@ final class Loc: ObservableObject {
         (isTurkish ? Loc.tr[key] : Loc.en[key]) ?? Loc.en[key] ?? key
     }
 
-    /// Lookup with `{placeholder}` substitution.
+    // lookup + {placeholder} replace
     func t(_ key: String, _ args: [String: String]) -> String {
         var text = self[key]
         for (name, value) in args {

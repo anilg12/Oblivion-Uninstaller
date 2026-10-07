@@ -73,7 +73,7 @@ struct ToolCard: View {
     }
 }
 
-/// Header with a back button to the Tools hub.
+// header with a back button to tools
 struct ToolHeader<Trailing: View>: View {
     let title: String
     let subtitle: String
@@ -104,7 +104,7 @@ struct ToolHeader<Trailing: View>: View {
 final class StartupModel: ObservableObject {
     @Published var items: [LaunchItem] = []
     @Published var busy = false
-    /// Label of the item that could not be switched, shown as a warning.
+    // label of the item that failed to toggle (shown as a warning)
     @Published var failure: String?
 
     func load() {
@@ -126,7 +126,7 @@ final class StartupModel: ObservableObject {
         }
     }
 
-    /// Switches a user agent off or back on (launchctl disable / enable); nothing is deleted.
+    // user agent off/on with launchctl disable/enable, nothing deleted
     func setEnabled(_ item: LaunchItem, _ enabled: Bool) {
         guard item.canToggle, let index = items.firstIndex(where: { $0.id == item.id }) else { return }
         failure = nil
@@ -272,7 +272,7 @@ final class JunkModel: ObservableObject {
         if !scannedOnce { scan() }
     }
 
-    /// Lists what every category holds. Nothing is ticked: the user picks each item.
+    // list every category, nothing ticked
     func scan(keepResult: Bool = false) {
         guard !scanning else { return }
         scannedOnce = true
@@ -298,7 +298,7 @@ final class JunkModel: ObservableObject {
         }
     }
 
-    /// Removes exactly the ticked items, then lists everything again (unticked).
+    // remove the ticked items, then list again (all unticked)
     func clean(onDone: @escaping () -> Void = {}) {
         let chosen = categories.filter { $0.selectedCount > 0 }
         guard !chosen.isEmpty, !busy else { return }
@@ -445,7 +445,7 @@ struct JunkView: View {
     }
 }
 
-/// One junk category: tri-state checkbox, totals and an expandable list of its items.
+// one junk category: tri-state checkbox, totals, expandable item list
 struct JunkCategoryCard: View {
     @Binding var category: JunkCategory
     @EnvironmentObject private var loc: Loc
@@ -539,7 +539,7 @@ struct JunkCategoryCard: View {
     @ViewBuilder
     private func items(_ p: Palette) -> some View {
         if category.unreadable {
-            // The Trash can't be listed without Full Disk Access: one explicit "empty it all" choice.
+            // can't list the trash without full disk access, so just an "empty all" option
             HStack(alignment: .top, spacing: 10) {
                 Toggle("", isOn: Binding(
                     get: { category.items.first?.selected ?? false },
@@ -641,7 +641,7 @@ final class LargeFilesModel: ObservableObject {
         scanning = true
         scanned = 0
         let minBytes = Int64(thresholdMB) * 1_000_000
-        // The detached task itself is what gets cancelled, so the scan loop sees it.
+        // cancel the detached task itself so the scan loop notices
         let job = Task.detached(priority: .userInitiated) { [weak self] () -> [LargeFile] in
             LargeFilesService.scan(minBytes: minBytes, progress: { count in
                 Task { @MainActor in self?.scanned = count }

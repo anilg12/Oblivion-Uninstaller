@@ -6,16 +6,13 @@ using Vanish.Models;
 
 namespace Vanish.Services;
 
-/// <summary>
-/// Lists and removes packaged (Store / UWP / MSIX) apps through PowerShell's
-/// Appx cmdlets. The listing script is written to a temp .ps1 file so there are
-/// no nested-quote problems, and its pipe-delimited output is parsed here.
-/// </summary>
+// list/remove store (UWP/MSIX) apps with the Appx cmdlets. the list script goes into a temp .ps1
+// to avoid nested quote problems, its pipe separated output is parsed here
 public sealed class WindowsAppsService : IWindowsAppsService
 {
     private const char Sep = '|';
 
-    // Note the doubled "" inside the script: it is written verbatim to the .ps1 file.
+    // the doubled "" is on purpose, the script is written to the .ps1 as is
     private const string ListScript = @"
 [Console]::OutputEncoding = [Text.Encoding]::UTF8
 Get-AppxPackage | ForEach-Object {
@@ -32,7 +29,7 @@ Get-AppxPackage | ForEach-Object {
         try
         {
             var output = await RunPowerShellFileAsync(scriptPath, ct);
-            // Parsing + logo resolution touch the disk, so keep them off the UI thread.
+            // parsing + logo lookup hit the disk, keep it off the ui thread
             return await Task.Run<IReadOnlyList<WindowsApp>>(() => ParsePackages(output, ct), ct);
         }
         finally
@@ -72,10 +69,8 @@ Get-AppxPackage | ForEach-Object {
             .ToList();
     }
 
-    /// <summary>
-    /// Finds a package's tile logo by reading its AppxManifest.xml and locating the
-    /// actual PNG on disk (manifest paths often differ from the scaled file names).
-    /// </summary>
+    // finds the tile logo from AppxManifest.xml and the actual png on disk
+    // (manifest paths usually don't match the scaled file names)
     private static string? ResolveLogo(string? installLocation)
     {
         if (string.IsNullOrWhiteSpace(installLocation) || !Directory.Exists(installLocation))
@@ -124,7 +119,7 @@ Get-AppxPackage | ForEach-Object {
             var candidates = Directory.GetFiles(dir, nameNoExt + "*" + ext);
             if (candidates.Length == 0) return null;
 
-            // Prefer a mid/high resolution scaled asset.
+            // prefer a mid/high res scaled asset
             return candidates
                 .OrderByDescending(f => f.Contains("scale-200", StringComparison.OrdinalIgnoreCase))
                 .ThenByDescending(f => f.Contains("targetsize-44", StringComparison.OrdinalIgnoreCase))
@@ -139,7 +134,7 @@ Get-AppxPackage | ForEach-Object {
 
     public async Task<bool> RemoveAsync(WindowsApp app, CancellationToken ct = default)
     {
-        // Single quotes inside the double-quoted -Command argument are safe.
+        // single quotes are fine inside the double quoted -Command
         var command = $"Remove-AppxPackage -Package '{app.PackageFullName.Replace("'", "''")}'";
         var psi = new ProcessStartInfo
         {
@@ -182,7 +177,7 @@ Get-AppxPackage | ForEach-Object {
         return stdout;
     }
 
-    /// <summary>Turns "Microsoft.WindowsCalculator" into "Windows Calculator".</summary>
+    // turns "Microsoft.WindowsCalculator" into "Windows Calculator"
     private static string PrettifyName(string raw)
     {
         var name = raw;

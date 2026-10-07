@@ -4,7 +4,7 @@ import Foundation
 // MARK: - Startup manager (LaunchAgents / LaunchDaemons)
 
 enum LaunchItemsService {
-    /// Labels switched off with `launchctl disable` in the user's GUI domain.
+    // labels disabled with launchctl disable in the user's gui domain
     static func disabledLabels() -> Set<String> {
         let out = Shell.run("/bin/launchctl", ["print-disabled", "gui/\(getuid())"]).out
         var labels = Set<String>()
@@ -19,7 +19,7 @@ enum LaunchItemsService {
         return labels
     }
 
-    /// Switches a user launch agent off/on the way `launchctl` does it (reversible, nothing is deleted).
+    // toggles a user launch agent with launchctl (reversible, nothing deleted)
     static func setEnabled(_ item: LaunchItem, _ enabled: Bool) -> Bool {
         guard item.scope == .userAgent else { return false }
         let domain = "gui/\(getuid())"
@@ -97,7 +97,7 @@ enum JunkService {
         ]
     }
 
-    /// Lists the category's removable items, largest first. Nothing is selected.
+    // items in the category, biggest first, none selected
     static func scan(_ category: JunkCategory) -> (items: [JunkItem], unreadable: Bool) {
         let fm = FileManager.default
         var out: [JunkItem] = []
@@ -126,13 +126,13 @@ enum JunkService {
             }
         }
         if category.mode == .trash && unreadable {
-            // Without Full Disk Access the Trash can't be listed; offer emptying it through Finder.
+            // no full disk access -> can't list the trash, offer emptying it through finder
             out = [JunkItem(url: category.roots[0], name: "", size: 0, modified: nil)]
         }
         return (out.filter { $0.size > 0 || category.mode == .trash }.sorted { $0.size > $1.size }, unreadable)
     }
 
-    /// Removes exactly the selected items. Returns (items removed, bytes freed).
+    // removes only the selected items, returns (removed, bytes freed)
     static func clean(_ category: JunkCategory) -> (count: Int, bytes: Int64) {
         let fm = FileManager.default
         let chosen = category.selectedItems
@@ -166,7 +166,7 @@ enum JunkService {
                     count += 1
                     freed += item.size
                 } else {
-                    // Partly in use: delete what can be deleted inside it.
+                    // partly in use, delete what we can inside
                     let before = DiskSize.of(item.url)
                     if let kids = try? fm.contentsOfDirectory(at: item.url, includingPropertiesForKeys: nil) {
                         for kid in kids { try? fm.removeItem(at: kid) }
@@ -288,7 +288,7 @@ enum BrowserExtensionsService {
         return out
     }
 
-    /// Safari extensions ship inside apps; listed read-only via pluginkit.
+    // safari extensions live inside apps, read-only list through pluginkit
     private static func safariExtensions() -> [BrowserExtension] {
         var out: [BrowserExtension] = []
         var seen = Set<String>()
@@ -440,7 +440,7 @@ enum LargeFilesService {
 // MARK: - Shredder
 
 enum ShredderService {
-    /// Overwrites every file with random bytes, then deletes it. Returns files shredded.
+    // overwrite with random bytes then delete, returns the file count
     static func shred(_ urls: [URL], progress: @escaping (Double) -> Void) -> Int {
         let fm = FileManager.default
         var files: [URL] = []
@@ -507,7 +507,7 @@ enum HistoryCleaner {
         ]
     }
 
-    /// Clears everything except the clipboard (that one runs on the main thread). Returns items cleared.
+    // clears everything except the clipboard (that one has to run on main), returns the count
     static func clean(_ ids: Set<String>) -> Int {
         let fm = FileManager.default
         var count = 0

@@ -9,7 +9,7 @@ struct RootView: View {
 
     var body: some View {
         GeometryReader { geo in
-            // The live panel steps aside on narrow windows to give the content room.
+            // hide the live panel on narrow windows
             let showRightPanel = prefs.showLivePanel && geo.size.width >= 1300
             HStack(spacing: 0) {
                 NavPanel()
@@ -70,7 +70,7 @@ struct RootView: View {
         .padding(.top, 14)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(p.content)
-        // Every destructive action asks here first, listing exactly what it affects.
+        // all destructive actions confirm here with the full list
         .sheet(item: $state.confirm) { request in
             ConfirmSheet(request: request)
                 .environmentObject(loc)
@@ -99,7 +99,7 @@ struct RootView: View {
     }
 }
 
-/// Small square icon button for the sidebar footer (theme, language, about).
+// small square buttons in the sidebar footer (theme, language, about)
 struct RailButton: View {
     var symbol: String? = nil
     var text: String? = nil
@@ -377,7 +377,7 @@ struct ActionCard: View {
     }
 }
 
-/// The "Other commands" set, shared by the action-card menu and right-click menus.
+// "Other commands", used by the action card menu and the right click menus
 struct AppCommands: View {
     let app: InstalledApp
     var includeUninstall = true

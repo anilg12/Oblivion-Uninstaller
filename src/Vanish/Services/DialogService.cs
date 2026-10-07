@@ -12,10 +12,8 @@ namespace Vanish.Services;
 
 public enum DialogTone { Normal, Warning, Danger }
 
-/// <summary>
-/// In-window dialogs (confirmations, About) drawn on a dimmed overlay inside the main
-/// window, so they match the app instead of the grey Win32 MessageBox.
-/// </summary>
+// in-window dialogs (confirm, about) on a dimmed overlay, so they look like the app
+// and not like the grey win32 MessageBox
 public sealed class DialogService
 {
     private Grid? _root;
@@ -27,7 +25,7 @@ public sealed class DialogService
 
     public bool IsOpen => _root is { Visibility: Visibility.Visible };
 
-    /// <summary>Called by the main window once its overlay elements exist.</summary>
+    // called by the main window once its overlay elements exist
     public void Attach(Window window, Grid root, Border backdrop, ContentControl host)
     {
         _root = root;
@@ -42,7 +40,7 @@ public sealed class DialogService
         };
     }
 
-    /// <summary>Shows a confirmation and returns true when the user confirms.</summary>
+    // shows a confirmation and returns true when the user confirms
     public Task<bool> ConfirmAsync(string title, string message, string confirmText,
         DialogTone tone = DialogTone.Normal, IEnumerable<string>? details = null)
     {
@@ -127,7 +125,7 @@ public sealed class DialogService
         return Open(card, dismissOnBackdrop: true, onEnter: () => { Close(true); return true; });
     }
 
-    /// <summary>Shows arbitrary content (e.g. About); completes when it is closed.</summary>
+    // shows arbitrary content (e.g. about), completes when it is closed
     public Task<bool> ShowAsync(FrameworkElement content) =>
         Open(content, dismissOnBackdrop: true, onEnter: null);
 
@@ -136,7 +134,7 @@ public sealed class DialogService
         if (_root is null || _host is null || _backdrop is null)
             return Task.FromResult(false);
 
-        // Only one dialog at a time: a new one cancels the previous.
+        // one dialog at a time, a new one cancels the old one
         _tcs?.TrySetResult(false);
         _tcs = new TaskCompletionSource<bool>();
         _dismissOnBackdrop = dismissOnBackdrop;

@@ -19,9 +19,9 @@
     <Copyright>© 2026 ANIL GÜL</Copyright>
     <LangVersion>latest</LangVersion>
     <UseWindowsForms>false</UseWindowsForms>
-    <!-- Lets the project build on non-Windows CI/dev machines too. -->
+    <!-- so it also builds on non-windows machines -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <!-- Faster startup and first use of each screen (less JIT work while animating). -->
+    <!-- faster startup / first page loads -->
     <TieredPGO>true</TieredPGO>
     <SatelliteResourceLanguages>en;tr</SatelliteResourceLanguages>
     <InvariantGlobalization>false</InvariantGlobalization>

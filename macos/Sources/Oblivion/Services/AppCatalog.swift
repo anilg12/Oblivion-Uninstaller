@@ -1,7 +1,7 @@
 import AppKit
 import Foundation
 
-/// Discovers installed .app bundles (like Revo's "All applications").
+// finds installed .app bundles (like revo's "All applications")
 enum AppCatalog {
     static var roots: [URL] {
         [URL(fileURLWithPath: "/Applications"), AppPaths.home.appendingPathComponent("Applications")]
@@ -16,8 +16,7 @@ enum AppCatalog {
         return result.sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
-    /// Walks a folder, descending into plain folders (e.g. "Utilities",
-    /// "Adobe Photoshop 2025") but never into .app bundles.
+    // goes into normal folders ("Utilities", "Adobe Photoshop 2025") but not into .app bundles
     private static func collect(in dir: URL, depth: Int, into result: inout [InstalledApp], seen: inout Set<String>) {
         let fm = FileManager.default
         guard let items = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: [.isDirectoryKey],
@@ -35,7 +34,7 @@ enum AppCatalog {
     }
 
     static func make(_ url: URL) -> InstalledApp? {
-        // Skip SIP-protected system apps (Safari & friends live in /System).
+        // skip SIP protected system apps (safari etc. live in /System)
         if url.resolvingSymlinksInPath().path.hasPrefix("/System/") { return nil }
         guard let bundle = Bundle(url: url) else { return nil }
         let info = bundle.infoDictionary ?? [:]
@@ -77,7 +76,7 @@ enum AppCatalog {
         return .unknown
     }
 
-    /// Spotlight's "last opened" date.
+    // spotlight "last opened" date
     static func lastUsed(_ url: URL) -> Date? {
         NSMetadataItem(url: url)?.value(forAttribute: "kMDItemLastUsedDate") as? Date
     }
