@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" width="100%" alt="Oblivion — programları iz bırakmadan kaldır, bilgisayarını güvenle temizle">
+  <img src="docs/assets/banner.svg" width="100%" alt="Oblivion: programları iz bırakmadan kaldır, bilgisayarını güvenle temizle">
 </p>
 
 <p align="center">
@@ -13,7 +13,7 @@
 
 <br>
 
-<p align="center"><img src="docs/assets/section-features.svg" width="100%" alt="01 — Neler yapar?"></p>
+<p align="center"><img src="docs/assets/section-features.svg" width="100%" alt="01. Neler yapar?"></p>
 
 <p align="center">
   <img src="docs/assets/features.svg" width="100%" alt="İz bırakmadan kaldırma · Canlı sistem izleyici · Güvenli temizlik · Avcı modu · Başlangıç yöneticisi · Önce güvenlik">
@@ -23,33 +23,33 @@ Araç kutusunda ayrıca **büyük dosya bulucu**, **dosya parçalayıcı**, **ge
 
 <br>
 
-<p align="center"><img src="docs/assets/section-screens.svg" width="100%" alt="02 — Bir bakışta"></p>
+<p align="center"><img src="docs/assets/section-screens.svg" width="100%" alt="02. Bir bakışta"></p>
 
 <p align="center">
   <img src="docs/assets/windows-tour.gif" width="100%" alt="Oblivion Windows: panel, sistem izleyici, gereksiz dosyalar, kalıntılar, araçlar, hakkında">
-  <br><sub><b>Windows 10 / 11</b> — panel · sistem izleyici · gereksiz dosyalar · kalıntılar · araçlar · hakkında</sub>
+  <br><sub><b>Windows 10 / 11</b>: panel, sistem izleyici, gereksiz dosyalar, kalıntılar, araçlar, hakkında</sub>
 </p>
 
 <br>
 
 <p align="center">
   <img src="docs/assets/macos-tour.gif" width="100%" alt="Oblivion macOS: panel, uygulamalar, kalıntılar, gereksiz dosyalar, sistem izleyici">
-  <br><sub><b>macOS 14+</b> (Apple Silicon ve Intel) — panel · uygulamalar · kalıntılar · gereksiz dosyalar · sistem izleyici</sub>
+  <br><sub><b>macOS 14+</b> (Apple Silicon ve Intel): panel, uygulamalar, kalıntılar, gereksiz dosyalar, sistem izleyici</sub>
 </p>
 
 <br>
 
 <a name="indir"></a>
 
-<p align="center"><img src="docs/assets/section-download.svg" width="100%" alt="03 — İndir"></p>
+<p align="center"><img src="docs/assets/section-download.svg" width="100%" alt="03. İndir"></p>
 
 | Bilgisayarın | Dosya | |
 |---|---|---|
-| **Windows 10 / 11** | [Oblivion-3.1.0-Windows-Setup.exe](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-Windows-Setup.exe) | Kurulum sihirbazı — önerilen |
+| **Windows 10 / 11** | [Oblivion-3.1.0-Windows-Setup.exe](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-Windows-Setup.exe) | Kurulum sihirbazı (önerilen) |
 | Windows, kurulumsuz | [Oblivion-3.1.0-Windows-Portable.exe](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-Windows-Portable.exe) | Tek dosya, çift tıkla çalışır |
-| **Mac — Apple Silicon** | [Oblivion-3.1.0-macOS-AppleSilicon.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-AppleSilicon.dmg) | M1, M2, M3, M4 ve sonrası |
-| **Mac — Intel** | [Oblivion-3.1.0-macOS-Intel.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-Intel.dmg) | Intel işlemcili Mac'ler |
-| Mac — emin değilim | [Oblivion-3.1.0-macOS-Universal.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-Universal.dmg) | Her Mac'te çalışır |
+| **Mac, Apple Silicon** | [Oblivion-3.1.0-macOS-AppleSilicon.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-AppleSilicon.dmg) | M1, M2, M3, M4 ve sonrası |
+| **Mac, Intel** | [Oblivion-3.1.0-macOS-Intel.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-Intel.dmg) | Intel işlemcili Mac'ler |
+| Mac, emin değilim | [Oblivion-3.1.0-macOS-Universal.dmg](https://github.com/anilg12/Oblivion-Uninstaller/releases/latest/download/Oblivion-3.1.0-macOS-Universal.dmg) | Her Mac'te çalışır |
 
 **Windows:** Setup dosyasını çalıştır ve sihirbazı takip et. Önceki sürüm kuruluysa yerinde güncellenir.
 **Mac:** DMG'yi aç ve Oblivion'u **Uygulamalar** klasörüne sürükle. En iyi sonuç için Oblivion'a **Tam Disk Erişimi** ver; uygulamanın içinde bunu açan bir düğme var.
@@ -58,7 +58,7 @@ Tüm sürüm notları [Sürümler](https://github.com/anilg12/Oblivion-Uninstall
 
 <br>
 
-<p align="center"><img src="docs/assets/section-more.svg" width="100%" alt="04 — Daha fazlası"></p>
+<p align="center"><img src="docs/assets/section-more.svg" width="100%" alt="04. Daha fazlası"></p>
 
 <details>
 <summary><b>Güvenlik ilkeleri</b></summary>
@@ -100,13 +100,13 @@ Her değişiklikte GitHub Actions iki platformda da uygulamayı açar, her sayfa
 <summary><b>English</b></summary>
 <br>
 
-**Oblivion** removes programs without a trace, cleans your computer safely and shows your system live — on Windows 10 / 11 and macOS 14+ (Apple Silicon and Intel).
+**Oblivion** removes programs without a trace, cleans your computer safely and shows your system live, on Windows 10 / 11 and macOS 14+ (Apple Silicon and Intel).
 
-- **Clean uninstalls** — runs the program's own uninstaller, then finds leftovers in the file system and registry (`~/Library` and `/Library` on a Mac), each with the reason it was found and a confidence level.
-- **Live system monitor** — CPU, memory, CPU temperature, network, disks, battery and the busiest processes.
-- **Safe cleaning** — nothing is pre-selected; every file is listed and only what you tick is removed, after a confirmation with the full list.
+- **Clean uninstalls:** runs the program's own uninstaller, then finds leftovers in the file system and registry (`~/Library` and `/Library` on a Mac), each with the reason it was found and a confidence level.
+- **Live system monitor:** CPU, memory, CPU temperature, network, disks, battery and the busiest processes.
+- **Safe cleaning:** nothing is pre-selected, every file is listed and only what you tick is removed, after a confirmation with the full list.
 - **Hunter mode, startup manager, install monitor, browser extensions**, plus large files, file shredder, history & privacy, evidence remover and backup manager.
-- **Safety first** — Windows, Microsoft, Apple and shared locations are never offered, and there is always a way back (restore point / Recycle Bin / Trash).
+- **Safety first:** Windows, Microsoft, Apple and shared locations are never offered, and there is always a way back (restore point / Recycle Bin / Trash).
 
 Download the Windows installer or the Mac DMG with the buttons at the top, or pick a file from the table above. To build from source: double-click `build.bat` on Windows, or run `cd macos && ./build-mac.sh` on a Mac.
 
@@ -119,7 +119,7 @@ Download the Windows installer or the Mac DMG with the buttons at the top, or pi
 Projelerim ve hakkımda daha fazla bilgi için kişisel web siteme göz atabilirsiniz.
 
 <p>
-  <a href="https://anilg12.github.io/"><img src="docs/assets/portfolio.svg" width="380" alt="Portfolyomu ziyaret et — anilg12.github.io"></a>
+  <a href="https://anilg12.github.io/"><img src="docs/assets/portfolio.svg" width="380" alt="Portfolyomu ziyaret et: anilg12.github.io"></a>
 </p>
 
 <a href="https://anilg12.github.io/"><img src="https://opengraph.githubassets.com/1/anilg12/anilg12.github.io" width="100%" alt="anilg12.github.io önizlemesi"></a>

@@ -6,11 +6,11 @@
 
 | Bilgisayarın | Dosya |
 |---|---|
-| **Windows 10 / 11** — önerilen | `Oblivion-{version}-Windows-Setup.exe` — kurulum sihirbazı |
-| Windows, kurulumsuz | `Oblivion-{version}-Windows-Portable.exe` — tek dosya, çift tıkla çalışır |
-| **Mac — Apple Silicon** (M1, M2, M3, M4…) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
-| **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
-| Mac — emin değilim | `Oblivion-{version}-macOS-Universal.dmg` — her Mac'te çalışır |
+| **Windows 10 / 11** (önerilen) | `Oblivion-{version}-Windows-Setup.exe`, kurulum sihirbazı |
+| Windows, kurulumsuz | `Oblivion-{version}-Windows-Portable.exe`, tek dosya, çift tıkla çalışır |
+| **Mac, Apple Silicon** (M1, M2, M3, M4...) | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
+| **Mac, Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
+| Mac, emin değilim | `Oblivion-{version}-macOS-Universal.dmg`, her Mac'te çalışır |
 
 ### {version} ile gelenler
 
@@ -38,11 +38,11 @@
 
 | Your computer | Download |
 |---|---|
-| **Windows 10 / 11** (recommended) | `Oblivion-{version}-Windows-Setup.exe` — installer |
-| Windows, no install | `Oblivion-{version}-Windows-Portable.exe` — single file |
-| **Mac — Apple Silicon** | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
-| **Mac — Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
-| Mac — not sure | `Oblivion-{version}-macOS-Universal.dmg` — runs on every Mac |
+| **Windows 10 / 11** (recommended) | `Oblivion-{version}-Windows-Setup.exe`, installer |
+| Windows, no install | `Oblivion-{version}-Windows-Portable.exe`, single file |
+| **Mac, Apple Silicon** | `Oblivion-{version}-macOS-AppleSilicon.dmg` |
+| **Mac, Intel** | `Oblivion-{version}-macOS-Intel.dmg` |
+| Mac, not sure | `Oblivion-{version}-macOS-Universal.dmg`, runs on every Mac |
 
 **New in {version}:** a redesign from scratch (calm graphite tones, one accent colour, hairline borders, a single tidy sidebar), a new app icon and installer artwork. On Windows the desktop and background windows no longer flicker while Oblivion has focus, and shortcuts show the new icon right after installing.
 

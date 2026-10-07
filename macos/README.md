@@ -2,7 +2,7 @@
 
 Native **SwiftUI** version of Oblivion for Apple Silicon (M1–M4) and Intel Macs,
 running on **macOS 14 Sonoma, 15 Sequoia and 26 Tahoe**. Same feature set and
-design language as the Windows app — rebuilt around how macOS actually stores apps.
+design language as the Windows app, adapted to how macOS stores apps.
 
 ## Features
 
@@ -10,7 +10,7 @@ design language as the Windows app — rebuilt around how macOS actually stores 
 |---|---|
 | **All applications** | Every `.app` in `/Applications` and `~/Applications` with real icons, size, version, architecture (Apple Silicon / Universal / Intel), install & last-opened dates. Sortable, searchable. |
 | **Uninstall** | Quits the app, moves it to the Trash, then deep-scans `~/Library` and `/Library` (Application Support, Caches, Preferences, Containers, Group Containers, Saved State, LaunchAgents/Daemons, PrivilegedHelperTools, cookies, logs…) and `pkgutil` receipts. Each leftover gets a confidence score; you review before anything is removed. |
-| **Force uninstall** | Aggressive scan by name or bundle ID — even for apps that are already deleted or broken. Drag an app onto the dialog to fill it in. |
+| **Force uninstall** | Aggressive scan by name or bundle ID, even for apps that are already deleted or broken. Drag an app onto the dialog to fill it in. |
 | **Other commands** | Open, Show in Finder, Show package contents, Get Info, copy details, search the web. |
 | **App Store apps** | Mac App Store apps (`_MASReceipt`), removable with admin approval. |
 | **Monitored installs** | Baseline → install → compare: see (and remove) everything an installer added. |
